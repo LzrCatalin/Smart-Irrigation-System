@@ -8,20 +8,37 @@ db_init()
 
 #######################
 #
-#   Fetch data for sensors
+#   Database path for sensors
 #
 #######################
-ref = db.reference('irrigation-system/sensor_data')
+DB_REF = 'irrigation-system/sensor_data'
+
+#
+#	Retrieve all sensors data
+#
+def get_sensors_data():
+	# TODO : Work on return statement
+	print("Retrieving all sensors ... ")
+	ref = db.reference(f'{DB_REF}')
+
+	sensors_data = ref.get()
+
+	if sensors_data is None:
+		print("No available sensors ... ")
+
+	print("Successfully retrieved sensors data")
+	return sensors_data
 
 #
 # Retrieve sensor data by ID
 #
 def get_sensor_data(sensor_id):
-	
+
 	# TODO : Work on logical part
 	print(f"Retriving data for id: {sensor_id}")
 	
-	ref = db.reference(f'irrigation-system/sensor_data/{sensor_id}')
+	# Path to fetch wanted data
+	ref = db.reference(f'{DB_REF}/{sensor_id}')
 	sensor_data = ref.get()
 
 	# Check if data exists
@@ -44,6 +61,9 @@ def get_sensor_data(sensor_id):
 def add_sensor(sensor):
 	id_sensor = id_incrementation('sensor')
 	print(f"Add sensor with id: {id_sensor}")
+
+	# Fetch path
+	ref = db.reference(f'{DB_REF}')
 
 	# Add data with custom ID
 	ref.child(f"{id_sensor}").set({
@@ -71,6 +91,9 @@ def update_sensor_by_id(sensor_id, update_data):
 	existing_sensor.temperature = update_data.temperature if update_data.temperature else existing_sensor.temperature
 	existing_sensor.humidity = update_data.humidity if update_data.humidity else existing_sensor.humidity
 	
+	# Fetch path
+	ref = db.reference(f'{DB_REF}')
+
 	# Update sensor	
 	ref.child(f"{sensor_id}").set({
 		'sensor_name': existing_sensor.name,
@@ -89,6 +112,9 @@ def detele_sensor_by_id(sensor_id):
 
 	# Fetch sensor with id
 	get_sensor_data(sensor_id)
+
+	# Fetch path
+	ref = db.reference(f'{DB_REF}')
 
 	# Delete if id found
 	ref.child(f"{sensor_id}").delete()
