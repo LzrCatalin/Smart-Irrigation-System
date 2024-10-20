@@ -9,9 +9,9 @@ from http import HTTPStatus
 import sys
 sys.path.append("src")
 
-from firebase.services import sensors_services
-from classes.Sensor import Sensor
-from sensors.testFunctions import *
+from src.firebase.services import sensors_services
+from src.classes.Sensor import Sensor
+from src.sensors.testFunctions import *
 
 SENSORS_URL = '/api/sensors'
 
@@ -97,8 +97,8 @@ def create_sensors_controller(app: Flask):
 		# Create Sensor object
 		sensor = Sensor(
 			name = sensor_data['sensor_name'],
-			temperature = sensor_data['temperature'],
-			humidity = sensor_data['humidity']
+			temperature = calculate_temperature_percentage(),
+			humidity = calculate_moisture_percentage()
 		)
 
 		# Call service function for update

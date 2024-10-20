@@ -1,7 +1,7 @@
 from firebase_admin import credentials, db
-from firebase.custom_id import id_incrementation
-from firebase.db_init import db_init
-from classes.Sensor import Sensor
+from src.firebase.custom_id import id_incrementation
+from src.firebase.db_init import db_init
+from src.classes.Sensor import Sensor
 
 # Database init
 db_init()
@@ -12,6 +12,25 @@ db_init()
 #
 #######################
 DB_REF = 'irrigation-system/sensor_data'
+
+#
+#	Retrieve all sensors ids
+#
+def get_sensors_ids():
+	print("Retrieving all sensors ids ...")
+	ref = db.reference(f'{DB_REF}')
+	sensors_data = ref.get()
+	
+	sensor_ids = []
+	# Iterate through the list of sensors from db
+	for index, sensor in enumerate(sensors_data):
+		# Hardcoded each sensor id
+		if sensor is not None:
+			sensor_id = str(index)
+			sensor_ids.append(sensor_id)
+	
+	print(f"Sensor IDs: {sensor_ids}")
+	return sensor_ids
 
 #
 #	Retrieve all sensors data
@@ -119,3 +138,6 @@ def detele_sensor_by_id(sensor_id):
 	# Delete if id found
 	ref.child(f"{sensor_id}").delete()
 	print(f"Successfully delete data for sensor id: {sensor_id}")
+
+
+get_sensors_ids()
