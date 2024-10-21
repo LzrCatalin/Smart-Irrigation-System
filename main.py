@@ -1,4 +1,4 @@
-import atexit
+import os, atexit, logging
 from flask import Flask, jsonify, request
 from flask_apscheduler import APScheduler
 from src.classes.SensorScheduler import SensorScheduler
@@ -15,6 +15,17 @@ app = Flask(__name__)
 
 ####################
 #
+#   Logging config
+#
+####################
+logging.basicConfig(
+    level = logging.INFO,
+    format =  '%(levelname)s - %(message)s',
+    handlers = [logging.StreamHandler()]
+)
+
+####################
+#
 #   Scheduler configurations
 #
 ####################
@@ -27,10 +38,7 @@ app.config.from_object(Config())
 sensors_scheduler = SensorScheduler(app)
 
 # Start periodic update at a 30 seconds interval
-sensors_scheduler.schedule_sensor_updates(5)
-
-# Scheduler shutdown
-sensors_scheduler.scheduler_shutdown
+sensors_scheduler.schedule_sensor_updates(10)
 
 ####################
 #
@@ -40,5 +48,5 @@ sensors_scheduler.scheduler_shutdown
 create_sensors_controller(app)
 
 if __name__ == '__main__':
-    app.run(debug=True, host = "0.0.0.0", port = 8080)
+    app.run(debug=False, host = "0.0.0.0", port = 8080)
     

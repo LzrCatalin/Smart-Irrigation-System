@@ -1,3 +1,4 @@
+import logging
 from firebase_admin import credentials, db
 
 #####################
@@ -10,7 +11,7 @@ def id_incrementation(type):
     id_ref = db.reference(f'irrigation-system/{type}_current_id')
     current_id = id_ref.get()  
 
-    print(f"Fetched current ID: {current_id}")
+    logging.info(f"Fetched last db sensors ID: {current_id}")
 
     # Initialize ID if it doesn't exist
     if current_id is None:

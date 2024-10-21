@@ -1,3 +1,5 @@
+import logging
+from colorama import Fore, Style
 from firebase_admin import credentials, db
 from src.firebase.custom_id import id_incrementation
 from src.firebase.db_init import db_init
@@ -17,7 +19,7 @@ DB_REF = 'irrigation-system/sensor_data'
 #	Retrieve all sensors ids
 #
 def get_sensors_ids():
-	print("Retrieving all sensors ids ...")
+	logging.info("Fetching sensor IDs...")
 	ref = db.reference(f'{DB_REF}')
 	sensors_data = ref.get()
 	
@@ -29,32 +31,31 @@ def get_sensors_ids():
 			sensor_id = str(index)
 			sensor_ids.append(sensor_id)
 	
-	print(f"Sensor IDs: {sensor_ids}")
+	logging.info(f"Sensor IDs: {sensor_ids}")
 	return sensor_ids
 
 #
 #	Retrieve all sensors data
 #
 def get_sensors_data():
-	# TODO : Work on return statement
-	print("Retrieving all sensors ... ")
+	logging.info("Fetching sensors data...")
 	ref = db.reference(f'{DB_REF}')
 
 	sensors_data = ref.get()
 
 	if sensors_data is None:
-		print("No available sensors ... ")
+		logging.warning(Fore.YELLOW +
+			"No available sensors ... " +
+			Style.RESET_ALL)
 
-	print("Successfully retrieved sensors data")
+	logging.info("Successfully retrieved sensors data")
 	return sensors_data
 
 #
 # Retrieve sensor data by ID
 #
 def get_sensor_data(sensor_id):
-
-	# TODO : Work on logical part
-	print(f"Retriving data for id: {sensor_id}")
+	logging.info(f"Fetching data for id: {sensor_id}")
 	
 	# Path to fetch wanted data
 	ref = db.reference(f'{DB_REF}/{sensor_id}')
@@ -62,10 +63,10 @@ def get_sensor_data(sensor_id):
 
 	# Check if data exists
 	if sensor_data is None:
-		print(f"No data found for sensor with id: {sensor_id}")
-		return 404
+		logging.warning(f"No data found for sensor with id: {sensor_id}")
+		return None
 	
-	print(f"Successfully retrieved data for sensor id: {sensor_id}")
+	logging.info(f"Successfully fetched data for sensor id: {sensor_id}")
 	return sensor_data
 
 #######################
@@ -79,7 +80,7 @@ def get_sensor_data(sensor_id):
 #
 def add_sensor(sensor):
 	id_sensor = id_incrementation('sensor')
-	print(f"Add sensor with id: {id_sensor}")
+	logging.info(f"Add Process: Sensor id: {id_sensor}")
 
 	# Fetch path
 	ref = db.reference(f'{DB_REF}')
@@ -92,13 +93,14 @@ def add_sensor(sensor):
 		'timestamp':  {".sv": "timestamp"}
 	})
 
-	print("Successfully added sensor data.")
+	logging.info(Fore.GREEN + 
+	   "Successfully added new sensor data." +
+	   Style.RESET_ALL)
 
 #
 #	Update
 #
 def update_sensor_by_id(sensor_id, update_data):
-	print("Inside update sensor function ...")
 	# Fetch sensor with id
 	updated_sensor = get_sensor_data(sensor_id)
 
@@ -121,14 +123,15 @@ def update_sensor_by_id(sensor_id, update_data):
 		'timestamp':  {".sv": "timestamp"}
 	})
 
-	print(f"Successfully updated sensor data for id: {sensor_id}")
+	logging.info(Fore.GREEN + 
+	   f"Successfully updated sensor data for id: {sensor_id}" 
+	   + Style.RESET_ALL)
 
 #
 #	Delete
 #
 def detele_sensor_by_id(sensor_id):
-	print(f"Deleting sensor id: {sensor_id} ...")
-
+	logging.info(f"Delete sensor id: {sensor_id}")
 	# Fetch sensor with id
 	get_sensor_data(sensor_id)
 
@@ -137,7 +140,6 @@ def detele_sensor_by_id(sensor_id):
 
 	# Delete if id found
 	ref.child(f"{sensor_id}").delete()
-	print(f"Successfully delete data for sensor id: {sensor_id}")
-
-
-get_sensors_ids()
+	logging.info(Fore.GREEN + 
+	   f"Successfully delete data for sensor id: {sensor_id}" +
+	   Style.RESET_ALL)
