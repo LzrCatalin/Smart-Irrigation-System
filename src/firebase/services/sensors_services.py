@@ -14,23 +14,27 @@ db_init()
 #
 #######################
 DB_REF = 'irrigation-system/sensor_data'
+REF = db.reference(f'{DB_REF}')
 
 #
 #	Retrieve all sensors ids
 #
 def get_sensors_ids():
 	logging.info("Fetching sensor IDs...")
-	ref = db.reference(f'{DB_REF}')
-	sensors_data = ref.get()
-	
+	# Fetch data
+	sensors_data = REF.get()
+	print(sensors_data)
+
+	if sensors_data is None:
+		logging.warning("No sensors ids found.")
+		return []
+
+	# Populate ids array
 	sensor_ids = []
-	# Iterate through the list of sensors from db
-	for index, sensor in enumerate(sensors_data):
-		# Hardcoded each sensor id
+	for sensor in sensors_data:
 		if sensor is not None:
-			sensor_id = str(index)
-			sensor_ids.append(sensor_id)
-	
+			sensor_ids.append(sensor['id'])
+
 	logging.info(f"Sensor IDs: {sensor_ids}")
 	return sensor_ids
 
@@ -39,14 +43,15 @@ def get_sensors_ids():
 #
 def get_sensors_data():
 	logging.info("Fetching sensors data...")
-	ref = db.reference(f'{DB_REF}')
 
-	sensors_data = ref.get()
+	# Fetch data
+	sensors_data = REF.get()
 
 	if sensors_data is None:
 		logging.warning(Fore.YELLOW +
 			"No available sensors ... " +
 			Style.RESET_ALL)
+		return None
 
 	logging.info("Successfully retrieved sensors data")
 	return sensors_data
@@ -82,14 +87,13 @@ def add_sensor(sensor):
 	id_sensor = id_incrementation('sensor')
 	logging.info(f"Add Process: Sensor id: {id_sensor}")
 
-	# Fetch path
-	ref = db.reference(f'{DB_REF}')
-
 	# Add data with custom ID
-	ref.child(f"{id_sensor}").set({
+	REF.child(f"{id_sensor}").set({
+		'id': id_sensor,
 		'sensor_name' : sensor.name,
 		'temperature': sensor.temperature,
 		'humidity': sensor.humidity,
+		'port': sensor.port,
 		'timestamp':  {".sv": "timestamp"}
 	})
 
@@ -108,18 +112,19 @@ def update_sensor_by_id(sensor_id, update_data):
 	existing_sensor = Sensor.from_dict(updated_sensor)
 
 	# Update attribut if there is a new value
+	existing_sensor.id = update_data.id if update_data.id else existing_sensor.id
 	existing_sensor.name = update_data.name if update_data.name else existing_sensor.name
 	existing_sensor.temperature = update_data.temperature if update_data.temperature else existing_sensor.temperature
 	existing_sensor.humidity = update_data.humidity if update_data.humidity else existing_sensor.humidity
+	existing_sensor.port = update_data.port if update_data.port else existing_sensor.port
 	
-	# Fetch path
-	ref = db.reference(f'{DB_REF}')
-
 	# Update sensor	
-	ref.child(f"{sensor_id}").set({
+	REF.child(f"{sensor_id}").set({
+		'id': existing_sensor.id,
 		'sensor_name': existing_sensor.name,
-		'temperatur': existing_sensor.temperature,
+		'temperature': existing_sensor.temperature,
 		'humidity': existing_sensor.humidity,
+		'port': existing_sensor.port,
 		'timestamp':  {".sv": "timestamp"}
 	})
 
@@ -135,11 +140,8 @@ def detele_sensor_by_id(sensor_id):
 	# Fetch sensor with id
 	get_sensor_data(sensor_id)
 
-	# Fetch path
-	ref = db.reference(f'{DB_REF}')
-
 	# Delete if id found
-	ref.child(f"{sensor_id}").delete()
+	REF.child(f"{sensor_id}").delete()
 	logging.info(Fore.GREEN + 
 	   f"Successfully delete data for sensor id: {sensor_id}" +
 	   Style.RESET_ALL)

@@ -28,9 +28,11 @@ class SensorScheduler:
 				if sensor_data:
 					# Create Sensor obj with update data
 					sensor = Sensor(
+						id = sensor_data['id'],
 						name = sensor_data['sensor_name'],
 						temperature = calculate_temperature_percentage(),
-						humidity = calculate_moisture_percentage()
+						humidity = calculate_moisture_percentage(),
+						sensor_channel = sensor_data['sensor_channel']
 					)
 
 					# Insert new data into Firebase

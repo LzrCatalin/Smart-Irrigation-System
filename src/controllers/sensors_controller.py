@@ -12,6 +12,7 @@ sys.path.append("src")
 from src.firebase.services import sensors_services
 from src.classes.Sensor import Sensor
 from src.sensors.testFunctions import *
+from src.firebase.custom_id import id_incrementation
 
 SENSORS_URL = '/api/sensors'
 
@@ -20,7 +21,7 @@ SENSORS_URL = '/api/sensors'
 #   Controller function
 #
 ###################
-def create_sensors_controller(app: Flask):
+def sensors_controller(app: Flask):
 	#
 	#   Get sensors
 	#
@@ -30,7 +31,7 @@ def create_sensors_controller(app: Flask):
 		sensors_data = sensors_services.get_sensors_data()
 		
 		# Verify if data exists
-		if sensors_data == HTTPStatus.NOT_FOUND:
+		if sensors_data is None:
 			return jsonify({"status:": "error",
 							"message": "No sensors available"}), HTTPStatus.NOT_FOUND
 		
@@ -45,7 +46,7 @@ def create_sensors_controller(app: Flask):
 		sensor_data = sensors_services.get_sensor_data(sensor_id)
 
 		# Verify if data exists
-		if sensor_data == HTTPStatus.NOT_FOUND:
+		if sensor_data is None:
 			return jsonify({"status": "error", 
 							"message": f"No data found for id: {sensor_id}"}), HTTPStatus.NOT_FOUND
 
@@ -70,9 +71,11 @@ def create_sensors_controller(app: Flask):
 		"""
 		# Create Sensor object
 		sensor = Sensor(
+			id = id_incrementation,
 			name = sensor_data['sensor_name'],
 			temperature = calculate_temperature_percentage(),
-			humidity = calculate_moisture_percentage()
+			humidity = calculate_moisture_percentage(),
+			port = sensor_data['port']
 		)
 
 		# Call service function for add
@@ -87,7 +90,7 @@ def create_sensors_controller(app: Flask):
 	@app.route(f'{SENSORS_URL}/<int:sensor_id>', methods = ['PUT'])
 	def update_sensor(sensor_id):
 		# CHeck if sensor id is valid
-		if sensors_services.get_sensor_data(sensor_id) == HTTPStatus.NOT_FOUND:
+		if sensors_services.get_sensor_data(sensor_id) is None:
 			return jsonify({"status": "error", 
 							"message": f"No data found for id: {sensor_id}"}), HTTPStatus.NOT_FOUND
 
@@ -96,9 +99,11 @@ def create_sensors_controller(app: Flask):
 
 		# Create Sensor object
 		sensor = Sensor(
+			id = sensor_data['id'],
 			name = sensor_data['sensor_name'],
 			temperature = calculate_temperature_percentage(),
-			humidity = calculate_moisture_percentage()
+			humidity = calculate_moisture_percentage(),
+			port = sensor_data['port']
 		)
 
 		# Call service function for update
@@ -115,7 +120,7 @@ def create_sensors_controller(app: Flask):
 		# Retrieve data for sensor id
 		sensor_data = sensors_services.get_sensor_data(sensor_id)
 
-		if sensor_data == HTTPStatus.NOT_FOUND:
+		if sensor_data is None:
 			return jsonify({"status": "error", "message": 
 							f"No data found for id: {sensor_id}"}), HTTPStatus.NOT_FOUND
 

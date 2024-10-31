@@ -2,7 +2,7 @@ import os, atexit, logging
 from flask import Flask, jsonify, request
 from flask_apscheduler import APScheduler
 from src.classes.SensorScheduler import SensorScheduler
-from src.controllers.sensors_controller import create_sensors_controller
+from src.controllers.sensors_controller import *
 ####################
 #
 #   Add the path to the project
@@ -19,9 +19,9 @@ app = Flask(__name__)
 #
 ####################
 logging.basicConfig(
-    level = logging.INFO,
-    format =  '%(levelname)s - %(message)s',
-    handlers = [logging.StreamHandler()]
+	level = logging.INFO,
+	format =  '%(levelname)s - %(message)s',
+	handlers = [logging.StreamHandler()]
 )
 
 ####################
@@ -30,23 +30,23 @@ logging.basicConfig(
 #
 ####################
 class Config:
-    SCHEDULER_API_ENABLE = True
+	SCHEDULER_API_ENABLE = True
 
 app.config.from_object(Config())
 
-# Init sensor scheduler
-sensors_scheduler = SensorScheduler(app)
+# # Init sensor scheduler
+# sensors_scheduler = SensorScheduler(app)
 
-# Start periodic update at a 30 seconds interval
-sensors_scheduler.schedule_sensor_updates(10)
+# # Start periodic update at a 30 seconds interval
+# sensors_scheduler.schedule_sensor_updates(2)
 
 ####################
 #
 #   Register controllers
 #
 ####################
-create_sensors_controller(app)
+sensors_controller(app)
 
 if __name__ == '__main__':
-    app.run(debug=False, host = "0.0.0.0", port = 8080)
-    
+	app.run(debug=False, host = "0.0.0.0", port = 8080)
+	
