@@ -1,12 +1,46 @@
 import time
 import board
 import busio
+import logging
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
+from src.firebase.services.sensors_services import *
 
 #################################
 #
-#	Setup
+#	Initialize Sensors from DB
+#
+#################################
+def sensors_init():
+	logging.info("Initializing sensors setup...")
+
+	# Fetch sensors data from db
+	sensors_data = get_sensors_data()
+
+	sensors = {}
+	#
+	#	Iterate through each sensors
+	#
+	for sensor in sensors_data:
+
+		# Get port of each sensor
+		port = sensor.get("port")
+
+		if port is not None:
+			# Return adc_value after mapping sensor to it's port
+			adc_value = sensor_setup(port)
+
+			# Verify if the value is available
+			if adc_value is not None:
+				sensors[sensor["id"]] = calculate_moisture_percentage(adc_value) 
+
+	# Print available sensors
+	for sensor in sensors:
+		print(sensor)
+
+#################################
+#
+#	Setup Sensor to ADC Port
 #
 #################################
 def sensor_setup(port):
@@ -15,7 +49,7 @@ def sensor_setup(port):
 	# ADC found at address 0x4a from I2C protocol
 	ads = ADS.ADS1115(i2c, address = 0x4a)
 
-	# Sensor AO connected to A0 port of ADS1115
+	# Configuration of sensors port for ADS1115 
 	channel_mapping = {
 		0: ADS.P0,
 		1: ADS.P1,
@@ -31,7 +65,7 @@ def sensor_setup(port):
 	
 #################################
 #
-#	Functio to calculate soil
+#	Function to calculate soil
 #	humidity percentage
 #
 #################################
@@ -51,27 +85,5 @@ def calculate_moisture_percentage(adc_value):
 #	Start Measurements
 #
 #################################
-def start():
-	print("Turn ON soil measurements...")
-	return calculate_moisture_percentage(adc_value)
-
-#################################
-#
-#	Stop Measurements
-#
-#################################
-def stop():
-	print("Turning OFF soil measurements...")
-
-#try:
-#    while True:
-#        adc_value = channel.value
-#        print(f"ADC Value: {adc_value}")
-#        
-#        moisture_percentage = calculate_moisture_percentage(adc_value)
-#        print(f"Soil moisture: {moisture_percentage:.2f}%")
-#        
-#        time.sleep(2)
-		
-#except KeyboardInterrupt:
-#    print("Exiting...")
+def start_sensors_measurement():
+	return sensors_init()

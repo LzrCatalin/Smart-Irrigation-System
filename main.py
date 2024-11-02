@@ -2,6 +2,7 @@ import os, atexit, logging
 from flask import Flask, jsonify, request
 from flask_apscheduler import APScheduler
 from src.classes.SensorScheduler import SensorScheduler
+from src.sensors.humidity_sensor import *
 from src.controllers.sensors_controller import *
 ####################
 #
@@ -34,17 +35,18 @@ class Config:
 
 app.config.from_object(Config())
 
-# # Init sensor scheduler
-# sensors_scheduler = SensorScheduler(app)
+# Init sensor scheduler
+sensors_scheduler = SensorScheduler(app)
 
-# # Start periodic update at a 30 seconds interval
-# sensors_scheduler.schedule_sensor_updates(2)
+# Start periodic update at a 30 seconds interval
+sensors_scheduler.schedule_sensor_updates(2)
 
 ####################
 #
-#   Register controllers
+#   Initializations
 #
 ####################
+start_sensors_measurement()
 sensors_controller(app)
 
 if __name__ == '__main__':
