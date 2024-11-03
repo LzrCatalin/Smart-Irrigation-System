@@ -23,9 +23,9 @@ def sensors_init():
 	#	Iterate through each sensors
 	#
 	for sensor in sensors_data:
-        if sensor is None:
-            continue
-        
+		if sensor is None:
+			continue
+		
 		# Get port of each sensor
 		port = sensor.get("port")
 
