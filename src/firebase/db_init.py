@@ -9,7 +9,7 @@ from firebase_admin import credentials, db
 ########################
 def db_init():
 	# Fetch the service account Key
-	cred = credentials.Certificate('/home/catalin/Downloads/smart-irrigation-system-700a6-firebase-adminsdk-2uobl-aff09eb01c.json')
+	cred = credentials.Certificate('/path/to/json')
 
 	# Initialize the app 
 	firebase_admin.initialize_app(cred, {

@@ -16,13 +16,16 @@ def sensors_init():
 
 	# Fetch sensors data from db
 	sensors_data = get_sensors_data()
+	print(sensors_data)
 
 	sensors = {}
 	#
 	#	Iterate through each sensors
 	#
 	for sensor in sensors_data:
-
+        if sensor is None:
+            continue
+        
 		# Get port of each sensor
 		port = sensor.get("port")
 
