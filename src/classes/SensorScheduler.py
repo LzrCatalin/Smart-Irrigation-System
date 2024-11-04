@@ -1,7 +1,7 @@
 import atexit
 from colorama import Fore
 from flask_apscheduler import APScheduler
-from src.firebase.services import sensors_services
+from src.services import sensors_services
 from src.classes.Sensor import Sensor
 from src.sensors.testFunctions import *
 from src.sensors.humidity_sensor import *
@@ -31,6 +31,7 @@ class SensorScheduler:
                 # Fetch adc_value based on port
                 if port is not None:
                     adc_value = sensor_setup(port)
+                    print(f"Port: {port}, value: {adc_value}")
 
                 if sensor_data:
                     # Create Sensor obj with update data

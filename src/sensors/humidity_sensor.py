@@ -4,7 +4,7 @@ import busio
 import logging
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
-from src.firebase.services.sensors_services import *
+from src.services.sensors_services import *
 
 #################################
 #
@@ -12,11 +12,10 @@ from src.firebase.services.sensors_services import *
 #
 #################################
 def sensors_init():
-    logging.info("Initializing sensors setup...")
+    logging.info("\t\tSENSORS INITIALIZATION")
 
     # Fetch sensors data from db
     sensors_data = get_sensors_data()
-    print(sensors_data)
 
     sensors = {}
     #
@@ -26,21 +25,26 @@ def sensors_init():
         if sensor is None:
             continue
         
-        # Get port of each sensor
+        # Get sensor port
         port = sensor.get("port")
 
         if port is not None:
-            # Return adc_value after mapping sensor to it's port
+            # Fetch adc_value from sensor's port
             adc_value = sensor_setup(port)
 
-            # Verify if the value is available
+            #
+            # Append value to sensors map:
+            #       Map that helps us to track initial 
+            #       data sent by the sensor
+            #
             if adc_value is not None:
                 sensors[sensor["id"]] = calculate_moisture_percentage(adc_value)
                 
-
+    print(sensors)
     # Print available sensors
-    for sensor in sensors:
-        print(sensor)
+    print("Available sensors with initial value.")
+    for id, moisture in sensors.items():
+        print(f"Sensor id: {id}\tMoisture: {moisture:.2f}%")
 
 #################################
 #
@@ -48,6 +52,7 @@ def sensors_init():
 #
 #################################
 def sensor_setup(port):
+    print(f"Starting setup for sensor with port: {port}")
     i2c = busio.I2C(board.SCL, board.SDA)
 
     # ADC found at address 0x4a from I2C protocol
@@ -64,9 +69,14 @@ def sensor_setup(port):
     # Check if sensor port from db is valid 
     if port in channel_mapping:
         # Get corresponding channel
+        print(f"Channel mapping: {channel_mapping[port]} for sensor port: {port}")
         channel = AnalogIn(ads, channel_mapping[port])
         return channel.value
     
+    else:
+        print(f"Port not available.")
+        return
+
 #################################
 #
 #	Function to calculate soil
