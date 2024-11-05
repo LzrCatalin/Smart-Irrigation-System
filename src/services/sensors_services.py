@@ -48,7 +48,7 @@ def get_sensors_data():
 	sensors_data = REF.get()
 
 	if sensors_data is None:
-		logging.warning(Fore.YELLOW +
+		logging.info(Fore.WHITE +
 			"No available sensors ... " +
 			Style.RESET_ALL)
 		return None
@@ -91,11 +91,11 @@ def add_sensor(data):
 		type = data['type']['type']
 		measured_value = data['type']['measured_value']
 		status = data['type']['status']
-		port = data['type']['ports']
+		port = data['type']['port']
 
 		# Convert data to enum
 		type = Type[type.upper()]
-		status = Status[status.toupper()]
+		status = Status[status.upper()]
 
 		# Create object of type sensor with fetched data
 		object = {
@@ -105,12 +105,13 @@ def add_sensor(data):
 			'type': {
 				'type': type.name,
 				'measured_value': measured_value,
-				'status': status,
+				'status': status.name,
 				'port': port
 			}
 		}
 
-		REF.child(id).set(object)
+		# Push data into db
+		REF.child(f"{id}").set(object)
 		
 		logging.info(Fore.GREEN + 
 			"Successfully added new sensor data." +
@@ -125,6 +126,7 @@ def add_sensor(data):
 def update_sensor_by_id(sensor_id, data):
 	try: 
 		# Fetch sensor data from JSON
+		print("Updated values: ")
 		id = data['id']
 		name = data['name']
 		type = data['type']['type']
@@ -134,7 +136,7 @@ def update_sensor_by_id(sensor_id, data):
 
 		# Convert data to enum
 		type = Type[type.upper()]
-		status = Type[status.toupper()]
+		status = Status[status.upper()]
 
 		# Create object of type sensor with fetched data
 		object = {
@@ -144,7 +146,7 @@ def update_sensor_by_id(sensor_id, data):
 			'type': {
 				'type': type.name,
 				'measured_value': measured_value,
-				'status': status,
+				'status': status.name,
 				'port': port
 			}
 		}
