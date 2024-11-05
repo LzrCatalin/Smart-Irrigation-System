@@ -16,6 +16,7 @@ def sensors_init():
 
     # Fetch sensors data from db
     sensors_data = get_sensors_data()
+    print(sensors_data)
 
     sensors = {}
     #
@@ -25,21 +26,26 @@ def sensors_init():
         if sensor is None:
             continue
         
+        print(sensor["id"])
         # Get sensor port
-        port = sensor.get("port")
+        # port = sensor.get("ports")
+        # print(port)
 
-        if port is not None:
-            # Fetch adc_value from sensor's port
-            adc_value = sensor_setup(port)
+        # if port is not None:
+        #     # Fetch adc_value from sensor's port
+        #     adc_value = sensor_setup(port)
 
-            #
-            # Append value to sensors map:
-            #       Map that helps us to track initial 
-            #       data sent by the sensor
-            #
-            if adc_value is not None:
-                sensors[sensor["id"]] = calculate_moisture_percentage(adc_value)
-                
+        #     #
+        #     # Append value to sensors map:
+        #     #       Map that helps us to track initial 
+        #     #       data sent by the sensor
+        #     #
+        #     if adc_value is not None:
+        #         sensors[sensor["id"]] = calculate_moisture_percentage(adc_value)
+
+        # else:
+        #     print("Port unavailable.")
+                 
     print(sensors)
     # Print available sensors
     print("Available sensors with initial value.")

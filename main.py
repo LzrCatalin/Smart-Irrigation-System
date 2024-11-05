@@ -47,7 +47,7 @@ app.config.from_object(Config())
 #   Blueprints Initializations
 #
 ####################
-# start_sensors_measurement()
+start_sensors_measurement()
 app.register_blueprint(sensors_bp)
 
 if __name__ == '__main__':

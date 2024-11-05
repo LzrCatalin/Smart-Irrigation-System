@@ -1,10 +1,10 @@
 import logging
 from colorama import Fore, Style
 from firebase_admin import credentials, db
-from src.firebase.custom_id import id_incrementation
 from src.firebase.db_init import db_init
 from src.classes.Sensor import Sensor
 from src.classes.Type import *
+from src.classes.Status import *
 
 # Database init
 db_init()
@@ -88,12 +88,14 @@ def add_sensor(data):
 		# Fetch sensor data from JSON
 		id = data['id']
 		name = data['name']
-		type_data = data['type']['type']
+		type = data['type']['type']
 		measured_value = data['type']['measured_value']
-		ports = data['type']['ports']
+		status = data['type']['status']
+		port = data['type']['ports']
 
-		# Convert type to enum value
-		type = Type[type_data.upper()]
+		# Convert data to enum
+		type = Type[type.upper()]
+		status = Status[status.toupper()]
 
 		# Create object of type sensor with fetched data
 		object = {
@@ -101,9 +103,10 @@ def add_sensor(data):
 			'name': name,
 			# Create the sensor type 
 			'type': {
-				'type': type,
+				'type': type.name,
 				'measured_value': measured_value,
-				'ports': ports
+				'status': status,
+				'port': port
 			}
 		}
 
@@ -124,12 +127,14 @@ def update_sensor_by_id(sensor_id, data):
 		# Fetch sensor data from JSON
 		id = data['id']
 		name = data['name']
-		type_data = data['type']['type']
+		type = data['type']['type']
 		measured_value = data['type']['measured_value']
-		ports = data['type']['ports']
+		status = data['type']['status']
+		port = data['type']['port']
 
-		# Convert type to enum value
-		type = Type[type_data.upper()]
+		# Convert data to enum
+		type = Type[type.upper()]
+		status = Type[status.toupper()]
 
 		# Create object of type sensor with fetched data
 		object = {
@@ -137,14 +142,15 @@ def update_sensor_by_id(sensor_id, data):
 			'name': name,
 			# Create the sensor type 
 			'type': {
-				'type': type,
+				'type': type.name,
 				'measured_value': measured_value,
-				'ports': ports
+				'status': status,
+				'port': port
 			}
 		}
 		
 		# Push new data into database
-		REF.child(sensor_id, object)
+		REF.child(f"{sensor_id}").set(object)
 
 		logging.info(Fore.GREEN + 
 			f"Successfully updated sensor data for id: {sensor_id}" 
@@ -160,7 +166,7 @@ def detele_sensor_by_id(sensor_id):
 	logging.info(f"Delete sensor id: {sensor_id}")
 
 	# Delete sensor
-	REF.child(sensor_id).delete()
+	REF.child(f"{sensor_id}").delete()
 
 	logging.info(Fore.GREEN + 
 	   f"Successfully delete data for sensor id: {sensor_id}" +

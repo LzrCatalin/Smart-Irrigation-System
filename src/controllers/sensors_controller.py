@@ -13,7 +13,6 @@ from src.services import sensors_services
 from src.classes.Sensor import *
 from src.sensors.humidity_sensor import *
 from src.sensors.testFunctions import *
-from src.firebase.custom_id import id_incrementation
 
 SENSORS_URL = '/api/sensors'
 
