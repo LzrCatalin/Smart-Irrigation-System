@@ -57,7 +57,7 @@ def get_sensors_data():
 	return sensors_data
 
 #
-# Retrieve sensor data by ID
+# 	Retrieve sensor data by ID
 #
 def get_sensor_data_by_id(sensor_id):
 	logging.info(f"Fetching data for id: {sensor_id}")
@@ -73,6 +73,27 @@ def get_sensor_data_by_id(sensor_id):
 	
 	logging.info(f"Successfully fetched data for sensor id: {sensor_id}")
 	return sensor_data
+
+#
+#	Verify duplicate ports
+#
+def is_port_in_use(port):
+	# Fetch sensors from db
+	sensors_data = get_sensors_data()
+	print("1")
+	if sensors_data:
+		print("2")
+		# Iterate sensors
+		for sensor in sensors_data:
+			print("3")
+			# Search for port in each sensors ports
+			if sensor and sensor['type']['port'] == port:
+				if sensor is None:
+					continue
+
+				return True
+			
+	return False
 
 #######################
 #
@@ -97,6 +118,10 @@ def add_sensor(data):
 		type = Type[type.upper()]
 		status = Status[status.upper()]
 
+		# # Verify duplicate port
+		if is_port_in_use(port):
+			return {"error": f"Port already in use: {port}"}
+		
 		# Create object of type sensor with fetched data
 		object = {
 			'id': id,
@@ -126,7 +151,6 @@ def add_sensor(data):
 def update_sensor_by_id(sensor_id, data):
 	try: 
 		# Fetch sensor data from JSON
-		print("Updated values: ")
 		id = data['id']
 		name = data['name']
 		type = data['type']['type']
@@ -165,8 +189,6 @@ def update_sensor_by_id(sensor_id, data):
 #	Delete
 #
 def detele_sensor_by_id(sensor_id):
-	logging.info(f"Delete sensor id: {sensor_id}")
-
 	# Delete sensor
 	REF.child(f"{sensor_id}").delete()
 

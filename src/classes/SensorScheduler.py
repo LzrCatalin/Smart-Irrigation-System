@@ -11,53 +11,64 @@ from src.sensors.humidity_sensor import *
 #
 ####################
 class SensorScheduler:
-    def __init__(self, app):
-        self.scheduler = APScheduler()
-        self.scheduler.init_app(app)
-        self.scheduler.start()
-    
-    def periodic_sensor_update(self):
-            # Fetch all ids from Firebase
-            sensor_ids = sensors_services.get_sensors_ids()
+	def __init__(self, app):
+		self.scheduler = APScheduler()
+		self.scheduler.init_app(app)
+		self.scheduler.start()
+	
+	def periodic_sensor_update(self):
+			# Fetch all ids from Firebase
+			sensor_ids = sensors_services.get_sensors_ids()
 
-            # Iterate through sensors ids
-            for id in sensor_ids:
-                # Retrieve sensor data based on id
-                sensor_data = sensors_services.get_sensor_data(id)
-                
-                # Fetch sensor port
-                port = sensor_data['port']
-                
-                # Fetch adc_value based on port
-                if port is not None:
-                    adc_value = sensor_setup(port)
-                    print(f"Port: {port}, value: {adc_value}")
+			# Iterate through sensors ids
+			for id in sensor_ids:
+				# Retrieve sensor data based on id
+				sensor_data = sensors_services.get_sensor_data_by_id(id)
+				
+				# Fetch sensor port and type
+				port = sensor_data['type']['port']
+				type = sensor_data['type']['type']
+				status = sensor_data['type']['status']
+				
+				# Measure only for sensors that are displayed on the field
+				if status == Status.AVAILABLE.name:
+					logging.info(Fore.CYAN +
+					f"\t\tSensor with id: {id} not in function." 
+					+ Style.RESET_ALL)
 
-                if sensor_data:
-                    # Create Sensor obj with update data
-                    sensor = Sensor(
-                        id = sensor_data['id'],
-                        name = sensor_data['sensor_name'],
-                        temperature = calculate_temperature_percentage(),
-                        humidity = calculate_moisture_percentage(adc_value),
-                        port = sensor_data['port']
-                    )
-                    
-                    # Insert new data into Firebase
-                    sensors_services.update_sensor_by_id(id, sensor)
+					continue
+				
+				# Fetch adc_value based on port
+				if port is not None:
+					logging.info(Fore.LIGHTCYAN_EX +
+				  	f"\t\tStart measuring for sensor id: {id}"
+					+ Style.RESET_ALL)
 
-    def schedule_sensor_updates(self, duration):
-        print(f"Sensor scheduler Turn ON for every {duration} seconds.")
-        self.scheduler.add_job(id='sensor_update', 
-                        func=self.periodic_sensor_update,
-                        trigger = 'interval', 
-                        seconds = duration)
-        
-    def scheduler_shutdown(self):
-        print("Sensors scheduler shutdown.")
-        atexit.register(lambda: self.scheduler_shutdown())
+					adc_value = sensor_setup(port)
+					
+					# Measure that based on sensor type
+					if type == Type.HUMIDITY.name:
+						sensor_data['type']['measured_value'] = calculate_moisture_percentage(adc_value)
 
-    def get_schedules(self):
-        print(self.scheduler.get_jobs())
+					else:
+						print("\t\tMeasuring for temperature sensor...")
+						return 
+					
+					# Insert new data into Firebase
+					sensors_services.update_sensor_by_id(id, sensor_data)
+
+	def schedule_sensor_updates(self, duration):
+		print(f"Sensor scheduler Turn ON for every {duration} seconds.")
+		self.scheduler.add_job(id='sensor_update', 
+						func=self.periodic_sensor_update,
+						trigger = 'interval', 
+						seconds = duration)
+		
+	def scheduler_shutdown(self):
+		print("Sensors scheduler shutdown.")
+		atexit.register(lambda: self.scheduler_shutdown())
+
+	def get_schedules(self):
+		print(self.scheduler.get_jobs())
 
 

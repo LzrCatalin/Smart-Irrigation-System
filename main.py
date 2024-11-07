@@ -40,7 +40,7 @@ app.config.from_object(Config())
 # sensors_scheduler = SensorScheduler(app)
 
 # # Start periodic update at a 30 seconds interval
-# sensors_scheduler.schedule_sensor_updates(10)
+# sensors_scheduler.schedule_sensor_updates(5)
 
 ####################
 #

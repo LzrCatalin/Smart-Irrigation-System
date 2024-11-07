@@ -100,7 +100,7 @@ def calculate_moisture_percentage(adc_value):
 			  + Style.RESET_ALL)
 	
 	# MH Sensor-Series values configuration
-	wet_value = 12000 # 100% soil humidity
+	wet_value = 11500 # 100% soil humidity
 	dry_value = 32767 # 0% soil humidity
 	
 	# TODO: Make more tests to find the best values for both ends

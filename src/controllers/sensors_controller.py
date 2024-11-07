@@ -60,13 +60,22 @@ def add_sensor():
 	sensor_data = request.json
 	print(f"JSON Data: \n{sensor_data}")
 	
-	# Send data to service layer
-	sensors_services.add_sensor(sensor_data)
+	try:
+		# Send data to service layer
+		response = sensors_services.add_sensor(sensor_data)
 
-	return jsonify({"status": "success", 
-					"message": "Sensor added successfully."}), HTTPStatus.OK
+		if response is "error":
+			return jsonify({"status": "failure", 
+					"error": response["error"]}), HTTPStatus.BAD_REQUEST
+		
+		return jsonify({"status": "success", 
+						"message": "Sensor added successfully."}), HTTPStatus.OK
 
-#
+	except Exception as e:
+		# Catch unexpected errors
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+#	
 #   Update
 #
 @sensors_bp.route('/<int:sensor_id>', methods = ['PUT'])
@@ -79,11 +88,16 @@ def update_sensor(sensor_id):
 	# Get JSON updated data
 	sensor_data = request.json
 
-	# Call service function for update
-	sensors_services.update_sensor_by_id(sensor_id, sensor_data)
+	try:
+		# Call service function for update
+		response = sensors_services.update_sensor_by_id(sensor_id, sensor_data)
 
-	return jsonify({"status": "success", 
-					"message": f"Sensor with id: {sensor_id} updated successfully."}), HTTPStatus.OK
+		return jsonify({"status": "success", 
+						"message": f"Sensor with id: {sensor_id} updated successfully."}), HTTPStatus.OK
+	
+	except Exception as e:
+		# Catch unexpected errors
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 #
 #   Delete sensor by id
@@ -97,8 +111,13 @@ def detele_sensor(sensor_id):
 		return jsonify({"status": "error", "message": 
 						f"No data found for id: {sensor_id}"}), HTTPStatus.NOT_FOUND
 
-	# Call service function for delete
-	sensors_services.detele_sensor_by_id(sensor_id), 200
+	try:
+		# Call service function for delete
+		sensors_services.detele_sensor_by_id(sensor_id), 200
+		
+		return jsonify({"status" : "success",
+						"message" : f"Successfully deleted sensor with id: {sensor_id}"}), HTTPStatus.OK
 	
-	return jsonify({"status" : "success",
-					"message" : f"Successfully deleted sensor with id: {sensor_id}"}), HTTPStatus.OK
+	except Exception as e:
+		# Catch unexpected errors
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
