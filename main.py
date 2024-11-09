@@ -5,6 +5,7 @@ from src.classes.SensorScheduler import SensorScheduler
 from src.sensors.humidity_sensor import *
 from src.controllers.sensors_controller import *
 from src.services.sensors_services import *
+from src.firebase.sensors_init import sensors_init
 ####################
 #
 #   Add the path to the project
@@ -37,7 +38,7 @@ class Config:
 app.config.from_object(Config())
 
 # Init sensor scheduler
-# sensors_scheduler = SensorScheduler(app)
+sensors_scheduler = SensorScheduler(app)
 
 # # Start periodic update at a 30 seconds interval
 # sensors_scheduler.schedule_sensor_updates(5)
@@ -47,7 +48,7 @@ app.config.from_object(Config())
 #   Blueprints Initializations
 #
 ####################
-start_sensors_measurement()
+sensors_init()
 app.register_blueprint(sensors_bp)
 
 if __name__ == '__main__':
