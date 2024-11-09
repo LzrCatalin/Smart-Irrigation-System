@@ -75,24 +75,50 @@ def get_sensor_data_by_id(sensor_id):
 	return sensor_data
 
 #
+#	Retrieve sensors data by Type
+#
+def get_sensors_data_by_type(sensors_type):
+	logging.info(f"Fetching sensors data for type: {sensors_type}")
+
+	# Fetch data
+	sensors_data = REF.get()
+
+	# Filter data
+	filtered_sensors = {}
+	
+	for sensor_data in sensors_data:
+		if sensor_data is None:
+			continue
+		
+		# Retrieve type for comparing	
+		type = sensor_data['type']['type']
+
+		if type == sensors_type:
+			id = sensor_data['id']
+			# Append sensor into map
+			filtered_sensors[id] = sensor_data
+
+	return filtered_sensors
+
+#
 #	Verify duplicate ports
 #
-def is_port_in_use(port):
+def is_port_in_use(port, sensor_type):
 	# Fetch sensors from db
-	sensors_data = get_sensors_data()
-	print("1")
-	if sensors_data:
-		print("2")
-		# Iterate sensors
-		for sensor in sensors_data:
-			print("3")
-			# Search for port in each sensors ports
-			if sensor and sensor['type']['port'] == port:
-				if sensor is None:
-					continue
+	sensors_data = get_sensors_data_by_type(sensor_type)
 
+	if sensors_data:
+		# Iterate sensors
+		for id, sensor_data in sensors_data.items():
+			print(f"ID: {id}")
+			print(f"SENSOR_DATA: {sensor_data}")
+			print(f"Port: {sensor_data['type']['port']}")
+			# Search for port in each sensors ports
+			if sensor_data['type']['port'] == port:
+				print("Port already exists.")
 				return True
-			
+	
+	print("Port not found.")
 	return False
 
 #######################
@@ -118,9 +144,13 @@ def add_sensor(data):
 		type = Type[type.upper()]
 		status = Status[status.upper()]
 
-		# # Verify duplicate port
-		if is_port_in_use(port):
-			return {"error": f"Port already in use: {port}"}
+		# # Verify duplicate port based on sensor's type
+		if is_port_in_use(port, type.name):
+			logging.info("\t\tPort condition.")
+			logging.warning(Fore.LIGHTYELLOW_EX +
+				   f"Port: {port} already in use for type: {type}"
+				   + Style.RESET_ALL)
+			return
 		
 		# Create object of type sensor with fetched data
 		object = {

@@ -5,6 +5,8 @@ from src.services import sensors_services
 from src.classes.Sensor import Sensor
 from src.sensors.testFunctions import *
 from src.sensors.humidity_sensor import *
+from src.sensors.temperature_sensor import *
+
 ####################
 #
 #   Scheduler configurations
@@ -30,7 +32,9 @@ class SensorScheduler:
 				type = sensor_data['type']['type']
 				status = sensor_data['type']['status']
 				
-				# Measure only for sensors that are displayed on the field
+				#
+				#	Updating only sensors that are displayed on the fields
+				#
 				if status == Status.AVAILABLE.name:
 					logging.info(Fore.CYAN +
 					f"\t\tSensor with id: {id} not in function." 
@@ -40,20 +44,34 @@ class SensorScheduler:
 				
 				# Fetch adc_value based on port
 				if port is not None:
-					logging.info(Fore.LIGHTCYAN_EX +
-				  	f"\t\tStart measuring for sensor id: {id}"
-					+ Style.RESET_ALL)
-
-					adc_value = sensor_setup(port)
-					
-					# Measure that based on sensor type
+					# Check sensor type
 					if type == Type.HUMIDITY.name:
-						sensor_data['type']['measured_value'] = calculate_moisture_percentage(adc_value)
+						# Fetch adc_value from sensor's port
+						adc_value = sensor_setup(port)
+
+						#
+						#	Update moisture value
+						#
+						if adc_value is not None:
+							sensor_data['type']['measured_value'] = moisture_percentage(adc_value)
+					
+					elif type == Type.TEMPERATURE.name:
+						# Search slave file for sensor port
+						slave_file = sensor_file(port)
+
+						# Check if slave file exists
+						if slave_file is not None:
+							#
+							#	Update temperature value
+							#
+							sensor_data['type']['measured_value'] = read_temperature(slave_file)
 
 					else:
-						print("\t\tMeasuring for temperature sensor...")
-						return 
-					
+						# Handle unknown type
+						logging.info(Fore.WHITE + 
+				   		f"Type: {type} unknown." +
+						Style.RESET_ALL)
+
 					# Insert new data into Firebase
 					sensors_services.update_sensor_by_id(id, sensor_data)
 
