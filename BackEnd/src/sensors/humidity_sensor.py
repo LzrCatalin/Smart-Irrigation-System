@@ -62,7 +62,7 @@ def sensor_setup(port):
 	i2c = busio.I2C(board.SCL, board.SDA)
 
 	# ADC found at address 0x4a from I2C protocol
-	ads = ADS.ADS1115(i2c, address = 0x4a)
+	ads = ADS.ADS1115(i2c, address = 0x48)
 
 	# Configuration of sensors port for ADS1115 
 	channel_mapping = {
@@ -80,13 +80,17 @@ def sensor_setup(port):
 			+ Style.RESET_ALL)
 		
 		channel = AnalogIn(ads, channel_mapping[port])
+		logging.debug(Fore.MAGENTA +
+					f"Channel value: {channel.value}"
+					+ Style.RESET_ALL)
 		return channel.value
 	
 	else:
 		logging.info(Fore.WHITE +
 			   f"\t<!>UNAVAILABLE<!>"
 			   + Style.RESET_ALL)
-		return
+		
+		return None
 
 #################################
 #

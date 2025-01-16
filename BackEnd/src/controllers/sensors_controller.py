@@ -11,8 +11,8 @@ sys.path.append("src")
 
 from src.services import sensors_services
 from src.classes.Sensor import *
+from src.classes.SensorType import *
 from src.sensors.humidity_sensor import *
-from src.sensors.testFunctions import *
 
 SENSORS_URL = '/api/sensors'
 
@@ -25,7 +25,7 @@ sensors_bp = Blueprint('sensors', __name__, url_prefix= SENSORS_URL)
 #   Get sensors
 #
 @sensors_bp.route('', methods = ['GET'])
-def get_sensors():
+def get_sensors() -> jsonify:
 	# Retrieve sensors data
 	sensors_data = sensors_services.get_sensors_data()
 	
@@ -39,8 +39,10 @@ def get_sensors():
 #
 #   Get sensor by id
 #
-@sensors_bp.route('/<int:sensor_id>', methods = ['GET'])
-def get_sensor(sensor_id):
+@sensors_bp.route('/<sensor_id>', methods = ['GET'])
+def get_sensor(sensor_id) -> jsonify: 
+	logging.debug("Calling route ---> get_sensor -> by id")
+
 	# Retrieve data for sensor id
 	sensor_data = sensors_services.get_sensor_data_by_id(sensor_id)
 
@@ -55,21 +57,24 @@ def get_sensor(sensor_id):
 #   Add sensor
 #
 @sensors_bp.route('', methods = ['POST'])
-def add_sensor():
+def add_sensor() -> jsonify:
 	# Get JSON data from request
 	sensor_data = request.json
 	print(f"JSON Data: \n{sensor_data}")
 	
 	try:
+		# Convert JSON data to Sensor object
+		sensor = Sensor.from_dict(sensor_data)
+
 		# Send data to service layer
-		response = sensors_services.add_sensor(sensor_data)
+		response = sensors_services.add_sensor(sensor)
 
 		if response is "error":
 			return jsonify({"status": "failure", 
 					"error": response["error"]}), HTTPStatus.BAD_REQUEST
 		
 		return jsonify({"status": "success", 
-						"message": "Sensor added successfully."}), HTTPStatus.OK
+						"message": f"Sensor added successfully.{response}"}), HTTPStatus.OK
 
 	except Exception as e:
 		# Catch unexpected errors
@@ -78,22 +83,36 @@ def add_sensor():
 #	
 #   Update
 #
-@sensors_bp.route('/<int:sensor_id>', methods = ['PUT'])
-def update_sensor(sensor_id):
-	# Check if sensor id is valid
-	if sensors_services.get_sensor_data_by_id(sensor_id) is None:
-		return jsonify({"status": "error", 
-						"message": f"No data found for id: {sensor_id}"}), HTTPStatus.NOT_FOUND
-
-	# Get JSON updated data
-	sensor_data = request.json
+@sensors_bp.route('/<sensor_id>', methods = ['PUT'])
+def update_sensor(sensor_id) -> jsonify:
 
 	try:
-		# Call service function for update
-		response = sensors_services.update_sensor_by_id(sensor_id, sensor_data)
+		data = request.get_json()	
 
+		# Extract fields for SensorType
+		sensor_type = SensorType(
+			type = data['type']['type'],
+			measured_value = data['type']['measured_value'],
+			status = data['type']['status'],
+			port = data['type']['port']
+		)
+		
+		# Create the Sensor object
+		sensor = Sensor(
+			name = data['name'],
+			type = sensor_type
+		)
+	
+		# Call service function for update
+		sensor = sensors_services.update_sensor_by_id(sensor_id, sensor)
+
+		if "error" in sensor:
+			return jsonify({"status": "error", 
+				   "message": sensor["error"]}), HTTPStatus.BAD_REQUEST
+
+		
 		return jsonify({"status": "success", 
-						"message": f"Sensor with id: {sensor_id} updated successfully."}), HTTPStatus.OK
+						"message": f"{sensor}"}), HTTPStatus.OK
 	
 	except Exception as e:
 		# Catch unexpected errors
@@ -102,19 +121,16 @@ def update_sensor(sensor_id):
 #
 #   Delete sensor by id
 #
-@sensors_bp.route('/<int:sensor_id>', methods = ['DELETE'])
-def detele_sensor(sensor_id):
-	# Retrieve data for sensor id
-	sensor_data = sensors_services.get_sensor_data_by_id(sensor_id)
-
-	if sensor_data is None:
-		return jsonify({"status": "error", "message": 
-						f"No data found for id: {sensor_id}"}), HTTPStatus.NOT_FOUND
-
+@sensors_bp.route('/<sensor_id>', methods = ['DELETE'])
+def detele_sensor(sensor_id) -> jsonify:
 	try:
 		# Call service function for delete
-		sensors_services.detele_sensor_by_id(sensor_id), 200
+		sensor = sensors_services.detele_sensor_by_id(sensor_id)
 		
+		if "error" in sensor:
+			return jsonify({"status": "error",
+							"message": sensor["error"]}), HTTPStatus.BAD_REQUEST
+
 		return jsonify({"status" : "success",
 						"message" : f"Successfully deleted sensor with id: {sensor_id}"}), HTTPStatus.OK
 	

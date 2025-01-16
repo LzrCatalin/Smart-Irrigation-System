@@ -5,6 +5,7 @@ from src.firebase.db_init import db_init
 from src.classes.Sensor import Sensor
 from src.classes.Type import *
 from src.classes.Status import *
+from src.classes.SensorDTO import *
 
 # Database init
 db_init()
@@ -20,7 +21,7 @@ REF = db.reference(f'{DB_REF}')
 #
 #	Retrieve all sensors ids
 #
-def get_sensors_ids():
+def get_sensors_ids() -> list[str]:
 	logging.info("Fetching sensor IDs...")
 	# Fetch data
 	sensors_data = REF.get()
@@ -30,10 +31,7 @@ def get_sensors_ids():
 		return []
 
 	# Populate ids array
-	sensor_ids = []
-	for sensor in sensors_data:
-		if sensor is not None:
-			sensor_ids.append(sensor['id'])
+	sensor_ids = list(sensors_data.keys())
 
 	logging.info(f"Sensor IDs: {sensor_ids}")
 	return sensor_ids
@@ -41,17 +39,11 @@ def get_sensors_ids():
 #
 #	Retrieve all sensors data
 #
-def get_sensors_data():
+def get_sensors_data() -> list[dict]:
 	logging.info("Fetching sensors data...")
 
 	# Fetch data
 	sensors_data = REF.get()
-
-	if sensors_data is None:
-		logging.info(Fore.WHITE +
-			"No available sensors ... " +
-			Style.RESET_ALL)
-		return None
 
 	logging.info("Successfully retrieved sensors data")
 	return sensors_data
@@ -59,66 +51,72 @@ def get_sensors_data():
 #
 # 	Retrieve sensor data by ID
 #
-def get_sensor_data_by_id(sensor_id):
+def get_sensor_data_by_id(sensor_id: str) -> dict:
 	logging.info(f"Fetching data for id: {sensor_id}")
 	
-	# Path to fetch wanted data
-	ref = db.reference(f'{DB_REF}/{sensor_id}')
-	sensor_data = ref.get()
+	sensor_data = REF.child(sensor_id).get()
 
 	# Check if data exists
 	if sensor_data is None:
-		logging.warning(f"No data found for sensor with id: {sensor_id}")
-		return None
+		return {"error": f"No data found for ID: {sensor_id}"}
 	
-	logging.info(f"Successfully fetched data for sensor id: {sensor_id}")
-	return sensor_data
+	try:
+		sensor = Sensor.from_dict(sensor_data)
+		sensorDTO = SensorDTO(id=sensor_id, name=sensor.name, type=sensor.type)
+		logging.info(f"Successfully fetched data for sensor ID: {sensor_id}")
+		
+		return sensorDTO.to_dict()
+
+	except KeyError as e:
+		logging.error(Fore.RED + 
+				f"Error processing data for sensor ID {sensor_id}: {e}" + 
+				Style.RESET_ALL)
+		return None
+
 
 #
 #	Retrieve sensors data by Type
 #
-def get_sensors_data_by_type(sensors_type):
+def get_sensors_data_by_type(sensors_type: type) -> list[dict]:
 	logging.info(f"Fetching sensors data for type: {sensors_type}")
 
 	# Fetch data
 	sensors_data = REF.get()
 
+	if sensors_data is None:
+		logging.warning("No sensors found.")
+		return []
+
 	# Filter data
 	filtered_sensors = {}
 	
-	for sensor_data in sensors_data:
-		if sensor_data is None:
-			continue
-		
-		# Retrieve type for comparing	
-		type = sensor_data['type']['type']
+	for key, val in sensors_data.items():
+		try:
+			if val['type']['type'] == sensors_type:
+				filtered_sensors[key] = val
 
-		if type == sensors_type:
-			id = sensor_data['id']
-			# Append sensor into map
-			filtered_sensors[id] = sensor_data
+		except KeyError as e:
+			logging.error(Fore.RED + 
+				f"Error filtering sensor with key {key}: {e}" + 
+				Style.RESET_ALL)
 
+	logging.info(f"Successfully fetched sensor of type: {sensors_type}")
+	logging.info(f"Fetched sensors based on type: {filtered_sensors}")
 	return filtered_sensors
 
 #
-#	Verify duplicate ports
+#	Check if port is in use
 #
-def is_port_in_use(port, sensor_type):
+def is_port_in_use(port: int, sensor_type: type) -> bool:
 	# Fetch sensors from db
 	sensors_data = get_sensors_data_by_type(sensor_type)
 
-	if sensors_data:
-		# Iterate sensors
-		for id, sensor_data in sensors_data.items():
-			print(f"ID: {id}")
-			print(f"SENSOR_DATA: {sensor_data}")
-			print(f"Port: {sensor_data['type']['port']}")
-			# Search for port in each sensors ports
-			if sensor_data['type']['port'] == port:
-				print("Port already exists.")
-				return True
+	for sensor_id, sensors_data in sensors_data.items():
+		if sensors_data['type']['port'] == port:
+			logging.warning("Port already in use")
+			return True
 	
-	print("Port not found.")
+	logging.info("Port is available")
 	return False
 
 #######################
@@ -130,87 +128,52 @@ def is_port_in_use(port, sensor_type):
 #
 #	Add 
 #
-def add_sensor(data):
+def add_sensor(data: Sensor) -> dict:
+
 	try:
-		# Fetch sensor data from JSON
-		id = data['id']
-		name = data['name']
-		type = data['type']['type']
-		measured_value = data['type']['measured_value']
-		status = data['type']['status']
-		port = data['type']['port']
-
-		# Convert data to enum
-		type = Type[type.upper()]
-		status = Status[status.upper()]
-
-		# # Verify duplicate port based on sensor's type
-		if is_port_in_use(port, type.name):
-			logging.info("\t\tPort condition.")
+		if is_port_in_use(data.type.port, data.type.type):
 			logging.warning(Fore.LIGHTYELLOW_EX +
-				   f"Port: {port} already in use for type: {type}"
-				   + Style.RESET_ALL)
-			return
-		
-		# Create object of type sensor with fetched data
-		object = {
-			'id': id,
-			'name': name,
-			# Create the sensor type 
-			'type': {
-				'type': type.name,
-				'measured_value': measured_value,
-				'status': status.name,
-				'port': port
-			}
-		}
-
+				   f"Port: {data.type['port']} already in use for type: {data.type['type']}" +
+				   Style.RESET_ALL)
+			return None
+			
 		# Push data into db
-		REF.child(f"{id}").set(object)
+		sensor_ref = REF.push(data.to_dict())
 		
+		sensorDTO = SensorDTO(sensor_ref.key, data.name, data.type)
+
 		logging.info(Fore.GREEN + 
 			"Successfully added new sensor data." +
 			Style.RESET_ALL)
 
+		return sensorDTO.to_dict()
+	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 	
 #
 #	Update
 #
-def update_sensor_by_id(sensor_id, data):
-	try: 
-		# Fetch sensor data from JSON
-		id = data['id']
-		name = data['name']
-		type = data['type']['type']
-		measured_value = data['type']['measured_value']
-		status = data['type']['status']
-		port = data['type']['port']
-
-		# Convert data to enum
-		type = Type[type.upper()]
-		status = Status[status.upper()]
-
-		# Create object of type sensor with fetched data
-		object = {
-			'id': id,
-			'name': name,
-			# Create the sensor type 
-			'type': {
-				'type': type.name,
-				'measured_value': measured_value,
-				'status': status.name,
-				'port': port
-			}
-		}
+def update_sensor_by_id(sensor_id: str, sensor: Sensor) -> dict:
+	try:
 		
-		# Push new data into database
-		REF.child(f"{sensor_id}").set(object)
+		# Fetch old sensor data
+		fetched_sensor = get_sensor_data_by_id(sensor_id)
+		
+		if get_sensor_data_by_id(sensor_id) is None:
+			return {"error": f"No data found for sensor id: {sensor_id}"}
+
+		if is_port_in_use(sensor.type.port, sensor.type.type):
+			if fetched_sensor['type']['port'] != sensor.type.port:
+				return {"error": f"Port: {sensor.type.port} already in use."}
+		
+		REF.child(sensor_id).set(sensor.to_dict())
 
 		logging.info(Fore.GREEN + 
-			f"Successfully updated sensor data for id: {sensor_id}" 
-			+ Style.RESET_ALL)
+			   f"Successfully updated sensor data for ID: {sensor_id}" + 
+			   Style.RESET_ALL)
+		
+		return sensor.to_dict()
 
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -218,10 +181,23 @@ def update_sensor_by_id(sensor_id, data):
 #
 #	Delete
 #
-def detele_sensor_by_id(sensor_id):
-	# Delete sensor
-	REF.child(f"{sensor_id}").delete()
+def detele_sensor_by_id(sensor_id: str) -> None:
+	try:
+		# Verify ID in database
+		fetched_sensor = get_sensor_data_by_id(sensor_id)
+		if fetched_sensor is None:
+			return {"error": f"No data found for sensor id: {sensor_id}"}
+		
+		# Delete sensor
+		REF.child(sensor_id).delete()
 
-	logging.info(Fore.GREEN + 
-	   f"Successfully delete data for sensor id: {sensor_id}" +
-	   Style.RESET_ALL)
+		logging.info(Fore.GREEN + 
+					f"Successfully delete data for sensor id: {sensor_id}" +
+					Style.RESET_ALL)
+		
+		return fetched_sensor
+	
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+
+	

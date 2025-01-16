@@ -14,7 +14,8 @@ def sensors_init():
 	# Fetch sensors data from db
 	sensors_data = get_sensors_data()
 
-	if sensors_data is None:
+	if not sensors_data:
+		logging.warning("No sensors data available in database.")
 		return None
 	
 	humidity_sensors = {}
@@ -23,36 +24,40 @@ def sensors_init():
 	#
 	#	Iterate through sensors
 	#
-	for sensor in sensors_data:
-		if sensor is None:
+	for sensor_id, sensor_dict in sensors_data.items():
+		
+		if not sensor_dict:
+			logging.warning(f"Sensor data for ID {sensor_id} is empty or invalid")
 			continue
 
-		# Retrieve sensor port
-		port = sensor['type']['port']
-		type = sensor['type']['type']
+		sensor = Sensor.from_dict(sensor_dict)
+		logging.info(f"Sensor: {sensor.to_dict()}")
 
-		if port is not None:
-			
+		# Retrieve sensor port
+		sensor_port = sensor.type.port
+		sensor_type = sensor.type.type
+
+		if sensor_port:
 			# Check sensor type
-			if type == Type.HUMIDITY.name:
+			if sensor_type == Type.HUMIDITY.name:
 				# Fetch adc_value from sensor's port
-				adc_value = sensor_setup(port)
+				adc_value = sensor_setup(sensor_port)
 
 				#
 				# Append value to humidity sensors map:
 				#       Track initial data sent by sensor
 				#
 				if adc_value is not None:
-					humidity_sensors[sensor["id"]] = moisture_percentage(adc_value)
+					humidity_sensors[sensor_id] = moisture_percentage(adc_value)
 
-			elif type == Type.TEMPERATURE.name:
-				# Search slave file for sensor port
-				slave_file = sensor_file(port)
+			# elif type == Type.TEMPERATURE.name:
+			# 	# Search slave file for sensor port
+			# 	slave_file = sensor_file(port)
 
-				# Check if slave file exists
-				if slave_file is not None:
-					# Append value to temperature sensors map
-					temperature_sensors[sensor["id"]] = read_temperature(slave_file)
+			# 	# Check if slave file exists
+			# 	if slave_file is not None:
+			# 		# Append value to temperature sensors map
+			# 		temperature_sensors[sensorDTO.id] = read_temperature(slave_file)
 
 	# Print available sensors
 	logging.info(Fore.WHITE + 

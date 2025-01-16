@@ -5,3 +5,10 @@ class SensorType:
 		self.status = status
 		self.port = port
 
+	def to_dict(self) -> dict:
+		return {
+			"type": self.type,
+			"measured_value": self.measured_value,
+			"status": self.status,
+			"port": self.port
+		}

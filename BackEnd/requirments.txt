@@ -1,0 +1,8 @@
+pip install flask
+pip install flask-apscheduler
+pip install colorama
+pip install firebase_admin
+pip install board
+pip install busio
+pip install adafruit-blinka
+pip install adafruit-circuitpython-ads1x15

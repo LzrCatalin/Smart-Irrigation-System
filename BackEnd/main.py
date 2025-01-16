@@ -22,7 +22,7 @@ app = Flask(__name__)
 #
 ####################
 logging.basicConfig(
-	level = logging.INFO,
+	level = logging.DEBUG,
 	format =  '%(levelname)s - %(message)s',
 	handlers = [logging.StreamHandler()]
 )
@@ -40,8 +40,8 @@ app.config.from_object(Config())
 # Init sensor scheduler
 sensors_scheduler = SensorScheduler(app)
 
-# # Start periodic update at a 30 seconds interval
-# sensors_scheduler.schedule_sensor_updates(5)
+# Start periodic update at a 30 seconds interval
+sensors_scheduler.schedule_sensor_updates(5)
 
 ####################
 #
