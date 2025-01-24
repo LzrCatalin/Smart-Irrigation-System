@@ -32,7 +32,7 @@ class Field:
 	@staticmethod
 	def from_dict(data: dict) -> "Field":
 		field =  Field(
-			latitude = data["latitude"],
+			latitude = data['latitude'],
 			longitude = data["longitude"],
 			length = data["length"],
 			width = data["width"],

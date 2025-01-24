@@ -1,0 +1,117 @@
+from http import HTTPStatus
+from flask import jsonify, request, Blueprint
+
+from src.services.fields_service import *
+
+FIELDS_URL = '/api/fields'
+
+#
+#   Setup Blueprint
+#
+fields_bp = Blueprint('fields', __name__, url_prefix= FIELDS_URL)
+
+####################
+# 
+#   Routes
+#
+####################
+
+#
+#   Fetch all fields
+#
+@fields_bp.route('', methods= ['GET'])
+def get_fields() -> jsonify:
+
+	# Service response
+	response = get_fields_data()
+
+	if response is None:
+		return jsonify({"status:": "error",
+						"message": "No fields available"}), HTTPStatus.NOT_FOUND
+	
+	return jsonify(response), HTTPStatus.OK
+
+
+#
+#	Fetch field by ID
+#
+@fields_bp.route('/<field_id>', methods= ['GET'])
+def get_field(field_id: str) -> jsonify:
+
+	# Service response
+	response = get_field_by_id(field_id)
+
+	if "error" in response:
+		return jsonify({"status": "error",
+						"error": response["error"]}), HTTPStatus.BAD_REQUEST
+	
+	return jsonify(response), HTTPStatus.OK
+#
+#	Create fields
+#
+@fields_bp.route('', methods=['POST'])
+def add_field() -> jsonify:
+	# Fetch JSON
+	field_data = request.get_json()
+
+	try:
+		# Create Field object 
+		field = Field.from_dict(field_data)
+
+		# Service response
+		response = create_field(field)
+
+		if "error" in response:
+			return jsonify({"status": "error", 
+					"error": response["error"]}), HTTPStatus.BAD_REQUEST
+		
+		return jsonify(response), HTTPStatus.CREATED
+
+	except Exception as e:
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+	
+
+#
+#	Update field
+#
+@fields_bp.route('/<field_id>', methods=['PUT'])
+def update_field(field_id: str) -> jsonify:
+	# Fetch JSON 
+	field_data = request.get_json()
+
+	try:
+		# Create Field object
+		field = Field.from_dict(field_data)
+
+		# Service response
+		response = update_field_by_id(field_id, field)
+
+		if "error" in response:
+			return jsonify({"status": "error",
+				   			"error": response["error"]}), HTTPStatus.BAD_REQUEST
+		
+		return jsonify(response), HTTPStatus.OK
+
+	except Exception as e:
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+#
+#	Delete field
+#
+@fields_bp.route('/<field_id>', methods=['DELETE'])
+def delete_field(field_id: str) -> jsonify:
+
+	try:
+		# Service response
+		response = delete_field_by_id(field_id)
+
+		if "error" in response:
+			return jsonify({"status": "error",
+				   			"error": response["error"]}), HTTPStatus.BAD_REQUEST
+		
+		return jsonify(response), HTTPStatus.OK
+	
+	except Exception as e:
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+	

@@ -7,6 +7,7 @@ from src.classes.SensorScheduler import SensorScheduler
 from src.sensors.humidity_sensor import *
 from src.controllers.sensors_controller import *
 from src.controllers.users_controller import *
+from src.controllers.fields_controller import *
 from src.services.sensors_services import *
 from src.firebase.sensors_init import sensors_init
 ####################
@@ -54,6 +55,7 @@ app.config.from_object(Config())
 # sensors_init()
 # app.register_blueprint(sensors_bp)
 app.register_blueprint(users_bp)
+app.register_blueprint(fields_bp)
 
 if __name__ == '__main__':
 	app.run(debug=False, host = "0.0.0.0", port = 8080)
