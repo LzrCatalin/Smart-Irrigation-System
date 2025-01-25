@@ -57,7 +57,7 @@ def get_user_by_id(id: str) -> dict:
 
 
 #
-#	Fetch user by email
+#	Check email in DB
 #
 def available_email(email: str) -> bool:
 	
@@ -78,6 +78,50 @@ def available_email(email: str) -> bool:
 
 
 
+#
+#	Fetch user by email
+#
+def get_user_by_email(email: str) -> dict:
+	
+	try:
+		# Fetch DB
+		user = REF.order_by_child('email').equal_to(email).get()
+
+		if not user:
+			return {"error": f"No user found for email: {email}"}
+		
+		for user_id, user_data in user.items():
+			return UserDTO(user_id, user_data["email"]).to_dict()
+		
+		return {"error": "Unexpected error."}
+	
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+
+
+#
+#	Fetch user by email and password
+#
+def get_user_by_email_and_password(email: str, password: str) -> dict:
+
+	try:
+		# Fetch DB by email
+		user_ref = REF.order_by_child('email').equal_to(email).get()
+
+		if user_ref is None:
+			return {"error": f"No user found with email: {email}"}
+
+		# Verify email and password
+		for user_id, user_data in user_ref.items():
+
+			if user_data["password"] == password:
+				return UserDTO(user_id, email).to_dict()
+
+		return {"error": "Invalid password or email."}
+	
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+	
 #######################
 #
 #   CRUD Operations
