@@ -19,22 +19,26 @@ def hello_world():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login() -> jsonify:
-		
+	logging.debug(f"\t\tMethod -> {request.method}")
 	if request.method == 'POST':
 
 		# Fetch user credentials
 		email = request.json.get('email')
+		logging.debug(f"\t\tEmail -> {email}")
 		password = request.json.get('password')
+		logging.debug(f"\t\tPassword -> {password}")
 
 		# Encrypt password for credentials verification
 		encrypted_password = encrypt(password)
 
 		# Credentials validation
 		if email and password:
+			logging.debug("\t\tFirst IF Statement")
 			session['email'] = email
 
 			# Retrieve teacher based on email
 			response = get_user_by_email_and_password(email, encrypted_password)
+			logging.debug(f"\t\tService response -> {response}")
 
 			if "error" in response:
 				return jsonify({"status": "error",
@@ -42,6 +46,7 @@ def login() -> jsonify:
 
 			# Generate token
 			token = generate_token({'id': response['id']})
+			logging.debug(f"\t\tGenerated TOKEN -> {token}")
 
 			return jsonify({
 				'user_data': response,
@@ -52,6 +57,7 @@ def login() -> jsonify:
 			return jsonify({'message': 'Invalid credentials'}), HTTPStatus.BAD_REQUEST
 
 	else:
+		logging.debug("\t\tGoogle Auth ->")
 		# Handle case when the user logs in via OAuth2.0
 		google = current_app.oauth_manager.get_provider('google')
 		redirect_uri = url_for('auth.authorize', _external=True)
@@ -74,7 +80,7 @@ def authorize() -> jsonify:
 	# Check if email already exists
 	response = available_email(user_email)
 
-	if not response:
+	if response:
 		# Generate random password
 		user_password = generate_random_password()
 
