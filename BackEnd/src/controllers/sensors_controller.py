@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, jsonify, request, Blueprint
 from http import HTTPStatus
 
@@ -6,13 +7,13 @@ from http import HTTPStatus
 #   Add the path to the project
 #
 ####################
+
 import sys
 sys.path.append("src")
 
 from src.services import sensors_services
 from src.classes.Sensor import *
 from src.classes.SensorType import *
-from src.sensors.humidity_sensor import *
 
 SENSORS_URL = '/api/sensors'
 

@@ -5,6 +5,10 @@ from src.classes.User import *
 from src.classes.UserDTO import *
 from src.firebase.db_init import db_init
 from firebase_admin import credentials, db
+
+# # Database init
+# db_init()
+
 #######################
 #
 #   Database path for users
