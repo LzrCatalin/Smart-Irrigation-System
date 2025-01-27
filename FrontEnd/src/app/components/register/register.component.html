@@ -1,0 +1,26 @@
+<div class="split-container">
+<div class="image-container">
+	<img src="https://thesquare.ie/wp-content/uploads/2024/06/QuizClothing_Logo.jpg" alt="Background Image" />
+</div>
+<div class="form-container">
+	<div class="register-container">
+	<h3>Register</h3>
+	<form>
+		<div class="input-box">
+		<label for="email">Email</label>
+		<input type="email" [(ngModel)]="email" name="Email" required placeholder="Enter your email" />
+		</div>
+		<div class="input-box">
+		<label for="password">Password</label>
+		<input type="password" [(ngModel)]="password" name="Password" required placeholder="Enter your password" />
+		</div>
+		<button type="button" class="primary-btn" (click)="onRegister()">Register</button>
+
+		<div class="switch-text">
+		<span>Already have an account? </span>
+		<a href="/login" class="switch-link">Login here</a>
+		</div>
+	</form>
+	</div>
+</div>
+</div>
