@@ -10,6 +10,7 @@ FIELDS_URL = '/api/fields'
 #
 fields_bp = Blueprint('fields', __name__, url_prefix= FIELDS_URL)
 
+
 ####################
 # 
 #   Routes
@@ -21,6 +22,7 @@ fields_bp = Blueprint('fields', __name__, url_prefix= FIELDS_URL)
 #
 @fields_bp.route('', methods= ['GET'])
 def get_fields() -> jsonify:
+
 
 	# Service response
 	response = get_fields_data()
@@ -46,6 +48,24 @@ def get_field(field_id: str) -> jsonify:
 						"error": response["error"]}), HTTPStatus.BAD_REQUEST
 	
 	return jsonify(response), HTTPStatus.OK
+
+
+#
+#	Fetch fields by user email
+#
+@fields_bp.route('/all/<user_id>', methods= ['GET'])
+def get_user_fields(user_id: str) -> jsonify:
+
+	# Service response
+	response = get_fields_by_user_id(user_id)
+
+	if "error" in response:
+		return jsonify({"status": "error",
+				 		"error": response["error"]}), HTTPStatus.BAD_REQUEST
+	
+	return jsonify(response), HTTPStatus.OK
+
+
 #
 #	Create fields
 #
@@ -53,6 +73,7 @@ def get_field(field_id: str) -> jsonify:
 def add_field() -> jsonify:
 	# Fetch JSON
 	field_data = request.get_json()
+	logging.debug(f"\t\t FIELD CONTROLLER : Received data: {field_data}")
 
 	try:
 		# Create Field object 

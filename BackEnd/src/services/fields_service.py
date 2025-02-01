@@ -1,4 +1,5 @@
 import logging
+import requests
 from colorama import Fore, Style
 from src.classes.Field import *
 from src.classes.FieldDTO import *
@@ -11,6 +12,36 @@ from firebase_admin import credentials, db
 #######################
 DB_REF = 'irrigation-system/field_data'
 REF = db.reference(f'{DB_REF}')
+
+
+####################
+#
+#	Util functions
+#
+####################
+def get_soil_type(latitude: float, longitude: float) -> str:
+	logging.debug(f"\t\tRetrieving soil type: {longitude} : {latitude}")
+
+	# SoilGrids API endpoint
+	url = f"https://rest.isric.org/soilgrids/v2.0/classification/query?lon={longitude}&lat={latitude}"
+
+	# Make the request
+	response = requests.get(url)
+	logging.debug(f"URL RESPONSE: {response.status_code}")
+
+	if response.status_code == 200:
+		data = response.json()
+		logging.debug(f"DATA RESPONSE: {data}")
+
+		# Extract the soil type from the correct key
+		soil_type = data.get('wrb_class_name', 'Unknown')
+		logging.debug(f"Successfully fetched soil type: {soil_type}")
+		return soil_type
+	else:
+		logging.debug("ERROR")
+		logging.error(f"Error: {response.status_code} - {response.text}")
+		return None
+	
 
 #######################
 #
@@ -61,7 +92,38 @@ def get_field_by_id(id: str) -> dict:
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
+
+
+#
+#	Fetch fields by user email
+#
+def get_fields_by_user_id(user_id: str) -> list[dict]:
+
+	# Fetch data
+	fields_ref = REF.order_by_child('user').equal_to(user_id).get()
+	logging.debug(f"Fetched fields: {fields_ref}")
+
+	# Check fetch response
+	if fields_ref is None:
+		return {"error": f"No fields for user: {user_id}"}
 	
+	try:
+		# Create fieldDTO obj array
+		fieldsDTOs = [
+			FieldDTO(
+				id = field_id,
+				**Field.from_dict(field_data).to_dict()
+			).to_dict()
+
+			for field_id, field_data in fields_ref.items()
+		]
+
+		return fieldsDTOs
+
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+
 #######################
 #
 #   CRUD Operations
@@ -74,6 +136,10 @@ def get_field_by_id(id: str) -> dict:
 def create_field(data: Field) -> dict:
 	
 	try:
+		# Fetch soil type based on longitude and longitude
+		data.soil_type = get_soil_type(data.longitude, data.latitude)
+		logging.debug(f"Fetched soil type: {data.soil_type}")
+
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
 

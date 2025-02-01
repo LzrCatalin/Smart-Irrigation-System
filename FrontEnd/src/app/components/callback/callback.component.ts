@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { User } from '../../models/user-model';
+import { User } from '../../models/user.model';
 
 @Component({
 	selector: 'app-callback',

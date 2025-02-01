@@ -1,1 +1,146 @@
-<p>home works!</p>
+<div class="dashboard-container">
+	<!-- Angular Material Sidenav -->
+	<mat-sidenav-container class="sidenav-container">
+		<!-- Sidenav -->
+		<mat-sidenav #sidenav mode="side" opened="false" position="start" class="sidenav">
+			<header class="sidenav-header">
+				<h2>Menu</h2>
+			</header>
+			<nav>
+				<mat-nav-list>
+					<a mat-list-item href="#" aria-label="Dashboard">
+						<mat-icon>dashboard</mat-icon>
+						<span>Dashboard</span>
+					</a>
+					<a mat-list-item href="#" aria-label="Fields">
+						<mat-icon>agriculture</mat-icon>
+						<span>Fields</span>
+					</a>
+					<a mat-list-item href="#" aria-label="Weather">
+						<mat-icon>wb_sunny</mat-icon>
+						<span>Weather</span>
+					</a>
+					<a mat-list-item href="#" aria-label="Settings">
+						<mat-icon>settings</mat-icon>
+						<span>Settings</span>
+					</a>
+					<a mat-list-item href="#" aria-label="Logout">
+						<mat-icon>logout</mat-icon>
+						<span>Logout</span>
+					</a>
+				</mat-nav-list>
+			</nav>
+		</mat-sidenav>
+
+		<!-- Main Content -->
+		<mat-sidenav-content>
+			<!-- Navbar with Toggle Button -->
+			<header class="navbar">
+				<button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu Toggle">
+					<mat-icon>menu</mat-icon>
+				</button>
+				<h1>Smart Irrigation Dashboard</h1>
+			</header>
+
+			<!-- Content -->
+			<div class = "content">
+
+				<main class="content grid-layout">
+					<!-- Slideshow for Farming News -->
+					<div class="news-display">
+						<section class="slideshow card news-section">
+							<h2>Farming News</h2>
+							<div class="news-list">
+								<!-- Displaying one news item at a time -->
+								<article *ngFor="let news of paginatedNews">
+									<div class="news-item">
+										<!-- Larger image for the news -->
+										<img [src]="news.imageUrl" [alt]="news.title" class="news-image" />
+										<div class="news-content">
+											<h3>{{ news.title }}</h3>
+											<a [href]="news.newsUrl" target="_blank">Read more</a>
+										</div>
+									</div>
+								</article>
+							</div>
+							<!-- Paginator configured to show one item at a time -->
+							<mat-paginator [length]="newsItems.length" [pageSize]="1" [pageSizeOptions]="[1]" (page)="onPageChange($event)">
+							</mat-paginator>
+						</section>
+					</div>
+
+					<!-- Fields Display -->
+					<div class="fields-display">
+						<section class="fields-section card">
+							<h2>Your Fields</h2>
+							<mat-paginator [length]="fields.length" [pageSize]="2" [pageSizeOptions]="[2]" (page)="onFieldsPageChange($event)">
+							</mat-paginator>
+							<div class="fields-list">
+								<article class="field-item" *ngFor="let field of paginatedFields" (click)="openFieldDetails(field)">
+									<div class="field-image">
+										<img src='https://cdn-icons-png.flaticon.com/512/4614/4614344.png' [alt]="field.crop_name" />
+									</div>
+									<div class="field-summary">
+										<h3>{{ field.crop_name }}</h3>
+										<p>{{ field.soil_type }}</p>
+									</div>
+								</article>
+							</div>
+						</section>
+						
+						<!-- Field Details Modal -->
+						<div class="modal" *ngIf="selectedField">
+							<div class="modal-content">
+								<span class="close" (click)="closeModal()">&times;</span>
+								<h2>{{ selectedField.crop_name }}</h2>
+								<p><strong>Soil Type:</strong> {{ selectedField.soil_type }}</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Calendar and Weather Section -->
+					<div class="calendar-weather-display">
+						<section class="calendar-weather card weather-section">
+							<!-- Calendar full month display -->
+							<mat-calendar [selected]="selectedDate" (selectedChange)="dateChanged($event)"></mat-calendar>
+							
+							<!-- Weather Display -->
+							<div *ngIf="weatherData" class="weather-display">
+								<h3>Weather in {{ weatherData.name }} on {{ selectedDate | date }}</h3>
+								<p><strong>Temperature:</strong> {{ weatherData.main.temp }}°C</p>
+								<p><strong>Condition:</strong> {{ weatherData.weather[0].description }}</p>
+								<p><strong>Humidity:</strong> {{ weatherData.main.humidity }}%</p>
+								<p><strong>Wind Speed:</strong> {{ weatherData.wind.speed }} m/s</p>
+							</div>
+						</section>
+					</div>
+
+					<!-- Button to toggle weather details input -->
+					<div class = "weather-input-btn">
+						<button mat-icon-button (click)="toggleWeatherInput()" aria-label="Toggle weather input">
+							<mat-icon>edit</mat-icon>
+						</button>
+						
+						<!-- Weather input fields -->
+						<div class = "weather-input-city" *ngIf="showWeatherInput">
+							<mat-form-field appearance="outline">
+								<div class="weather-input">
+									<mat-label>City</mat-label>
+									<input matInput [(ngModel)]="city" placeholder="Enter city">
+								</div>
+							</mat-form-field>
+							<div class="weather-input-btn-search">
+								<button mat-raised-button color="primary" (click)="fetchWeather()">Get Weather</button>
+							</div>
+						</div>
+					</div>
+				</main>
+
+			</div>
+		</mat-sidenav-content>
+	</mat-sidenav-container>
+
+	<!-- Darkened Background for Expanded Field Details -->
+	<div class="overlay" *ngIf="isFieldExpanded"></div>
+</div>
+

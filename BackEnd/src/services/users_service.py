@@ -111,7 +111,6 @@ def get_user_by_email_and_password(email: str, password: str) -> dict:
 	try:
 		# Fetch DB by email
 		user_ref = REF.order_by_child('email').equal_to(email).get()
-		logging.debug(f"\t\tFetched user for email -> {email}\n -> {user_ref}")
 
 		if user_ref is None:
 			return {"error": f"No user found with email: {email}"}
@@ -120,7 +119,6 @@ def get_user_by_email_and_password(email: str, password: str) -> dict:
 		for user_id, user_data in user_ref.items():
 			logging.debug(f"\t\tID: {user_id} -> DATA: {user_data}")
 			if user_data["password"] == password:
-				logging.debug("\t\tReturing DTO")
 				return UserDTO(user_id, email).to_dict()
 
 		return {"error": "Invalid password or email."}
