@@ -12,6 +12,6 @@ This project aims to develop a smart irrigation system designed to optimize wate
 - **Tools**: Visual Studio Code
 
 ## Features
-- Real-time soil moisture monitoring
+- Real-time soil moisture and temperature monitoring
 - Automatic water pump control
 - Adjustable moisture thresholds via a user interface
