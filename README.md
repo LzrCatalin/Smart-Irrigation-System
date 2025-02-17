@@ -8,7 +8,7 @@ This project aims to develop a smart irrigation system designed to optimize wate
 - **Sensors**: Soil moisture sensor (MH Series), Ultrasonic sensor
 - **ADC**: ADS1115 for reading sensor analog outputs
 - **Actuators**: Water pump
-- **Programming Languages**: Python
+- **Programming Languages**: Python - Flask, TypeScript - Angular
 - **Tools**: Visual Studio Code
 
 ## Features
