@@ -76,11 +76,17 @@ def add_field() -> jsonify:
 	logging.debug(f"\t\t FIELD CONTROLLER : Received data: {field_data}")
 
 	try:
+		# Retrieve sensors ids from JSON
+		sensors_ids = []
+		sensors_data = field_data['sensors']
+		for data in sensors_data:
+			sensors_ids.append(data['id'])
+
 		# Create Field object 
 		field = Field.from_dict(field_data)
 
 		# Service response
-		response = create_field(field)
+		response = create_field(field, sensors_ids)
 
 		if "error" in response:
 			return jsonify({"status": "error", 

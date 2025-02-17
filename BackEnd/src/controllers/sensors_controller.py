@@ -138,3 +138,28 @@ def detele_sensor(sensor_id) -> jsonify:
 	except Exception as e:
 		# Catch unexpected errors
 		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+#
+#	Fetch available sensors
+#
+@sensors_bp.route('/status/<sensors_status>', methods = ['GET'])
+def get_sensors_by_status(sensors_status):
+	logging.debug(f"URL variable: {sensors_status}")
+
+	try:
+		# Get service response
+		response = sensors_services.fetch_sensors_by_status(sensors_status)
+
+		if "error" in response:
+			return jsonify({"status": "error",
+				   			"message": response["error"]}), HTTPStatus.BAD_REQUEST
+		
+		# Transform the dictionary into an array
+		sensors_array = [{"id": sensor_id, **sensor_data} for sensor_id, sensor_data in response.items()]
+		
+		return jsonify(sensors_array), HTTPStatus.OK
+	
+	except Exception as e:
+		# Catch unexpected errors
+		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR

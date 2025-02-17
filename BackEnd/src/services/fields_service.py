@@ -1,8 +1,10 @@
 import logging
 import requests
 from colorama import Fore, Style
+from src.classes.Status import *
 from src.classes.Field import *
 from src.classes.FieldDTO import *
+from src.services.sensors_services import get_sensor_data_by_id, update_sensor_by_id
 from firebase_admin import credentials, db
 
 #######################
@@ -22,25 +24,26 @@ REF = db.reference(f'{DB_REF}')
 def get_soil_type(latitude: float, longitude: float) -> str:
 	logging.debug(f"\t\tRetrieving soil type: {longitude} : {latitude}")
 
-	# SoilGrids API endpoint
-	url = f"https://rest.isric.org/soilgrids/v2.0/classification/query?lon={longitude}&lat={latitude}"
+	# # SoilGrids API endpoint
+	# url = f"https://rest.isric.org/soilgrids/v2.0/classification/query?lon={longitude}&lat={latitude}"
 
-	# Make the request
-	response = requests.get(url)
-	logging.debug(f"URL RESPONSE: {response.status_code}")
+	# # Make the request
+	# response = requests.get(url)
+	# logging.debug(f"URL RESPONSE: {response.status_code}")
 
-	if response.status_code == 200:
-		data = response.json()
-		logging.debug(f"DATA RESPONSE: {data}")
+	# if response.status_code == 200:
+	# 	data = response.json()
+	# 	logging.debug(f"DATA RESPONSE: {data}")
 
-		# Extract the soil type from the correct key
-		soil_type = data.get('wrb_class_name', 'Unknown')
-		logging.debug(f"Successfully fetched soil type: {soil_type}")
-		return soil_type
-	else:
-		logging.debug("ERROR")
-		logging.error(f"Error: {response.status_code} - {response.text}")
-		return None
+	# 	# Extract the soil type from the correct key
+	# 	soil_type = data.get('wrb_class_name', 'Unknown')
+	# 	logging.debug(f"Successfully fetched soil type: {soil_type}")
+	return "soil_type"
+	
+	# else:
+	# 	logging.debug("ERROR")
+	# 	logging.error(f"Error: {response.status_code} - {response.text}")
+	# 	return None
 	
 
 #######################
@@ -133,12 +136,20 @@ def get_fields_by_user_id(user_id: str) -> list[dict]:
 #
 #   Create
 #
-def create_field(data: Field) -> dict:
+def create_field(data: Field, sensors_ids: list[str]) -> dict:
+	logging.debug(f"Recevied data: {data.to_dict()}")
 	
 	try:
 		# Fetch soil type based on longitude and longitude
 		data.soil_type = get_soil_type(data.longitude, data.latitude)
-		logging.debug(f"Fetched soil type: {data.soil_type}")
+
+		# Update selected sensors status
+		for id in sensors_ids:
+			# Fetch sensor by id
+			sensor_data = get_sensor_data_by_id(id)
+			# Update sensor status
+			sensor_data['type']['status'] = Status["NOT_AVAILABLE"]
+			update_sensor_by_id(id, Sensor.from_dict(sensor_data))
 
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
@@ -158,7 +169,7 @@ def create_field(data: Field) -> dict:
 		)	
 
 		logging.info(Fore.GREEN + 
-				"Successfully added new user." +
+				"Successfully added new field." +
 				Style.RESET_ALL)
 		
 		return fieldDTO.to_dict()

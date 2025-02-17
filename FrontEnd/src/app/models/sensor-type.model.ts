@@ -3,7 +3,7 @@ import { Type } from "./type.model";
 
 export interface SensorType {
 	type: Type;
-	measuredValue: string;
+	measured_value: string;
 	status: Status;
 	port: String;
 }

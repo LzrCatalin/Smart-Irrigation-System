@@ -31,7 +31,7 @@
 		<select id="sensor" (change)="onSensorSelect($event)">
 		<option value="">-- Select a sensor --</option>
 		<option *ngFor="let sensor of availableSensors" [value]="sensor.id">
-			{{ sensor.name }} ({{ sensor.type.measuredValue }})
+			{{ sensor.name }} / {{ sensor.type.measured_value }}
 		</option>
 		</select>
 	</div>
@@ -41,7 +41,7 @@
 		<h4>Selected Sensors:</h4>
 		<ul>
 		<li *ngFor="let sensor of selectedSensors">
-			{{ sensor.name }} ({{ sensor.type.measuredValue }})
+			{{ sensor.name }}
 			<button type="button" (click)="removeSensor(sensor)">Remove</button>
 		</li>
 		</ul>

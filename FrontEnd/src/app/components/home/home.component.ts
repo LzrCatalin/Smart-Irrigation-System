@@ -69,6 +69,7 @@ export class HomeComponent implements OnInit{
 	fetchUserFields(user_id: string): void {
 		this.fieldsService.get_user_fields(user_id).subscribe({
 			next: (response) => {
+				console.log(response)
 				this.fields = response;
 			},
 			error: (error) => {

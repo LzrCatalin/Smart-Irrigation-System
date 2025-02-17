@@ -158,15 +158,12 @@ def update_sensor_by_id(sensor_id: str, sensor: Sensor) -> dict:
 	try:
 		
 		# Fetch old sensor data
-		fetched_sensor = get_sensor_data_by_id(sensor_id)
-		
-		if get_sensor_data_by_id(sensor_id) is None:
-			return {"error": f"No data found for sensor id: {sensor_id}"}
+		get_sensor_data_by_id(sensor_id)
 
-		if is_port_in_use(sensor.type.port, sensor.type.type):
-			if fetched_sensor['type']['port'] != sensor.type.port:
-				return {"error": f"Port: {sensor.type.port} already in use."}
-		
+		# if is_port_in_use(sensor.type.port, sensor.type.type):
+		# 	if fetched_sensor['type']['port'] != sensor.type.port:
+		# 		return {"error": f"Port: {sensor.type.port} already in use."}
+
 		REF.child(sensor_id).set(sensor.to_dict())
 
 		logging.info(Fore.GREEN + 
@@ -185,8 +182,6 @@ def detele_sensor_by_id(sensor_id: str) -> None:
 	try:
 		# Verify ID in database
 		fetched_sensor = get_sensor_data_by_id(sensor_id)
-		if fetched_sensor is None:
-			return {"error": f"No data found for sensor id: {sensor_id}"}
 		
 		# Delete sensor
 		REF.child(sensor_id).delete()
@@ -200,4 +195,29 @@ def detele_sensor_by_id(sensor_id: str) -> None:
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 
+
+#
+#	Fetch sensors by status
+#
+def fetch_sensors_by_status(sensors_status: str) -> list[dict]:
+	try:
+		# Convert status to uppercase to ensure consistency
+		status_str = sensors_status.upper()
+
+		# Fetch sensors from db
+		sensors = get_sensors_data()
+
+		# Retrieve sensors of expected status
+		filtered_sensors = {}
+		for sensor_id, sensor_data in sensors.items():
+			logging.debug(f"ID: {sensor_id} -> Data: {sensor_data}")
+			if sensor_data.get("type", {}).get("status", "") == status_str:
+				filtered_sensors[sensor_id] = sensor_data
+
+		if not filtered_sensors:
+			return {"error": f"No sensors with status: {status_str}"}
+		
+		return filtered_sensors
 	
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}

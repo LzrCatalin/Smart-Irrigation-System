@@ -7,6 +7,7 @@ import { Type } from '../../models/type.model';
 import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { Router } from '@angular/router';
+import { SensorsService } from '../../services/sensors.service';
 
 declare var google: any;
 
@@ -17,38 +18,14 @@ declare var google: any;
 })
 export class AddFieldComponent implements OnInit {
 	user: User | undefined;
-
 	field!: Field;
-
-	availableSensors: Sensor[] = [
-		{
-		id: '1',
-		name: 'Humidity Sensor 1',
-		type: {
-			type: Type.HUMIDITY,
-			measuredValue: 'Humidity',
-			status: Status.AVAILABLE,
-			port: 'A1'
-		}
-		},
-		{
-		id: '2',
-		name: 'Temperature Sensor 1',
-		type: {
-			type: Type.TEMPERATURE,
-			measuredValue: 'Temperature',
-			status: Status.AVAILABLE,
-			port: 'A2'
-		}
-		}
-	];
-
+	availableSensors: Sensor[] = [];
 	selectedSensors: Sensor[] = [];
 
 	map: any;
 	marker: any;
 
-	constructor(private fieldService: FieldsService, private router: Router) {}
+	constructor(private fieldService: FieldsService, private router: Router, private sensorService: SensorsService) {}
 
 	ngOnInit(): void {
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
@@ -66,6 +43,7 @@ export class AddFieldComponent implements OnInit {
 			sensors: []
 		};
 
+		this.fetchAvailableSensors("available");
 		this.initMap();
 	}
 
@@ -81,6 +59,27 @@ export class AddFieldComponent implements OnInit {
 		});
 	}
 
+	fetchAvailableSensors(status: string) {
+		this.sensorService.get_sensors_by_status(status).subscribe({
+			next: (response) => {
+				this.availableSensors = response.map(sensor => ({
+					id: sensor.id,
+					name: sensor.name,
+					type: {
+						type: sensor.type.type,
+						measured_value: sensor.type.measured_value,
+						status: sensor.type.status,
+						port: sensor.type.port
+					}
+				}));
+			},
+
+			error: (error) => {
+				console.error(error);
+			}
+		})
+	}
+
 	placeMarker(location: any): void {
 		if (this.marker) {
 			this.marker.setPosition(location);
@@ -89,7 +88,7 @@ export class AddFieldComponent implements OnInit {
 			this.marker = new google.maps.Marker({
 				position: location, 
 				map: this.map
-			});
+			});	
 		}
 
 		this.field.latitude = location.lat();
@@ -111,7 +110,6 @@ export class AddFieldComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-		console.log(this.field.crop_name)
 		this.field.sensors =  this.selectedSensors;
 
 		this.fieldService.add_field(this.field.latitude, this.field.longitude,
@@ -119,8 +117,7 @@ export class AddFieldComponent implements OnInit {
 									this.field.crop_name, this.field.soil_type,
 									this.field.user_id, this.field.sensors).subscribe
 		({
-			next: (response: any) => {
-				console.log(response)
+			next: (response: Field) => {
 				this.router.navigateByUrl('/home')
 			},
 			error: (error) => {
