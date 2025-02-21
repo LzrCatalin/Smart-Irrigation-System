@@ -128,10 +128,16 @@ def update_field(field_id: str) -> jsonify:
 #
 @fields_bp.route('/<field_id>', methods=['DELETE'])
 def delete_field(field_id: str) -> jsonify:
-
+	
+	data = request.get_json()
+	logging.debug(f"Received sensors: {data}")
+	
 	try:
+		# Fetch sensors from JSON
+		field_sensors = data["sensors_name"]
+
 		# Service response
-		response = delete_field_by_id(field_id)
+		response = delete_field_by_id(field_id, field_sensors)
 
 		if "error" in response:
 			return jsonify({"status": "error",

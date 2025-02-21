@@ -24,7 +24,7 @@
 						<mat-icon>settings</mat-icon>
 						<span>Settings</span>
 					</a>
-					<a mat-list-item href="#" aria-label="Logout">
+					<a mat-list-item (click)="toggleLogOut()" aria-label="Logout">
 						<mat-icon>logout</mat-icon>
 						<span>Logout</span>
 					</a>
@@ -79,6 +79,11 @@
 								<article class="field-item" *ngFor="let field of paginatedFields" (click)="openFieldDetails(field)">
 									<div class="field-image">
 										<img src='https://cdn-icons-png.flaticon.com/512/4614/4614344.png' [alt]="field.crop_name" />
+										<div class="delete-field-btn">
+											<button mat-icon-button (click)="deleteField(field.id, field.sensors)" aria-label="Delete Field">
+												<mat-icon>delete</mat-icon>
+											</button>
+										</div>
 									</div>
 									<div class="field-summary">
 										<h3>{{ field.crop_name }}</h3>

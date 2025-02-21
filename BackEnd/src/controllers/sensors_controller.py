@@ -61,7 +61,6 @@ def get_sensor(sensor_id) -> jsonify:
 def add_sensor() -> jsonify:
 	# Get JSON data from request
 	sensor_data = request.json
-	print(f"JSON Data: \n{sensor_data}")
 	
 	try:
 		# Convert JSON data to Sensor object
@@ -70,9 +69,9 @@ def add_sensor() -> jsonify:
 		# Send data to service layer
 		response = sensors_services.add_sensor(sensor)
 
-		if response is "error":
-			return jsonify({"status": "failure", 
-					"error": response["error"]}), HTTPStatus.BAD_REQUEST
+		if "error" in response:
+			return jsonify({"status": "error",
+				   			"message": response["error"]}), HTTPStatus.BAD_REQUEST
 		
 		return jsonify({"status": "success", 
 						"message": f"Sensor added successfully.{response}"}), HTTPStatus.OK

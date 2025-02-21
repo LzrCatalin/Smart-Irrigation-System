@@ -91,18 +91,31 @@ def get_sensors_data_by_type(sensors_type: type) -> list[dict]:
 	filtered_sensors = {}
 	
 	for key, val in sensors_data.items():
-		try:
-			if val['type']['type'] == sensors_type:
-				filtered_sensors[key] = val
+		if val['type']['type'] == sensors_type:
+			filtered_sensors[key] = val
 
-		except KeyError as e:
-			logging.error(Fore.RED + 
-				f"Error filtering sensor with key {key}: {e}" + 
-				Style.RESET_ALL)
-
-	logging.info(f"Successfully fetched sensor of type: {sensors_type}")
-	logging.info(f"Fetched sensors based on type: {filtered_sensors}")
 	return filtered_sensors
+
+
+#
+#	Fetch sensor by name
+#
+def get_sensor_by_name(name: str) -> dict:
+	logging.debug(f"Fetching sensor with name: {name}")
+
+	# Fetch data
+	sensor_data = REF.order_by_child('name').equal_to(name).get()
+
+	# Verify data
+	if sensor_data is None:
+		return {"error": f"No data found for sensor name: {name}"}
+	
+	for firebase_id, data in sensor_data.items():
+		return {
+			'firebase_id': firebase_id,
+			'sensor_data': data
+		}
+
 
 #
 #	Check if port is in use
@@ -110,13 +123,16 @@ def get_sensors_data_by_type(sensors_type: type) -> list[dict]:
 def is_port_in_use(port: int, sensor_type: type) -> bool:
 	# Fetch sensors from db
 	sensors_data = get_sensors_data_by_type(sensor_type)
+	logging.debug(f"{sensors_data}")
 
-	for sensor_id, sensors_data in sensors_data.items():
-		if sensors_data['type']['port'] == port:
-			logging.warning("Port already in use")
-			return True
+	if sensors_data:
+		for _, sensors_data in sensors_data.items():
+			if sensors_data['type']['port'] == port:
+				logging.warning(Fore.LIGHTYELLOW_EX +
+					f"Port: {port} already in use for type: {sensor_type}" +
+					Style.RESET_ALL)
+				return True
 	
-	logging.info("Port is available")
 	return False
 
 #######################
@@ -131,22 +147,22 @@ def is_port_in_use(port: int, sensor_type: type) -> bool:
 def add_sensor(data: Sensor) -> dict:
 
 	try:
-		if is_port_in_use(data.type.port, data.type.type):
-			logging.warning(Fore.LIGHTYELLOW_EX +
-				   f"Port: {data.type['port']} already in use for type: {data.type['type']}" +
-				   Style.RESET_ALL)
-			return None
+		# Check port 
+		if not is_port_in_use(data.type.port, data.type.type):
 			
-		# Push data into db
-		sensor_ref = REF.push(data.to_dict())
+			# Push data into db
+			sensor_ref = REF.push(data.to_dict())
+			
+			sensorDTO = SensorDTO(sensor_ref.key, data.name, data.type)
+
+			logging.info(Fore.GREEN + 
+				"Successfully added new sensor data." +
+				Style.RESET_ALL)
+
+			return sensorDTO.to_dict()
 		
-		sensorDTO = SensorDTO(sensor_ref.key, data.name, data.type)
-
-		logging.info(Fore.GREEN + 
-			"Successfully added new sensor data." +
-			Style.RESET_ALL)
-
-		return sensorDTO.to_dict()
+		else:
+			return {"error": f"Port {data.type.port} already in use for type: {data.type.type}"}
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -155,8 +171,9 @@ def add_sensor(data: Sensor) -> dict:
 #	Update
 #
 def update_sensor_by_id(sensor_id: str, sensor: Sensor) -> dict:
+
+	logging.debug(f"\t\t-> UPDATE SENSOR\n\t -> Details:\n\t{sensor_id}\n\t{sensor}")
 	try:
-		
 		# Fetch old sensor data
 		get_sensor_data_by_id(sensor_id)
 
@@ -221,3 +238,40 @@ def fetch_sensors_by_status(sensors_status: str) -> list[dict]:
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
+	
+
+#
+#	Set AVAILABLE status
+#
+def set_available_status(sensor_name: str) -> None:
+	try:
+		# Fetch sensor by name
+		sensor_result = get_sensor_by_name(sensor_name)
+
+		# Fetch sensor data and firebase ID based on dict
+		sensor = sensor_result['sensor_data']
+		sensor_id = sensor_result['firebase_id']
+
+		# Update status and firebase
+		sensor["type"]["status"] = Status.AVAILABLE.name
+		REF.child(sensor_id).set(sensor)
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+	
+
+#
+#	Set NOT_AVAILABLE status
+#
+def set_not_available_status(id: str) -> None:
+	try:
+		# Fetch sensor by ID
+		sensor = get_sensor_data_by_id(id)
+
+		# Update status and firebase
+		sensor["type"]["status"] = Status.NOT_AVAILABLE.name
+		REF.child(id).set(sensor)
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+	

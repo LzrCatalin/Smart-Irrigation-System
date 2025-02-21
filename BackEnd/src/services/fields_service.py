@@ -4,7 +4,7 @@ from colorama import Fore, Style
 from src.classes.Status import *
 from src.classes.Field import *
 from src.classes.FieldDTO import *
-from src.services.sensors_services import get_sensor_data_by_id, update_sensor_by_id
+from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name
 from firebase_admin import credentials, db
 
 #######################
@@ -145,11 +145,8 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 
 		# Update selected sensors status
 		for id in sensors_ids:
-			# Fetch sensor by id
-			sensor_data = get_sensor_data_by_id(id)
-			# Update sensor status
-			sensor_data['type']['status'] = Status["NOT_AVAILABLE"]
-			update_sensor_by_id(id, Sensor.from_dict(sensor_data))
+			# Update status
+			set_not_available_status(id)
 
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
@@ -216,11 +213,19 @@ def update_field_by_id(id: str, data: Field) -> dict:
 #
 #	Delete field by ID
 #
-def delete_field_by_id(id: str) -> dict:
+def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 
 	try:
 		# Check ID
 		fetched_field = get_field_by_id(id)
+
+		# Check for sensors
+		if sensors_names:
+			logging.debug(f" -> SERVICE <- Field with id: {id} has sensors on it.")
+			for name in sensors_names:
+				logging.debug(f" -> SERVICE <- Sensor: {name}")
+				# Update sensor status
+				set_available_status(name)
 
 		# Delete 
 		REF.child(id).delete()

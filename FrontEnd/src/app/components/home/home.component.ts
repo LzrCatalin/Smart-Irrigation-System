@@ -5,6 +5,7 @@ import { NewsService } from '../../services/news.service';
 import { Field } from '../../models/field.model';
 import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
+import { Sensor } from '../../models/sensor.model';
 import { Router } from '@angular/router';
 
 @Component({
@@ -77,6 +78,25 @@ export class HomeComponent implements OnInit{
 				this.errorMessage = 'Could not fetch fields. Please try again later.'
 			}
 		});
+	}
+
+	deleteField(field_id: string, field_sensors: Sensor[]): void {
+		console.log(field_id);
+		console.log(field_sensors);
+
+		const sensorNames = field_sensors.map(sensor => sensor.name);
+
+		this.fieldsService.delete_field(field_id, sensorNames).subscribe({
+			next:(response) => {
+				console.log(response);
+				this.router.navigateByUrl('/home');
+			},
+
+			error: (error) => {
+				console.error(error);
+				this.errorMessage = 'Error while deleting field.'
+			}
+		})
 	}
 
 	//////////////////////
@@ -166,4 +186,15 @@ export class HomeComponent implements OnInit{
 	}
 
 	fetchWeather(): void {}
+
+	//////////////////
+	//
+	//
+	//
+	//////////////////
+	toggleLogOut(): void {
+		sessionStorage.clear();
+		localStorage.clear();
+		this.router.navigateByUrl('/login')
+	}
 }

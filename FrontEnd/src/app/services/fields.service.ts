@@ -20,4 +20,11 @@ export class FieldsService {
 	add_field(latitude: number, longitude: number, length: number, width: number, slope: number, crop_name: string, soil_type: string, user: string, sensors: Sensor[]): Observable<Field> {
 		return this.http.post<Field>(`${BASE_URL}/api/fields`, {latitude, longitude, length, width, slope, crop_name, soil_type, user, sensors})
 	}
+
+	delete_field(id: string, sensors_name: string[]): Observable<Field> {
+		const options = {
+			body: { sensors_name } 
+		};
+		return this.http.delete<Field>(`${BASE_URL}/api/fields/${id}`, options)
+	}
 }
