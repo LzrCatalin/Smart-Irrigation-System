@@ -1,0 +1,23 @@
+<div class="field-details">
+	<h2>{{ field.crop_name }}</h2>
+	<p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
+	<p><strong>Location:</strong> ({{ field.latitude }}, {{ field.longitude }})</p>
+	<p><strong>Dimensions:</strong> {{ field.length }}m (length) x {{ field.width }}m (width)</p>
+	<p><strong>Slope:</strong> {{ field.slope }}°</p>
+
+	<h3>Sensors</h3>
+	<div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensors">
+	<div class="sensor-item" *ngFor="let sensor of field.sensors">
+		<p><strong>Name:</strong> {{ sensor.name }}</p>
+		<p><strong>Type:</strong> {{ sensor.type.type }}</p>
+		<p><strong>Measured Value:</strong> {{ sensor.type.measured_value }}</p>
+		<p><strong>Status:</strong> {{ sensor.type.status }}</p>
+		<p><strong>Port:</strong> {{ sensor.type.port }}</p>
+	</div>
+	</div>
+	<ng-template #noSensors>
+	<p>No sensors available for this field.</p>
+	</ng-template>
+
+	<button mat-raised-button color="primary" (click)="close()">Close</button>
+</div>

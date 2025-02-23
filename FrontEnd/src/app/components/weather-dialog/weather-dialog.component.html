@@ -1,0 +1,10 @@
+<h2>Weather Information</h2>
+<div *ngIf="data.weatherData">
+	<p>City: {{ data.weatherData.name }}</p>
+	<p>Temperature: {{ data.weatherData.main.temp }}°C</p>
+	<p>Weather: {{ data.weatherData.weather[0].description }}</p>
+	<!-- Add more weather details as needed -->
+</div>
+<div *ngIf="!data.weatherData">
+<p>No weather data available.</p>
+</div>

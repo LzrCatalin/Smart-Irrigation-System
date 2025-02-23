@@ -1,0 +1,31 @@
+.field-details {
+	padding: 20px;
+	text-align: left;
+}
+
+.field-details h2 {
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.field-details p {
+	margin: 10px 0;
+}
+
+.sensor-list {
+	margin-top: 20px;
+}
+
+.sensor-item {
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	margin-bottom: 10px;
+}
+
+button {
+	margin-top: 20px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}

@@ -7,6 +7,10 @@ import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { Sensor } from '../../models/sensor.model';
 import { Router } from '@angular/router';
+import { WeatherService } from '../../services/weather.service';
+import { WeatherDialogComponent } from '../weather-dialog/weather-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { FieldDisplayComponent } from '../field-display/field-display.component';
 
 @Component({
 	selector: 'app-home',
@@ -46,7 +50,10 @@ export class HomeComponent implements OnInit{
 
 	constructor(private newsService: NewsService, 
 				private router: Router, 
-				private fieldsService: FieldsService) {}
+				private fieldsService: FieldsService,
+				private dialog: MatDialog,
+				private weatherService: WeatherService
+				) {}
 
 	ngOnInit(): void {
 		// Store loggedin user
@@ -80,10 +87,12 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-	deleteField(field_id: string, field_sensors: Sensor[]): void {
+	deleteField(field_id: string, field_sensors: Sensor[], event: Event): void {
 		console.log(field_id);
 		console.log(field_sensors);
 
+		event.stopPropagation();
+		
 		const sensorNames = field_sensors.map(sensor => sensor.name);
 
 		this.fieldsService.delete_field(field_id, sensorNames).subscribe({
@@ -152,19 +161,11 @@ export class HomeComponent implements OnInit{
 	}
 
 	openFieldDetails(field: Field) {
-		this.selectedField = field;
-		const modal = document.querySelector('.modal');
-		if (modal instanceof HTMLElement) {
-			modal.style.display = 'block';
-		}
-	}
-	
-	closeModal() {
-		this.selectedField = null;
-		const modal = document.querySelector('.modal');
-		if (modal instanceof HTMLElement) {
-			modal.style.display = 'none';
-		}
+		// Open FieldDisplay component
+		this.dialog.open(FieldDisplayComponent, {
+			width: '400px',
+			data: { field }
+		});
 	}
 
 	///////////////
@@ -185,11 +186,41 @@ export class HomeComponent implements OnInit{
 		return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 	}
 
-	fetchWeather(): void {}
+	fetchWeather(): void {
+		const formattedDate = this.formatDate(this.selectedDate);
+		this.weatherService.getWeather(this.city, formattedDate).subscribe({
+			next: (response) => {
+				console.log(response);
+				this.weatherData = response;
+				this.openWeatherDialog();
+			},
+			error: (error) => {
+				console.error('Error fetching weather:', error);
+			}
+		})
+	}
 
+	fetchWeeklyWeather(): void {
+		this.weatherService.getWeather(this.city).subscribe({
+			next: (response) => {
+				console.log("Weekly weather: ", response);
+				this.weatherData =  response;
+				this.openWeatherDialog();
+			},
+			error: (error) => {
+				console.error('Error fetching weekly weather:', error)
+			}
+		})
+	}
+	openWeatherDialog(): void {
+		this.dialog.open(WeatherDialogComponent, {
+			width: '400px',
+			data: { weatherData: this.weatherData }
+		});
+	}
 	//////////////////
 	//
-	//
+	//	Logout
 	//
 	//////////////////
 	toggleLogOut(): void {

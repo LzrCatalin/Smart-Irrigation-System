@@ -3,371 +3,165 @@ body {
 	margin: 0;
 	font-family: 'Roboto', sans-serif;
 	background-color: #f5f5f5;
-	font-size: 14px; /* Smaller base font size */
 }
 
 .dashboard-container {
 	display: flex;
-	flex-direction: column;
 	height: 100vh;
 }
 
-/* Sidenav Styles */
 .sidenav-container {
 	flex: 1;
 }
 
 .sidenav {
-	width: 200px; /* Smaller width */
-	background-color: #3f51b5;
+	width: 250px;
+	background-color: #2c3e50;
 	color: white;
 }
 
-.sidenav-header {
-	padding: 12px; /* Smaller padding */
-	text-align: center;
-	background-color: #303f9f;
+.sidenav-content {
+	padding: 20px;
 }
 
 .sidenav-header h2 {
 	margin: 0;
-	font-size: 1.25rem; /* Smaller font size */
+	font-size: 1.5rem;
 }
 
-.mat-nav-list {
-	padding: 0;
-}
-
-.mat-nav-list a {
-	color: white;
-	text-decoration: none;
-	display: flex;
-	align-items: center;
-	padding: 8px 12px; /* Smaller padding */
-	transition: background-color 0.3s;
-}
-
-.mat-nav-list a:hover {
-	background-color: rgba(255, 255, 255, 0.1);
-}
-
-.mat-nav-list mat-icon {
-	margin-right: 8px;
-	font-size: 18px; /* Smaller icon size */
-}
-
-/* Navbar Styles */
 .navbar {
 	display: flex;
 	align-items: center;
-	padding: 12px; /* Smaller padding */
-	background-color: #ffffff;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	padding: 10px 20px;
+	background-color: #34495e;
+	color: white;
 }
 
 .navbar h1 {
 	margin: 0;
-	font-size: 1.25rem; /* Smaller font size */
-	margin-left: 12px; /* Smaller margin */
+	font-size: 1.5rem;
 }
 
-.navbar button {
-	color: #3f51b5;
-}
-
-/* Content Styles */
 .content {
-	padding: 12px; /* Smaller padding */
-	justify-content: space-between;
-	align-items: flex-start;
+	padding: 20px;
+	height: calc(100vh - 80px); /* Fixed height to prevent expansion */
+	overflow-y: auto; /* Add scroll if content overflows */
 }
 
-.grid-layout {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Smaller min width */
-	gap: 12px; /* Smaller gap */
+.split-layout {
+	display: flex;
+	gap: 20px;
+	height: 100%;
 }
 
-/* Card Styles */
+.left-panel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.right-panel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
 .card {
-	background-color: #ffffff;
-	border-radius: 6px; /* Smaller border radius */
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	padding: 12px; /* Smaller padding */
+	background-color: white;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	padding: 20px;
 }
 
-.card h2 {
-	margin-top: 0;
-	font-size: 1.1rem; /* Smaller font size */
-	color: #3f51b5;
-}
-
-.content {
-	margin-top: 50px;
-}
-
-.news-display {
-	margin-left: 75px;
-	height: 525px;
-	width: 750px;
-	background-color: black;
+.news-display, .fields-display, .calendar-weather-display {
 	display: flex;
 	flex-direction: column;
-	gap: 12px; /* Smaller gap */
+	gap: 15px;
 }
 
-/* Slideshow (News) Section */
-.news-section .news-list {
+.news-item, .field-item {
 	display: flex;
-	flex-direction: column;
-	gap: 12px; /* Smaller gap */
-	overflow-y: auto; /* Enable vertical scrolling */
-	max-height: 400px; /* Limit height to create a scrollable area */
-}
-
-.news-display .news-item {
-	display: flex;
-	flex-direction: column;
 	align-items: center;
-	margin-bottom: 20px;
-	width: 100%; /* Ajustează la lățimea dorită */
-	height: 500px; /* Stabilește o înălțime fixă pentru fiecare element de știre */
-	overflow: hidden; /* Ascunde orice conținut care depășește dimensiunile setate */
+	gap: 15px;
 }
 
-.news-display .news-image {
-	width: 100%; /* Lățimea completă a containerului părinte */
-	height: 300px; /* Înălțimea fixă pentru imagini */
-	object-fit: cover; /* Asigură că imaginea acoperă complet spațiul disponibil fără a fi distorsionată */
-}
-
-
-.news-display .news-content {
-	padding: 10px;
-	height: 150px; /* Înălțimea fixă pentru conținutul text */
-	overflow: hidden; /* Ascunde textul care depășește spațiul alocat */
-	text-overflow: ellipsis; /* Adaugă ellipsis dacă textul este prea lung */
-	display: -webkit-box;
-	-webkit-line-clamp: 3; /* Limitează numărul de linii de text afișate la 3 */
-	-webkit-box-orient: vertical;
-}
-
-.news-display .news-content h3 {
-	margin: 0;
-	font-size: 1.2em; /* Ajustează mărimea titlului */
-	line-height: 1.4em; /* Ajustează înălțimea liniei pentru titlu */
-}
-
-.news-display a {
-	text-decoration: none;
-	color: #007BFF; /* Ajustează culoarea linkurilor */
-	font-size: 1em;
-}
-
-.mat-paginator {
-	width: 100%; /* Asigură că paginatorul ocupă întreaga lățime disponibilă */
-	justify-content: center; /* Centrează paginatorul */
-	padding: 10px 0; /* Adaugă un spațiu sus și jos pentru paginator */
-}
-
-.news-section article {
-	display: flex;
-	flex-direction: column;
-	gap: 6px; /* Smaller gap */
-}
-
-.news-section img {
-	width: 100%;
-	max-width: 300px; /* Limit width to prevent stretching */
-	height: auto; /* Maintain aspect ratio */
-	border-radius: 6px; /* Smaller border radius */
-}
-
-.news-section h3 {
-	margin: 0;
-	font-size: 0.9rem; /* Smaller font size */
-}
-
-.news-section a {
-	color: #3f51b5;
-	text-decoration: none;
-	font-size: 0.8rem; /* Smaller font size */
-}
-
-/* Fields Section */
-.fields-display {
-	background-color: red;
-	width: 750px;
-	height: 128px;
-	display: flex;
-	margin-top: -50px;
-	margin-left: 500px;
-	flex-direction: column;
-	gap: 12px; /* Smaller gap */
-}
-
-.fields-section .fields-list {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Smaller min width */
-	gap: 12px; /* Smaller gap */
-	overflow-y: auto; /* Enable vertical scrolling */
-	max-height: 400px; /* Limit height to create a scrollable area */
-}
-
-.fields-section .field-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	cursor: pointer;
-	transition: transform 0.3s;
-}
-
-.fields-section .field-item:hover {
-	transform: scale(1.05);
-}
-
-.fields-section .field-image img {
-	width: 80px; /* Smaller image size */
-	height: 80px; /* Smaller image size */
-}
-
-.fields-section .field-summary h3 {
-	margin: 6px 0 4px; /* Smaller margin */
-	font-size: 0.9rem; /* Smaller font size */
-}
-
-.fields-section .field-summary p {
-	margin: 0;
-	font-size: 0.8rem; /* Smaller font size */
-	color: #666;
-}
-
-.fields-display .field-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 340px; /* Adjust based on layout */
-	margin-bottom: 20px;
-	cursor: pointer;
-	padding: 10px;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.fields-display .field-image img {
-	width: 150px; /* Full width of the container */
-	height: 150px; /* Fixed height */
+.news-image, .field-image img {
+	width: 100px;
+	height: 100px;
 	object-fit: cover;
+	border-radius: 8px;
 }
 
-.fields-display .field-summary {
-	text-align: center;
-	padding: 10px;
+.fields-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 15px;
 }
 
-/* Modal CSS */
+.calendar-weather-container {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.weather-input-section {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.weather-input-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.weather-input-buttons {
+	display: flex;
+	gap: 10px;
+}
+
+.calendar-weather-display {
+	width: 300px; /* Smaller calendar */
+	align-self: flex-end; /* Position in the lower-right corner */
+}
+
+/* Modal Styles */
 .modal {
-	display: none; /* Hidden by default */
-	position: fixed; /* Stay in place */
-	z-index: 1; /* Sit on top */
-	left: 0;
+	position: fixed;
 	top: 0;
-	width: 100%; /* Full width */
-	height: 100%; /* Full height */
-	overflow: auto; /* Enable scroll if needed */
-	background-color: rgb(0,0,0); /* Fallback color */
-	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-.modal {
-	display: none; /* Default state */
-}
-
-.modal.show {
-	display: block; /* Display when active */
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
 }
 
 .modal-content {
-	background-color: #fefefe;
-	margin: 15% auto; /* 15% from the top and centered */
+	background-color: white;
 	padding: 20px;
-	border: 1px solid #888;
-	width: 80%; /* Could be more or less, depending on screen size */
+	border-radius: 8px;
+	width: 300px;
+	text-align: center;
 }
 
 .close {
-	color: #aaaaaa;
-	float: right;
-	font-size: 2	8px;
-	font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-	color: #000;
-	text-decoration: none;
 	cursor: pointer;
+	font-size: 1.5rem;
+	float: right;
 }
 
-
-/* Weather Section */
-.calendar-weather-display {
-	background-color: black;
-	margin-top: 360px;
-	margin-left: 600px;
-	width: 300px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px; /* Smaller gap */
-}
-
-.weather-section {
-	display: flex;
-	flex-direction: column;
-	gap: 12px; /* Smaller gap */
-	max-height: 300px; /* Set a smaller maximum height for the weather section */
-	overflow-y: auto; /* Enable scrolling if content exceeds the container size */
-}
-
-.weather-section button {
-	align-self: flex-start;
-	font-size: 0.9rem; /* Smaller font size */
-	padding: 6px 12px; /* Smaller padding */
-}
-
-.weather-display {
-	background-color: #f5f5f5;
-	padding: 12px; /* Smaller padding */
-	border-radius: 6px; /* Smaller border radius */
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Added shadow for consistency */
-}
-
-.weather-display h3 {
-	margin-top: 0;
-	font-size: 1rem; /* Smaller font size */
-}
-
-.weather-display p {
-	margin: 6px 0; /* Smaller margin */
-	font-size: 0.9rem; /* Smaller font size */
-}
-
-.weather-input-btn {
-	margin-left: 380px;
-	margin-top: 310px;
-}
-
-.weather-input-city {
-	margin-left: -500px;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-	.grid-layout {
-	grid-template-columns: 1fr;
-	}
-
-	.sidenav {
-	width: 180px; /* Smaller width for mobile */
-	}
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
 }

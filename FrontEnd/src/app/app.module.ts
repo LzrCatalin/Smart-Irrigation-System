@@ -29,7 +29,9 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AddFieldComponent } from './components/add-field/add-field.component';
-
+import { WeatherDialogComponent } from './components/weather-dialog/weather-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { FieldDisplayComponent } from './components/field-display/field-display.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,6 +40,8 @@ import { AddFieldComponent } from './components/add-field/add-field.component';
     RegisterComponent,
     CallbackComponent,
     AddFieldComponent,
+    WeatherDialogComponent,
+    FieldDisplayComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,6 +59,7 @@ import { AddFieldComponent } from './components/add-field/add-field.component';
     MatIconModule,
     MatButtonModule,
     MatListModule,
+    MatDialogModule,
     GoogleMapsModule,
     CarouselModule,
     MatPaginatorModule,
