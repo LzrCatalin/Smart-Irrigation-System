@@ -1,10 +1,50 @@
-<h2>Weather Information</h2>
-<div *ngIf="data.weatherData">
-	<p>City: {{ data.weatherData.name }}</p>
-	<p>Temperature: {{ data.weatherData.main.temp }}°C</p>
-	<p>Weather: {{ data.weatherData.weather[0].description }}</p>
-	<!-- Add more weather details as needed -->
+
+<!-- Single Day Weather -->
+<div *ngIf="data.weatherData && !isWeekly" class="weather-container">
+	<div class="weather-card">
+		<h3 class="city-name">{{ data.weatherData.name }}</h3>
+		<div class="weather-details">
+		<div class="weather-icon">
+			<mat-icon>wb_sunny</mat-icon>
+		</div>
+		<div class="weather-info">
+			<p><mat-icon>thermostat</mat-icon> Temperature: {{ getCelsius(data.weatherData.main.temp) }}°C</p>
+			<p><mat-icon>arrow_upward</mat-icon> Max: {{ getCelsius(data.weatherData.main.temp_max) }}°C</p>
+			<p><mat-icon>arrow_downward</mat-icon> Min: {{ getCelsius(data.weatherData.main.temp_min) }}°C</p>
+			<p><mat-icon>air</mat-icon> Wind Speed: {{ data.weatherData.wind.speed }} m/s</p>
+			<p><mat-icon>opacity</mat-icon> Humidity: {{ data.weatherData.main.humidity }}%</p>
+			<p><mat-icon>cloud</mat-icon> Weather: {{ data.weatherData.weather[0].description }}</p>
+			<p><mat-icon>today</mat-icon> Date: {{ getDate(data.weatherData.dt) }}</p>
+		</div>
+		</div>
+	</div>
 </div>
-<div *ngIf="!data.weatherData">
+
+<!-- Weekly Weather -->
+<div *ngIf="isWeekly" class="weather-container">
+<h3 class="city-name">{{ cityName }}</h3>
+	<div class="weekly-weather-scroll">
+		<div *ngFor="let day of weatherList; let i = index" class="weather-card">
+		<h4>Day {{ i + 1 }}</h4>
+		<div class="weather-details">
+			<div class="weather-icon">
+				<mat-icon>wb_cloudy</mat-icon>
+			</div>
+			<div class="weather-info">
+				<p><mat-icon>thermostat</mat-icon> Temp: {{ getCelsius(day.main.temp) }}°C</p>
+				<p><mat-icon>arrow_upward</mat-icon> Max: {{ getCelsius(day.main.temp_max) }}°C</p>
+				<p><mat-icon>arrow_downward</mat-icon> Min: {{ getCelsius(day.main.temp_min) }}°C</p>
+				<p><mat-icon>air</mat-icon> Wind: {{ day.wind.speed }} m/s</p>
+				<p><mat-icon>opacity</mat-icon> Humidity: {{ day.main.humidity }}%</p>
+				<p><mat-icon>cloud</mat-icon> {{ day.weather[0].description }}</p>
+				<p><mat-icon>today</mat-icon> Date: {{ getDate(day.dt) }}</p>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+
+<!-- No Data Available -->
+<div *ngIf="!data.weatherData" class="no-data">
 <p>No weather data available.</p>
 </div>

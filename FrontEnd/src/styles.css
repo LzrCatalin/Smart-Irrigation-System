@@ -4,3 +4,14 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+.mat-dialog-container {
+	padding: 24px !important;
+	max-width: none !important;
+}
+
+.add-field-container {
+	width: 100%;
+	max-width: 1500px; 
+	margin: 0 auto; 
+}

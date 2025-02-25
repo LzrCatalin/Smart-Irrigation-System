@@ -32,6 +32,7 @@ import { AddFieldComponent } from './components/add-field/add-field.component';
 import { WeatherDialogComponent } from './components/weather-dialog/weather-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FieldDisplayComponent } from './components/field-display/field-display.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,6 +43,7 @@ import { FieldDisplayComponent } from './components/field-display/field-display.
     AddFieldComponent,
     WeatherDialogComponent,
     FieldDisplayComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     BrowserModule,

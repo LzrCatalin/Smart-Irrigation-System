@@ -11,6 +11,9 @@ import { WeatherService } from '../../services/weather.service';
 import { WeatherDialogComponent } from '../weather-dialog/weather-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FieldDisplayComponent } from '../field-display/field-display.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AddFieldComponent } from '../add-field/add-field.component';
 
 @Component({
 	selector: 'app-home',
@@ -45,20 +48,26 @@ export class HomeComponent implements OnInit{
 	};
 
 	@ViewChild(MatPaginator) paginator!: MatPaginator;
-	pageSize = 1;
-	pageIndex = 0;
+	// Pagination for fields
+	fieldsPageSize = 2;
+	fieldsPageIndex = 0;
+
+	// Pagination for news
+	newsPageSize = 1;
+	newsPageIndex = 0;
 
 	constructor(private newsService: NewsService, 
 				private router: Router, 
 				private fieldsService: FieldsService,
 				private dialog: MatDialog,
-				private weatherService: WeatherService
+				private weatherService: WeatherService,
+				private snackBar: MatSnackBar,
 				) {}
 
 	ngOnInit(): void {
+		console.log("LOADING HOME COMPONENT")
 		// Store loggedin user
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
-		console.log(this.user)
 
 		// Fetch fields for loggedin user
 		if (this.user.id !== undefined) {
@@ -68,6 +77,7 @@ export class HomeComponent implements OnInit{
 		// Fetch news
 		this.fetchFarmingNews();
 	}
+
 
 	//////////////////////
 	//
@@ -79,6 +89,7 @@ export class HomeComponent implements OnInit{
 			next: (response) => {
 				console.log(response)
 				this.fields = response;
+				this.updatePaginatedFields();
 			},
 			error: (error) => {
 				console.error(error);
@@ -87,26 +98,66 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-	deleteField(field_id: string, field_sensors: Sensor[], event: Event): void {
-		console.log(field_id);
-		console.log(field_sensors);
+	updatePaginatedFields(): void {
+		const start = this.fieldsPageIndex * this.fieldsPageSize;
+		const end = start + this.fieldsPageSize;
+		this.paginatedFields = this.fields.slice(start, end);
+	}
 
+	onFieldsPageChange(event: PageEvent) {
+		this.fieldsPageSize = event.pageSize;
+		this.fieldsPageIndex = event.pageIndex;
+		this.updatePaginatedFields();
+	}
+
+	deleteField(field_id: string, field_sensors: Sensor[], event: Event): void {
 		event.stopPropagation();
 		
-		const sensorNames = field_sensors.map(sensor => sensor.name);
+		// Enable dialog confirmation for deletion
+		const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+			width: '350px',
+			data: { message: 'Are you sure you want to delete this field?' }
+		});
 
-		this.fieldsService.delete_field(field_id, sensorNames).subscribe({
-			next:(response) => {
-				console.log(response);
-				this.router.navigateByUrl('/home');
-			},
+		// Call function after selecting the option
+		dialogRef.afterClosed().subscribe(
+			result => {
+				if (result) {
+					const sensorNames = field_sensors.map(sensor => sensor.name);
+					this.fieldsService.delete_field(field_id, sensorNames).subscribe({
+						next: () => {
+							// Refetch fields after deletion
+							if (this.user?.id) {
+								this.fetchUserFields(this.user.id);
+							}
 
-			error: (error) => {
-				console.error(error);
-				this.errorMessage = 'Error while deleting field.'
+							// Show success notification
+							this.showNotification('Field deleted successfully!');
+						},
+
+						error: (error) => {
+							console.error(error);
+							this.errorMessage = 'Error while deleting field.'
+
+							// Show error notification
+							this.showNotification('Failed to delete field.', 'Retry', 5000);
+						}
+					})
+				}
 			}
-		})
+		)
 	}
+
+	updateField(): void {}
+
+	openFieldDetails(field: Field) {
+		// Open FieldDisplay component
+		this.dialog.open(FieldDisplayComponent, {
+			width: '400px',
+			data: { field }
+		});
+	}
+
 
 	//////////////////////
 	//
@@ -131,42 +182,17 @@ export class HomeComponent implements OnInit{
 	}
 
 	updatePaginatedNews(): void {
-		const start = this.pageIndex * this.pageSize;
-		const end = start + this.pageSize;
+		const start = this.newsPageIndex * this.newsPageSize;
+		const end = start + this.newsPageSize;
 		this.paginatedNews = this.newsItems.slice(start, end);
 	}
 
-	onPageChange(event: PageEvent): void {
-		this.pageSize = event.pageSize;
-		this.pageIndex = event.pageIndex;
+	onNewsPageChange(event: PageEvent): void {
+		this.newsPageSize = event.pageSize;
+		this.newsPageIndex = event.pageIndex;
 		this.updatePaginatedNews();
-		this.paginatedNews = [this.newsItems[event.pageIndex]];
 	}
 
-
-	////////////////	
-	//
-	//	Fields
-	//
-	////////////////
-	toggleFieldDetails(field: any): void {
-		// field.showDetails = !field.showDetails;
-		// this.isFieldExpanded = this.fields.some(f => f.showDetails);
-	}
-
-	onFieldsPageChange(event: any) {
-		const index = event.pageIndex;
-		const size = event.pageSize;
-		this.paginatedFields = this.fields.slice(index * size, index * size + size);
-	}
-
-	openFieldDetails(field: Field) {
-		// Open FieldDisplay component
-		this.dialog.open(FieldDisplayComponent, {
-			width: '400px',
-			data: { field }
-		});
-	}
 
 	///////////////
 	//
@@ -179,6 +205,8 @@ export class HomeComponent implements OnInit{
 
 	dateChanged(newDate: Date) {
 		this.selectedDate = newDate;
+		console.log("Selected date: ", this.selectedDate);
+
 	}
 
 	formatDate(date: Date): string {
@@ -190,7 +218,6 @@ export class HomeComponent implements OnInit{
 		const formattedDate = this.formatDate(this.selectedDate);
 		this.weatherService.getWeather(this.city, formattedDate).subscribe({
 			next: (response) => {
-				console.log(response);
 				this.weatherData = response;
 				this.openWeatherDialog();
 			},
@@ -203,7 +230,6 @@ export class HomeComponent implements OnInit{
 	fetchWeeklyWeather(): void {
 		this.weatherService.getWeather(this.city).subscribe({
 			next: (response) => {
-				console.log("Weekly weather: ", response);
 				this.weatherData =  response;
 				this.openWeatherDialog();
 			},
@@ -218,11 +244,54 @@ export class HomeComponent implements OnInit{
 			data: { weatherData: this.weatherData }
 		});
 	}
+
+
+	
 	//////////////////
 	//
-	//	Logout
+	//	Notifications
 	//
 	//////////////////
+
+	// Delete notification
+	showNotification(message: string, action: string = 'Close', duration: number = 3000): void {
+		this.snackBar.open(message, action, {
+			duration: duration, 
+			horizontalPosition: 'right', 
+			verticalPosition: 'top',
+			panelClass: ['custom-snackbar']
+		});
+	}
+
+
+	//////////////////
+	//
+	//	Side Bar options
+	//
+	//////////////////
+	toggleHome(): void {
+		this.router.navigateByUrl('/home')
+	}
+
+	toggleCreateField(): void {
+		const dialogRef = this.dialog.open(AddFieldComponent, {
+			width: '1000px',
+			data: {} 
+		});
+	
+		dialogRef.afterClosed().subscribe(result => {
+			if (result) {
+				console.log('New field added:', result);
+				if (this.user?.id) {
+					this.fetchUserFields(this.user.id);
+
+					// Display notification
+					this.showNotification('Field added successfully!');
+				}
+			}
+		});
+	}
+
 	toggleLogOut(): void {
 		sessionStorage.clear();
 		localStorage.clear();

@@ -8,6 +8,7 @@ import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { Router } from '@angular/router';
 import { SensorsService } from '../../services/sensors.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 declare var google: any;
 
@@ -25,7 +26,12 @@ export class AddFieldComponent implements OnInit {
 	map: any;
 	marker: any;
 
-	constructor(private fieldService: FieldsService, private router: Router, private sensorService: SensorsService) {}
+	constructor(
+			private fieldService: FieldsService, 
+			private router: Router, 
+			private sensorService: SensorsService,
+			private dialogRef: MatDialogRef<AddFieldComponent>
+			) {}
 
 	ngOnInit(): void {
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
@@ -118,11 +124,15 @@ export class AddFieldComponent implements OnInit {
 									this.field.user_id, this.field.sensors).subscribe
 		({
 			next: (response: Field) => {
-				this.router.navigateByUrl('/home')
+				this.dialogRef.close(response);
 			},
 			error: (error) => {
 				console.error("Error" + error)
 			}
 		})
+	}
+
+	onCancel(): void {
+		this.dialogRef.close();
 	}
 }

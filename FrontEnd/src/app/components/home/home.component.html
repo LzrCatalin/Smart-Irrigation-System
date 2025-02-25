@@ -9,13 +9,13 @@
 		</header>
 		<nav>
 			<mat-nav-list>
-			<a mat-list-item href="#" aria-label="Dashboard">
+			<a mat-list-item (click)="toggleHome()" aria-label="Dashboard">
 				<mat-icon>dashboard</mat-icon>
 				<span>Dashboard</span>
 			</a>
-			<a mat-list-item href="#" aria-label="Fields">
+			<a mat-list-item (click)="toggleCreateField()" aria-label="Fields">
 				<mat-icon>agriculture</mat-icon>
-				<span>Fields</span>
+				<span>Add Field</span>
 			</a>
 			<a mat-list-item href="#" aria-label="Weather">
 				<mat-icon>wb_sunny</mat-icon>
@@ -38,9 +38,9 @@
 	<mat-sidenav-content>
 		<!-- Navbar with Toggle Button -->
 		<header class="navbar">
-		<button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu Toggle">
-			<mat-icon>menu</mat-icon>
-		</button>
+			<button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu Toggle">
+				<mat-icon>menu</mat-icon>
+			</button>
 		<h1>Smart Irrigation Dashboard</h1>
 		</header>
 
@@ -62,7 +62,7 @@
 					</div>
 				</article>
 				</div>
-				<mat-paginator [length]="newsItems.length" [pageSize]="1" [pageSizeOptions]="[1]" (page)="onPageChange($event)">
+				<mat-paginator [length]="newsItems.length" [pageSize]="1" [pageSizeOptions]="[1]" (page)="onNewsPageChange($event)">
 				</mat-paginator>
 			</div>
 			</div>
@@ -80,7 +80,10 @@
 					<img src="https://cdn-icons-png.flaticon.com/512/4614/4614344.png" [alt]="field.crop_name" />
 					<button mat-icon-button (click)="deleteField(field.id, field.sensors, $event)" aria-label="Delete Field">
 						<mat-icon>delete</mat-icon>
-					  </button>
+					</button>
+					<button mat-icon-button (click)="updateField()" aria-label="Update Field">
+						<mat-icon>update</mat-icon>
+					</button>
 					</div>
 					<div class="field-summary">
 					<h3>{{ field.crop_name }}</h3>
@@ -103,8 +106,8 @@
 					<input matInput [(ngModel)]="city" placeholder="Enter city">
 					</mat-form-field>
 					<div class="weather-input-buttons">
-					<button mat-raised-button color="primary" (click)="fetchWeather()">Get Weather for Selected Date</button>
-					<button mat-raised-button color="accent" (click)="fetchWeeklyWeather()">Get Weekly Weather</button>
+						<button mat-raised-button color="primary" (click)="fetchWeather()">Get Weather for Today</button>
+						<button mat-raised-button color="accent" (click)="fetchWeeklyWeather()">Get Weekly Weather</button>
 					</div>
 				</div>
 				</div>
