@@ -6,9 +6,9 @@ from flask import redirect, url_for, session, Blueprint, request, jsonify, curre
 from src.services.users_service import *
 from src.util.encrypt import *
 from src.services.token_service import *
+from src.util.mail_sender import *
 
 auth_bp = Blueprint('auth', __name__)
-
 
 @auth_bp.route('/')
 def hello_world():
@@ -42,6 +42,11 @@ def login() -> jsonify:
 			# Generate token
 			token = generate_token({'id': response['id']})
 
+			# Send Mail for register
+			send_email("Register Successfully",
+			  			f"Successfully created account on our website.\nCredentials:{email} - {password}",
+						email)
+			
 			return jsonify({
 				'user_data': response,
 				'token': token
@@ -95,6 +100,11 @@ def authorize() -> jsonify:
 
 	token = generate_token({'id': user['id']})
 
+	# Send connection email
+	send_email("Login Successfully",
+				f"Successfully loggedin with mail: {user_email}", 
+				user_email)
+	
 	# Serialize user data
 	query_params = urlencode({
 		"access_token": access_token,

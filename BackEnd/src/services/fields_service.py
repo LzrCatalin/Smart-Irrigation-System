@@ -5,7 +5,9 @@ from src.classes.Status import *
 from src.classes.Field import *
 from src.classes.FieldDTO import *
 from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name
+from src.services.users_service import get_user_by_id
 from firebase_admin import credentials, db
+from src.util.mail_sender import  send_email
 
 #######################
 #
@@ -165,6 +167,15 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 			sensors = [sensor.to_dict() for sensor in data.sensors],
 		)	
 
+		# Retrieve user data for mail sender
+		user_data = get_user_by_id(fieldDTO.user)
+		logging.debug(f"Searching user by id: {fieldDTO.user}")
+
+		# Send Mail for creating new field
+		send_email("Adding New Field",
+			 		"Added new field",
+					user_data['email'])
+		
 		logging.info(Fore.GREEN + 
 				"Successfully added new field." +
 				Style.RESET_ALL)
