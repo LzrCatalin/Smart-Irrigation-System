@@ -104,20 +104,24 @@ def add_field() -> jsonify:
 @fields_bp.route('/<field_id>', methods=['PUT'])
 def update_field(field_id: str) -> jsonify:
 	# Fetch JSON 
-	field_data = request.get_json()
+	data = request.get_json()
+	logging.debug(f"Received data: {data}")
+	logging.debug(f"New Field data: {data['field_data']}")
+	logging.debug(f"Deleted sensors: {data['deleted_data']}")
 
 	try:
 		# Create Field object
-		field = Field.from_dict(field_data)
+		field = Field.from_dict(data['field_data'])
+		deleted_sensors = data['deleted_data']
 
 		# Service response
-		response = update_field_by_id(field_id, field)
+		response = update_field_by_id(field_id, field, deleted_sensors)
 
 		if "error" in response:
 			return jsonify({"status": "error",
 				   			"error": response["error"]}), HTTPStatus.BAD_REQUEST
 		
-		return jsonify(response), HTTPStatus.OK
+		return jsonify("ok"), HTTPStatus.OK
 
 	except Exception as e:
 		return jsonify({"status": "error", "message": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR

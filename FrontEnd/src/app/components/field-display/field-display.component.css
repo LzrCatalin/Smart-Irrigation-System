@@ -1,31 +1,97 @@
-.field-details {
+.field-details-container {
 	padding: 20px;
-	text-align: left;
+	max-width: 1200px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	height: calc(100vh - 40px); /* Full height minus padding */
+	overflow-y: auto; /* Enable vertical scroll if needed */
 }
 
-.field-details h2 {
+.card {
 	margin-bottom: 20px;
-	text-align: center;
+	flex: 1;
 }
 
-.field-details p {
-	margin: 10px 0;
+.card-header {
+	background-color: #f5f5f5;
+	padding: 16px;
+}
+
+.card-title {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.card-subtitle {
+	font-size: 1rem;
+	color: #666;
+}
+
+.card-content {
+	padding: 16px;
+}
+
+.field-info p {
+	margin: 8px 0;
+}
+
+.form-fields {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+}
+
+.form-field {
+	width: 100%;
+}
+
+.form-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.sensors-section {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 }
 
 .sensor-list {
-	margin-top: 20px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
 }
 
 .sensor-item {
-	padding: 10px;
 	border: 1px solid #ddd;
-	border-radius: 8px;
-	margin-bottom: 10px;
+	border-radius: 4px;
+	padding: 16px;
+	position: relative;
 }
 
-button {
-	margin-top: 20px;
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
+.sensor-item button {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+.available-sensors {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+}
+
+.available-sensors .sensor-item {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 16px;
+	text-align: center;
+}
+
+.available-sensors button {
+	margin-top: 10px;
 }

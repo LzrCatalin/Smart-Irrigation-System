@@ -148,14 +148,26 @@ export class HomeComponent implements OnInit{
 		)
 	}
 
-	updateField(): void {}
-
 	openFieldDetails(field: Field) {
 		// Open FieldDisplay component
-		this.dialog.open(FieldDisplayComponent, {
+		const dialogRef = this.dialog.open(FieldDisplayComponent, {
 			width: '400px',
 			data: { field }
 		});
+		
+		// Display notification after update field functionalty
+		dialogRef.afterClosed().subscribe({
+			next: (result) => {
+				if (result) {
+					if (result.success) {
+						this.showNotification('Field updated successfully!');
+
+					} else {
+						this.showNotification('Failed to update field.', 'Retry', 5000);
+					}
+				}
+			}
+		})
 	}
 
 
@@ -252,8 +264,6 @@ export class HomeComponent implements OnInit{
 	//	Notifications
 	//
 	//////////////////
-
-	// Delete notification
 	showNotification(message: string, action: string = 'Close', duration: number = 3000): void {
 		this.snackBar.open(message, action, {
 			duration: duration, 

@@ -169,7 +169,6 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 
 		# Retrieve user data for mail sender
 		user_data = get_user_by_id(fieldDTO.user)
-		logging.debug(f"Searching user by id: {fieldDTO.user}")
 
 		# Send Mail for creating new field
 		send_email("Adding New Field",
@@ -189,13 +188,28 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 #
 #	Update field by ID
 #
-def update_field_by_id(id: str, data: Field) -> dict:
+def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 	# Check ID
-	get_field_by_id(id)
+	get_field_by_id(id) 
 
 	try:
-		# Update DB
-		REF.child(id).set(data.to_dict())
+		
+		# Check if exists deleted sensors from update request
+		if deleted_data:
+			for sensor_data in deleted_data['deleted_sensors']:
+				# Set AVAILABLE status for deleted sensor
+				set_available_status(sensor_data['name'])
+
+		# Fetch new list of sensors from the update request
+		selected_sensors = data.to_dict()['sensors']
+
+		# Check if exists
+		if selected_sensors:
+			for sensor_data in selected_sensors:
+				# Set NOT_AVAILABLE status for selected sensor
+				sensor = get_sensor_by_name(sensor_data['name'])
+				set_not_available_status(sensor['firebase_id'])
+
 
 		# Create DTO object
 		updated_fieldDTO = FieldDTO(
@@ -210,6 +224,9 @@ def update_field_by_id(id: str, data: Field) -> dict:
 			user = data.user,
 			sensors = [sensor.to_dict() for sensor in data.sensors],
 		)
+		
+		# Update DB
+		REF.child(id).set(data.to_dict())
 
 		logging.info(Fore.GREEN + 
 				f"Successfully updated field data for ID: {id}" + 
@@ -232,9 +249,7 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 
 		# Check for sensors
 		if sensors_names:
-			logging.debug(f" -> SERVICE <- Field with id: {id} has sensors on it.")
 			for name in sensors_names:
-				logging.debug(f" -> SERVICE <- Sensor: {name}")
 				# Update sensor status
 				set_available_status(name)
 

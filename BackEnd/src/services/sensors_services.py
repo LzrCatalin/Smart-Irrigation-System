@@ -241,7 +241,7 @@ def fetch_sensors_by_status(sensors_status: str) -> list[dict]:
 	
 
 #
-#	Set AVAILABLE status
+#	Set AVAILABLE status using name
 #
 def set_available_status(sensor_name: str) -> None:
 	try:
@@ -261,7 +261,7 @@ def set_available_status(sensor_name: str) -> None:
 	
 
 #
-#	Set NOT_AVAILABLE status
+#	Set NOT_AVAILABLE status using ID
 #
 def set_not_available_status(id: str) -> None:
 	try:

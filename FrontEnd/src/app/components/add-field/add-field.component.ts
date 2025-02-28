@@ -9,6 +9,7 @@ import { FieldsService } from '../../services/fields.service';
 import { Router } from '@angular/router';
 import { SensorsService } from '../../services/sensors.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatSelectChange } from '@angular/material/select';
 
 declare var google: any;
 
@@ -101,15 +102,9 @@ export class AddFieldComponent implements OnInit {
 		this.field.longitude = location.lng();
 	}
 
-	onSensorSelect(event: Event): void {
-		const selectElement = event.target as HTMLSelectElement;
-		const sensorId = selectElement.value;
-		const selectedSensor = this.availableSensors.find(s => s.id === sensorId);
-
-		if (selectedSensor && !this.selectedSensors.includes(selectedSensor)) {
-			this.selectedSensors.push(selectedSensor);
-		}
-	}
+	onSensorSelect(event: MatSelectChange): void {
+		this.selectedSensors = event.value;
+	  }
 
 	removeSensor(sensor: Sensor): void {
 		this.selectedSensors = this.selectedSensors.filter(s => s.id !== sensor.id);

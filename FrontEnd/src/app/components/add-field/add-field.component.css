@@ -1,58 +1,43 @@
 .add-field-container {
-	max-width: 600px;
-	margin: 0 auto;
 	padding: 20px;
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	background-color: #f9f9f9;
+	max-width: 800px;
+	margin: 0 auto;
 }
 
-.form-group {
-	margin-bottom: 15px;
-}
-
-.form-group label {
-	display: block;
-	margin-bottom: 5px;
-	font-weight: bold;
-}
-
-.form-group input,
-.form-group select {
+.map-container {
+	height: 300px;
 	width: 100%;
-	padding: 8px;
-	border: 1px solid #ccc;
+	margin-bottom: 20px;
 	border-radius: 4px;
+	overflow: hidden;
+}
+
+.form-container {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.form-fields {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 20px;
 }
 
 .selected-sensors {
 	margin-top: 20px;
 }
 
-.selected-sensors ul {
-	list-style-type: none;
-	padding: 0;
+.selected-sensors h4 {
+	margin-bottom: 10px;
 }
 
-.selected-sensors li {
+mat-list-item {
 	display: flex;
 	justify-content: space-between;
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	margin-bottom: 5px;
-	background-color: #fff;
+	align-items: center;
 }
 
-button {
-	padding: 10px 20px;
-	background-color: #28a745;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-button:hover {
-	background-color: #218838;
+mat-card-actions {
+	padding: 16px;
 }

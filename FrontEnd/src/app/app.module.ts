@@ -33,6 +33,9 @@ import { WeatherDialogComponent } from './components/weather-dialog/weather-dial
 import { MatDialogModule } from '@angular/material/dialog';
 import { FieldDisplayComponent } from './components/field-display/field-display.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -71,6 +74,8 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
     MatListModule,
     MatCardModule,
     MatPaginatorModule,
+    ReactiveFormsModule,
+    MatSelectModule
   ],
   providers: [
     provideAnimationsAsync()
