@@ -1,106 +1,111 @@
 <div class="field-details-container">
-	<!-- Field Details Section (Hidden in Edit Mode) -->
-	<div class="field-details-card" *ngIf="!editMode">
-	<mat-card class="card">
-		<mat-card-header class="card-header">
-		<mat-card-title class="card-title">{{ field.crop_name }}</mat-card-title>
-		<mat-card-subtitle class="card-subtitle">Field Details</mat-card-subtitle>
-		</mat-card-header>
-		<mat-card-content class="card-content">
-		<div class="field-info">
-			<p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
-			<p><strong>Location:</strong> ({{ field.latitude }}, {{ field.longitude }})</p>
-			<p><strong>Dimensions:</strong> {{ field.length }}m (length) x {{ field.width }}m (width)</p>
-			<p><strong>Slope:</strong> {{ field.slope }}°</p>
-		</div>
-		</mat-card-content>
-		<mat-card-actions class="card-actions">
-		<button mat-raised-button color="primary" (click)="close()">Close</button>
-		<button mat-raised-button color="accent" (click)="toggleEditMode()">Edit Field</button>
-		</mat-card-actions>
-	</mat-card>
-	</div>
+    <!-- Field Details Section (Hidden in Edit Mode) -->
+    <div class="field-details-card" *ngIf="!editMode">
+        <mat-card class="card">
+            <mat-card-header class="card-header">
+                <mat-card-title class="card-title">{{ field.crop_name }}</mat-card-title>
+                <mat-card-subtitle class="card-subtitle">Field Details</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="card-content">
+                <div class="field-info">
+                    <p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
+                    <p><strong>Location:</strong> {{ fieldLocation }}</p>
+                    <p><strong>Dimensions:</strong> {{ field.length }}m (length) x {{ field.width }}m (width)</p>
+                    <p><strong>Slope:</strong> {{ field.slope }}°</p>
+                </div>
+            </mat-card-content>
+            <mat-card-actions class="card-actions">
+                <button mat-raised-button color="primary" (click)="close()">Close</button>
+                <button mat-raised-button color="accent" (click)="toggleEditMode()">Edit Field</button>
+            </mat-card-actions>
+        </mat-card>
+    </div>
 
-	<!-- Edit Form Section (Visible in Edit Mode) -->
-	<div *ngIf="editMode" class="edit-form-card">
-	<mat-card class="card">
-		<mat-card-header class="card-header">
-		<mat-card-title class="card-title">Edit Field</mat-card-title>
-		</mat-card-header>
-		<mat-card-content class="card-content">
-		<form [formGroup]="fieldForm" (ngSubmit)="updateField()">
-			<div class="form-fields">
-			<mat-form-field appearance="fill" class="form-field">
-				<mat-label>Crop Name</mat-label>
-				<input matInput formControlName="crop_name">
-				<mat-error *ngIf="fieldForm.get('crop_name')?.invalid">Crop name is required.</mat-error>
-			</mat-form-field>
+    <!-- Edit Form Section (Visible in Edit Mode) -->
+    <div *ngIf="editMode" class="edit-form-card">
+        <mat-card class="card">
+            <mat-card-header class="card-header">
+                <mat-card-title class="card-title">Edit Field</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="card-content">
+                <form [formGroup]="fieldForm" (ngSubmit)="updateField()">
+                    <div class="form-fields">
+                        <mat-form-field appearance="fill" class="form-field">
+                            <mat-label>Crop Name</mat-label>
+                            <input matInput formControlName="crop_name">
+                            <mat-error *ngIf="fieldForm.get('crop_name')?.invalid">Crop name is required.</mat-error>
+                        </mat-form-field>
 
-			<mat-form-field appearance="fill" class="form-field">
-				<mat-label>Length (m)</mat-label>
-				<input matInput type="number" formControlName="length">
-				<mat-error *ngIf="fieldForm.get('length')?.invalid">Length must be at least 1m.</mat-error>
-			</mat-form-field>
+                        <mat-form-field appearance="fill" class="form-field">
+                            <mat-label>Length (m)</mat-label>
+                            <input matInput type="number" formControlName="length">
+                            <mat-error *ngIf="fieldForm.get('length')?.invalid">Length must be at least 1m.</mat-error>
+                        </mat-form-field>
 
-			<mat-form-field appearance="fill" class="form-field">
-				<mat-label>Width (m)</mat-label>
-				<input matInput type="number" formControlName="width">
-				<mat-error *ngIf="fieldForm.get('width')?.invalid">Width must be at least 1m.</mat-error>
-			</mat-form-field>
+                        <mat-form-field appearance="fill" class="form-field">
+                            <mat-label>Width (m)</mat-label>
+                            <input matInput type="number" formControlName="width">
+                            <mat-error *ngIf="fieldForm.get('width')?.invalid">Width must be at least 1m.</mat-error>
+                        </mat-form-field>
 
-			<mat-form-field appearance="fill" class="form-field">
-				<mat-label>Slope (%)</mat-label>
-				<input matInput type="number" formControlName="slope">
-				<mat-error *ngIf="fieldForm.get('slope')?.invalid">Slope must be at least 0%.</mat-error>
-			</mat-form-field>
-			</div>
-			<div class="form-actions">
-			<button mat-raised-button type="submit" color="primary" (click)="onSubmit()">Save</button>
-			<button mat-raised-button type="button" color="warn" (click)="toggleEditMode()">Cancel</button>
-			</div>
-		</form>
-		</mat-card-content>
-	</mat-card>
-	</div>
+                        <mat-form-field appearance="fill" class="form-field">
+                            <mat-label>Slope (%)</mat-label>
+                            <input matInput type="number" formControlName="slope">
+                            <mat-error *ngIf="fieldForm.get('slope')?.invalid">Slope must be at least 0%.</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="form-actions">
+                        <button mat-raised-button type="submit" color="primary" (click)="onSubmit()">Save</button>
+                        <button mat-raised-button type="button" color="warn" (click)="toggleEditMode()">Cancel</button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
 
-	<!-- Sensors Section (Visible in Both Modes, but Enhanced in Edit Mode) -->
-	<div class="sensors-section">
-	<mat-card class="card">
-		<mat-card-header class="card-header">
-		<mat-card-title class="card-title">Sensors</mat-card-title>
-		</mat-card-header>
-		<mat-card-content class="card-content">
-		<div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensors">
-			<div class="sensor-item" *ngFor="let sensor of field.sensors">
-			<p><strong>Name:</strong> {{ sensor.name }}</p>
-			<p><strong>Type:</strong> {{ sensor.type.type }}</p>
-			<p><strong>Measured Value:</strong> {{ sensor.type.measured_value }}</p>
-			<button *ngIf="editMode" mat-icon-button color="warn" (click)="deleteSensor(sensor)">
-				<mat-icon>close</mat-icon>
-			</button>
-			</div>
-		</div>
-		<ng-template #noSensors>
-			<p>No sensors available for this field.</p>
-		</ng-template>
-		</mat-card-content>
-	</mat-card>
+    <!-- Sensors Section (Visible in Both Modes, but Enhanced in Edit Mode) -->
+    <div class="sensors-section">
+        <mat-card class="card">
+            <mat-card-header class="card-header">
+                <mat-card-title class="card-title">Sensors</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="card-content">
+                <div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensors">
+                    <div class="sensor-item" *ngFor="let sensor of field.sensors">
+                        <p><strong>Name:</strong> {{ sensor.name }}</p>
+                        <p><strong>Type:</strong> {{ sensor.type.type }}</p>
+                        <p><strong>Measured Value:</strong> {{ sensor.type.measured_value }}</p>
+                        <button *ngIf="editMode" mat-icon-button color="warn" (click)="deleteSensor(sensor)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+                <ng-template #noSensors>
+                    <p>No sensors available for this field.</p>
+                </ng-template>
+            </mat-card-content>
+        </mat-card>
 
-	<!-- Add Sensors Section (Visible Only in Edit Mode) -->
-	<div *ngIf="editMode" class="add-sensors-section">
-		<mat-card class="card">
-		<mat-card-header class="card-header">
-			<mat-card-title class="card-title">Add Sensors</mat-card-title>
-		</mat-card-header>
-		<mat-card-content class="card-content">
-			<div class="available-sensors">
-			<div *ngFor="let sensor of availableSensors" class="sensor-item">
-				<p><strong>Name:</strong> {{ sensor.name }}</p>
-				<button mat-raised-button color="primary" (click)="addSensor(sensor)">Add</button>
-			</div>
-			</div>
-		</mat-card-content>
-		</mat-card>
-	</div>
-	</div>
+        <!-- Add Sensors Section (Visible Only in Edit Mode) -->
+        <div *ngIf="editMode" class="add-sensors-section">
+            <mat-card class="card">
+                <mat-card-header class="card-header">
+                    <mat-card-title class="card-title">Add Sensors</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="card-content">
+                    <div class="available-sensors">
+                        <ng-container *ngIf="availableSensors.length > 0; else noAvailableSensors">
+                            <div *ngFor="let sensor of availableSensors" class="sensor-item">
+                                <p><strong>Name:</strong> {{ sensor.name }}</p>
+                                <button mat-raised-button color="primary" (click)="addSensor(sensor)">Add</button>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <ng-template #noAvailableSensors>
+                        <p>No available sensors to add.</p>
+                    </ng-template>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
 </div>

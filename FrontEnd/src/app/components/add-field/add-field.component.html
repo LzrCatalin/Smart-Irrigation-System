@@ -34,13 +34,16 @@
   
 			<!-- Dropdown for sensor selection -->
 			<mat-form-field appearance="fill">
-			  <mat-label>Select Sensors</mat-label>
-			  <mat-select id="sensor" (selectionChange)="onSensorSelect($event)" multiple>
-				<mat-option *ngFor="let sensor of availableSensors" [value]="sensor">
-				  {{ sensor.name }} / {{ sensor.type.measured_value }}
-				</mat-option>
-			  </mat-select>
-			</mat-form-field>
+				<mat-label>Select Sensors</mat-label>
+				<mat-select id="sensor" (selectionChange)="onSensorSelect($event)" multiple>
+				  <mat-option *ngIf="!availableSensors?.length" disabled>No sensors available</mat-option>
+				  <mat-option *ngFor="let sensor of availableSensors" [value]="sensor">
+					{{ sensor.name }}
+				  </mat-option>
+				</mat-select>
+			  </mat-form-field>
+			  
+
 		  </div>
   
 		  <!-- List of selected sensors -->

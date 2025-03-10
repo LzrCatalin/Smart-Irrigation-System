@@ -1,19 +1,19 @@
+import { map, mergeMap, from } from 'rxjs';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { News } from '../../models/news.model';
-import { NewsService } from '../../services/news.service';
 import { Field } from '../../models/field.model';
 import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { Sensor } from '../../models/sensor.model';
 import { Router } from '@angular/router';
-import { WeatherService } from '../../services/weather.service';
 import { WeatherDialogComponent } from '../weather-dialog/weather-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FieldDisplayComponent } from '../field-display/field-display.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddFieldComponent } from '../add-field/add-field.component';
+import { ApiService } from '../../services/api.service';
 
 @Component({
 	selector: 'app-home',
@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit{
 	isFieldExpanded = false;
 	selectedField: Field | null = null;
 	paginatedFields = this.fields.slice(0, 3);
+	fieldLocations: { [key: string]: string } = {};
 
 	city = '';
 	selectedDate = new Date();
@@ -56,12 +57,11 @@ export class HomeComponent implements OnInit{
 	newsPageSize = 1;
 	newsPageIndex = 0;
 
-	constructor(private newsService: NewsService, 
-				private router: Router, 
+	constructor( private router: Router, 
 				private fieldsService: FieldsService,
 				private dialog: MatDialog,
-				private weatherService: WeatherService,
 				private snackBar: MatSnackBar,
+				private apiService: ApiService
 				) {}
 
 	ngOnInit(): void {
@@ -177,7 +177,7 @@ export class HomeComponent implements OnInit{
 	//	
 	//////////////////////
 	fetchFarmingNews(): void {
-		this.newsService.getFarmingNews().subscribe({
+		this.apiService.getFarmingNews().subscribe({
 			next: (response: any) => {
 				this.newsItems = response.articles.map((article: any) => ({
 					title: article.title,
@@ -228,7 +228,7 @@ export class HomeComponent implements OnInit{
 
 	fetchWeather(): void {
 		const formattedDate = this.formatDate(this.selectedDate);
-		this.weatherService.getWeather(this.city, formattedDate).subscribe({
+		this.apiService.getWeather(this.city, formattedDate).subscribe({
 			next: (response) => {
 				this.weatherData = response;
 				this.openWeatherDialog();
@@ -240,7 +240,7 @@ export class HomeComponent implements OnInit{
 	}
 
 	fetchWeeklyWeather(): void {
-		this.weatherService.getWeather(this.city).subscribe({
+		this.apiService.getWeather(this.city).subscribe({
 			next: (response) => {
 				this.weatherData =  response;
 				this.openWeatherDialog();
@@ -300,6 +300,10 @@ export class HomeComponent implements OnInit{
 				}
 			}
 		});
+	}
+
+	toggleMyProfile(): void {
+		
 	}
 
 	toggleLogOut(): void {

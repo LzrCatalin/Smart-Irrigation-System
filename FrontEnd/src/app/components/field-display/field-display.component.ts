@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SensorsService } from '../../services/sensors.service';
 import { FieldsService } from '../../services/fields.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
 	selector: 'app-field-display',
@@ -15,6 +16,7 @@ import { FieldsService } from '../../services/fields.service';
 export class FieldDisplayComponent {
 	user: User | undefined;
 	field: Field;
+	fieldLocation: string = "";
 	editMode: boolean = false;
   	fieldForm!: FormGroup;
 	availableSensors: Sensor[] = [];
@@ -24,14 +26,14 @@ export class FieldDisplayComponent {
 		@Inject(MAT_DIALOG_DATA) public data: {field: Field },
 		private fb: FormBuilder,
 		private sensorsService: SensorsService,
-		private fieldsService: FieldsService
+		private fieldsService: FieldsService,
+		private apiService: ApiService
 	) {
 		this.field = data.field;
 	}
 
 	ngOnInit(): void {
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
-		console.log("User: ", this.user);
 		
 		this.fieldForm = this.fb.group({
 			crop_name: [this.field.crop_name, Validators.required],
@@ -41,6 +43,22 @@ export class FieldDisplayComponent {
 		});
 		
 		this.fetchAvailableSensors("available");
+
+		// Fetch field location based on coordonates
+		this.apiService.getLocation(this.field.latitude, this.field.longitude).subscribe({
+			next: (response) => {
+				if (response.status === "OK" && response.results.length > 0) {
+					this.fieldLocation = response.results[0].formatted_address;
+
+				} else {
+					this.fieldLocation = "Location not found.";
+				}
+			},
+
+			error: (error) => {
+				console.error("Failed to fetch location for selected field: ", error);
+			}
+		})
 	}
 
 	////////////////////////
@@ -80,6 +98,7 @@ export class FieldDisplayComponent {
 	}
 
 	toggleEditMode(): void {
+		console.log("Toggle EDIT-MODE : ON")
 		this.editMode = !this.editMode;
 		if (this.editMode) {
 
@@ -94,8 +113,10 @@ export class FieldDisplayComponent {
 	}
 
   	deleteSensor(sensor: Sensor): void {
+		console.log("Deleted sensor: ", sensor);
 		// Remove the sensor from the field's sensors list
-		this.field.sensors = this.field.sensors.filter(s => s.id !== sensor.id);
+		this.field.sensors = this.field.sensors.filter(s => s !== sensor);	
+		
 		// Add the deleted sensor to the deletedSensors list
 		this.deletedSensors.push(sensor);
 	}
@@ -106,6 +127,9 @@ export class FieldDisplayComponent {
 		if (!this.field.sensors.some(s => s.id === sensor.id)) {
 			this.field.sensors.push(sensor);
 		}
+
+		// Remove the sensor from the available sensors list
+		this.availableSensors = this.availableSensors.filter(s => s !== sensor);
 	}
 
 	onSubmit(): void {

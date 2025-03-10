@@ -8,6 +8,7 @@ from src.services.sensors_services import set_available_status, set_not_availabl
 from src.services.users_service import get_user_by_id
 from firebase_admin import credentials, db
 from src.util.mail_sender import  send_email
+from src.api.geocodinAPI import get_location
 
 #######################
 #
@@ -170,9 +171,9 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		# Retrieve user data for mail sender
 		user_data = get_user_by_id(fieldDTO.user)
 
-		# Send Mail for creating new field
+		# Send Mail
 		send_email("Adding New Field",
-			 		"Added new field",
+			 		f"Added new field on location: {get_location(fieldDTO.latitude, fieldDTO.longitude)}",
 					user_data['email'])
 		
 		logging.info(Fore.GREEN + 
@@ -228,6 +229,14 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		# Update DB
 		REF.child(id).set(data.to_dict())
 
+		# Retrieve user data for mail sender
+		user_data = get_user_by_id(updated_fieldDTO.user)
+
+		# Send Mail
+		send_email("Field Updated",
+			 		f"Successfully updated field on location {get_location(updated_fieldDTO.latitude, updated_fieldDTO.longitude)}",
+					user_data['email'])
+		
 		logging.info(Fore.GREEN + 
 				f"Successfully updated field data for ID: {id}" + 
 				Style.RESET_ALL)
@@ -247,15 +256,24 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 		# Check ID
 		fetched_field = get_field_by_id(id)
 
+		# Fetch user by id
+		user_data = get_user_by_id(fetched_field['user'])
+
 		# Check for sensors
 		if sensors_names:
 			for name in sensors_names:
 				# Update sensor status
 				set_available_status(name)
 
+		# Send Mail
+		logging.debug(f"Field coors: {fetched_field['latitude']}, {fetched_field['longitude']}")
+		send_email("Field Deleted",
+			 		f"Successfully deleted field from location {get_location(fetched_field['latitude'], fetched_field['longitude'])}",
+					user_data['email'])
+		
 		# Delete 
 		REF.child(id).delete()
-
+		
 		logging.info(Fore.GREEN + 
 					f"Successfully delete data for field ID: {id}" +
 					Style.RESET_ALL)

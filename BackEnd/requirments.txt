@@ -6,3 +6,4 @@ pip install board
 pip install busio
 pip install adafruit-blinka
 pip install adafruit-circuitpython-ads1x15
+pip install python-dotenv # for .env file

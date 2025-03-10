@@ -104,10 +104,10 @@ export class AddFieldComponent implements OnInit {
 
 	onSensorSelect(event: MatSelectChange): void {
 		this.selectedSensors = event.value;
-	  }
+	}
 
 	removeSensor(sensor: Sensor): void {
-		this.selectedSensors = this.selectedSensors.filter(s => s.id !== sensor.id);
+		this.selectedSensors = this.selectedSensors.filter(s => s !== sensor);
 	}
 
 	onSubmit(): void {

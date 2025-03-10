@@ -17,13 +17,9 @@
 				<mat-icon>agriculture</mat-icon>
 				<span>Add Field</span>
 			</a>
-			<a mat-list-item href="#" aria-label="Weather">
-				<mat-icon>wb_sunny</mat-icon>
-				<span>Weather</span>
-			</a>
-			<a mat-list-item href="#" aria-label="Settings">
-				<mat-icon>settings</mat-icon>
-				<span>Settings</span>
+			<a mat-list-item (click)="toggleMyProfile()" aria-label="MyProfile">
+				<mat-icon>profile</mat-icon>
+				<span>My Profile</span>
 			</a>
 			<a mat-list-item (click)="toggleLogOut()" aria-label="Logout">
 				<mat-icon>logout</mat-icon>
@@ -77,17 +73,15 @@
 				<div class="fields-list">
 				<article class="field-item" *ngFor="let field of paginatedFields" (click)="openFieldDetails(field)">
 					<div class="field-image">
-					<img src="https://cdn-icons-png.flaticon.com/512/4614/4614344.png" [alt]="field.crop_name" />
-					<button mat-icon-button (click)="deleteField(field.id, field.sensors, $event)" aria-label="Delete Field">
-						<mat-icon>delete</mat-icon>
-					</button>
-					<button mat-icon-button (click)="updateField()" aria-label="Update Field">
-						<mat-icon>update</mat-icon>
-					</button>
+						<img src="https://cdn-icons-png.flaticon.com/512/4614/4614344.png" [alt]="field.crop_name" />
+						<button mat-icon-button (click)="deleteField(field.id, field.sensors, $event)" aria-label="Delete Field">
+							<mat-icon>delete</mat-icon>
+						</button>
+
 					</div>
 					<div class="field-summary">
-					<h3>{{ field.crop_name }}</h3>
-					<p>{{ field.soil_type }}</p>
+						<p><strong>Crop:</strong> {{ field.crop_name }}</p>
+						<p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
 					</div>
 				</article>
 				</div>
