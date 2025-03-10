@@ -98,7 +98,6 @@ export class FieldDisplayComponent {
 	}
 
 	toggleEditMode(): void {
-		console.log("Toggle EDIT-MODE : ON")
 		this.editMode = !this.editMode;
 		if (this.editMode) {
 
