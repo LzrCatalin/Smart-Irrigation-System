@@ -1,4 +1,12 @@
+import os
 from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
+
+# load .env file
+load_dotenv()
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
 
 #######################
 #
@@ -16,8 +24,8 @@ class OAuthManager:
 		self.oauth.init_app(app)
 		self.oauth.register(
 			name='google',
-			client_id='445623818086-r55c913j7s5ij4cmu52meamluj7q1u4t.apps.googleusercontent.com',
-			client_secret='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',
+			client_id=GOOGLE_CLIENT_ID,
+			client_secret=GOOGLE_CLIENT_SECRET,
 			access_token_url='https://accounts.google.com/o/oauth2/token',
 			access_token_params=None,
 			authorize_url='https://accounts.google.com/o/oauth2/auth',
