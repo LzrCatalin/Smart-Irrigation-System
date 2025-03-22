@@ -247,6 +247,8 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		return {"error": f"Key missing: {str(e)}"}
 	
 
+def update_field_measurements():
+	
 #
 #	Delete field by ID
 #

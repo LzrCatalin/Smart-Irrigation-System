@@ -49,15 +49,16 @@ app.config.from_object(Config())
 # Init sensor scheduler
 sensors_scheduler = SensorScheduler(app)
 
-# Start periodic update at a 30 seconds interval
-sensors_scheduler.schedule_sensor_updates(5)
-
 ####################
 #
 #   Blueprints Initializations
 #
 ####################
 sensors_init()
+
+# Start periodic update at a 30 seconds interval
+sensors_scheduler.schedule_sensor_updates(5)
+
 app.register_blueprint(sensors_bp)
 
 

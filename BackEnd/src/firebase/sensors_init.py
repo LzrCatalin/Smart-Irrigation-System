@@ -35,9 +35,11 @@ def sensors_init():
 
 		# Retrieve sensor port
 		sensor_port = sensor.type.port
+		logging.debug(f'\tSensor Port: {sensor_port}')
 		sensor_type = sensor.type.type
 
-		if sensor_port:
+		if sensor_port >= 0:
+			logging.debug(f'\tStarting for port: {sensor_port}')
 			# Check sensor type
 			if sensor_type == Type.HUMIDITY.name:
 				# Fetch adc_value from sensor's port
@@ -50,6 +52,9 @@ def sensors_init():
 				if adc_value is not None:
 					humidity_sensors[sensor_id] = moisture_percentage(adc_value)
 
+				else:
+					logging.warning(f"Sensor ID {sensor_id} is not connected or invalid.")
+
 			# elif type == Type.TEMPERATURE.name:
 			# 	# Search slave file for sensor port
 			# 	slave_file = sensor_file(port)
@@ -58,6 +63,9 @@ def sensors_init():
 			# 	if slave_file is not None:
 			# 		# Append value to temperature sensors map
 			# 		temperature_sensors[sensorDTO.id] = read_temperature(slave_file)
+		
+		else:
+			logging.debug(f'Fail to start for port: {sensor_port}')
 
 	# Print available sensors
 	logging.info(Fore.WHITE + 
@@ -76,8 +84,9 @@ def sensors_init():
 			   "\tNo available sensors"
 			   + Style.RESET_ALL)
 	
-	for id, moisture in humidity_sensors.items():
-		print(f"\tSensor id: {id}\tMoisture: {moisture:.2f}%")
+	else:
+		for id, moisture in humidity_sensors.items():
+			print(f"\tSensor id: {id}\tMoisture: {moisture:.2f}%")
 
 	logging.info(Fore.MAGENTA +
 			   "\tTemperature Sensors"
@@ -90,6 +99,7 @@ def sensors_init():
 		logging.info(Fore.LIGHTRED_EX +
 			   "\tNo available sensors"
 			   + Style.RESET_ALL)
-		
-	for id, temperature in temperature_sensors.items():
-		print(f"\tSensor id: {id}\tTemperature: {temperature:.1f}C")
+	
+	else:
+		for id, temperature in temperature_sensors.items():
+			print(f"\tSensor id: {id}\tTemperature: {temperature:.1f}C")
