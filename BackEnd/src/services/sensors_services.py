@@ -62,7 +62,7 @@ def get_sensor_data_by_id(sensor_id: str) -> dict:
 	
 	try:
 		sensor = Sensor.from_dict(sensor_data)
-		sensorDTO = SensorDTO(id=sensor_id, name=sensor.name, type=sensor.type)
+		sensorDTO = SensorDTO(id=sensor_id, name=sensor.name, type=sensor.type, field_id=sensor.field_id)
 		logging.info(f"Successfully fetched data for sensor ID: {sensor_id}")
 		
 		return sensorDTO.to_dict()
@@ -153,7 +153,7 @@ def add_sensor(data: Sensor) -> dict:
 			# Push data into db
 			sensor_ref = REF.push(data.to_dict())
 			
-			sensorDTO = SensorDTO(sensor_ref.key, data.name, data.type)
+			sensorDTO = SensorDTO(sensor_ref.key, data.name, data.type, data.field_id)
 
 			logging.info(Fore.GREEN + 
 				"Successfully added new sensor data." +
@@ -275,3 +275,36 @@ def set_not_available_status(id: str) -> None:
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 	
+#
+#	Set field id attribute for sensor
+#
+def set_sensor_field_id(id: str, field_id: str) -> None:
+	try:
+		# Fetch sensor by id
+		sensor = get_sensor_data_by_id(id)
+
+		# Update field id
+		sensor["field_id"] = field_id
+		REF.child(id).set(sensor)
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+	
+#
+#	Unset field id attribute for sensor
+# 
+def unset_sensor_field_id(sensor_name: str) -> None:
+	try:
+		# Fetch sensor by name
+		sensor_result = get_sensor_by_name(sensor_name)
+
+		# Fetch sensor data and firebase ID based on dict
+		sensor = sensor_result['sensor_data']
+		sensor_id = sensor_result['firebase_id']
+
+		# Update status and firebase
+		sensor["field_id"] = "None"
+		REF.child(sensor_id).set(sensor)
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}

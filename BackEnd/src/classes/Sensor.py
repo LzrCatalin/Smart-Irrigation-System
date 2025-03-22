@@ -1,14 +1,16 @@
 from src.classes.SensorType import *
 
 class Sensor:
-	def __init__(self, name: str, type: type):
+	def __init__(self, name: str, type: type, field_id: str):
 		self.name = name
 		self.type = type
+		self.field_id = field_id
 
 	def to_dict(self)  -> dict:
 		return {
 			"name": self.name,
-			"type": self.type.to_dict()
+			"type": self.type.to_dict(),
+			"field_id": self.field_id
 		}
 	
 	@staticmethod
@@ -19,4 +21,4 @@ class Sensor:
 			status=data["type"]["status"],
 			port=data["type"]["port"]
 		)
-		return Sensor(name=data["name"], type=sensor_type)
+		return Sensor(name=data["name"], type=sensor_type, field_id=data.get("field_id"))

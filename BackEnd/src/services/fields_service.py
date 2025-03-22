@@ -4,7 +4,7 @@ from colorama import Fore, Style
 from src.classes.Status import *
 from src.classes.Field import *
 from src.classes.FieldDTO import *
-from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name
+from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name, get_sensor_data_by_id, update_sensor_by_id, set_sensor_field_id, unset_sensor_field_id
 from src.services.users_service import get_user_by_id
 from firebase_admin import credentials, db
 from src.util.mail_sender import  send_email
@@ -146,13 +146,14 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		# Fetch soil type based on longitude and longitude
 		data.soil_type = get_soil_type(data.longitude, data.latitude)
 
-		# Update selected sensors status
-		for id in sensors_ids:
-			# Update status
-			set_not_available_status(id)
-
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
+		
+		# Update selected sensors status and field id
+		for id in sensors_ids:
+			# Update status and field id
+			set_not_available_status(id)
+			set_sensor_field_id(id, field_ref.key)
 
 		# Create DTO object
 		fieldDTO = FieldDTO(
@@ -200,6 +201,7 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 			for sensor_data in deleted_data['deleted_sensors']:
 				# Set AVAILABLE status for deleted sensor
 				set_available_status(sensor_data['name'])
+				unset_sensor_field_id(sensor_data['name'])
 
 		# Fetch new list of sensors from the update request
 		selected_sensors = data.to_dict()['sensors']
@@ -210,7 +212,7 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 				# Set NOT_AVAILABLE status for selected sensor
 				sensor = get_sensor_by_name(sensor_data['name'])
 				set_not_available_status(sensor['firebase_id'])
-
+				set_sensor_field_id(sensor['firebase_id'], id)
 
 		# Create DTO object
 		updated_fieldDTO = FieldDTO(
@@ -246,8 +248,6 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 	
-
-def update_field_measurements():
 	
 #
 #	Delete field by ID
@@ -266,6 +266,7 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 			for name in sensors_names:
 				# Update sensor status
 				set_available_status(name)
+				unset_sensor_field_id(name)
 
 		# Send Mail
 		logging.debug(f"Field coors: {fetched_field['latitude']}, {fetched_field['longitude']}")
