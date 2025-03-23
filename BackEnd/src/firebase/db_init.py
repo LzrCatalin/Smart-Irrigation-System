@@ -1,5 +1,10 @@
+import os
 import firebase_admin
 from firebase_admin import credentials, db
+from dotenv import load_dotenv
+
+# load .env file
+load_dotenv()
 
 ########################
 #
@@ -7,8 +12,11 @@ from firebase_admin import credentials, db
 #
 ########################
 def db_init():
+	# Fetch db path from .env file
+	db_path = os.getenv('DB_PATH')
+	
 	# Fetch the service account Key
-	cred = credentials.Certificate('/home/catalin/Documents/smart-irrigation-system-700a6-firebase-adminsdk-2uobl-aff09eb01c.json')
+	cred = credentials.Certificate(db_path)
 
 	# Initialize the app 
 	firebase_admin.initialize_app(cred, {
