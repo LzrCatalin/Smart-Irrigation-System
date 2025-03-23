@@ -3,8 +3,10 @@ from colorama import Fore
 from flask_apscheduler import APScheduler
 from src.services import sensors_services
 from src.classes.Sensor import *
+from src.classes.Field import *
 from src.sensors.humidity_sensor import *
 from src.sensors.temperature_sensor import *
+from src.services import fields_service
 
 ####################
 #
@@ -74,7 +76,6 @@ class SensorScheduler:
 
 						# Check sensor type
 						if type == Type.HUMIDITY.name:
-							
 							adc_value = sensor_setup(port)
 
 							#
@@ -84,7 +85,7 @@ class SensorScheduler:
 								sensor_data['type']['measured_value'] = moisture_percentage(adc_value)
 
 								# Convert sensor_data to Sensor object
-								sensor = Sensor(
+								updated_sensor = Sensor(
 									name=sensor_data["name"],
 									type=SensorType(
 										type=sensor_data["type"]["type"],
@@ -92,10 +93,29 @@ class SensorScheduler:
 										status=sensor_data["type"]["status"],
 										port=sensor_data["type"]["port"],
 									),
+									field_id=sensor_data.get("field_id")
 								)
-				
+
+
+								# Retrieve field id from sensor data
+								field_id = updated_sensor.field_id
+
+								if field_id:
+									# Fetch field based on id
+									field = fields_service.get_field_by_id(field_id)
+
+									if field:
+										# Update the sensor in the field
+										for sensor in field["sensors"]:
+											if sensor["name"] == updated_sensor.name:
+												sensor["type"]["measured_value"] = moisture_percentage(adc_value)
+
+												break
+
 								# Insert new data into Firebase
-								sensors_services.update_sensor_by_id(id, sensor)
+								sensors_services.update_sensor_by_id(id, updated_sensor)
+								fields_service.update_field_measurements_by_id(field_id, Field.from_dict(field))
+
 
 						# elif type == Type.TEMPERATURE.name:
 						# 	# Search slave file for sensor port

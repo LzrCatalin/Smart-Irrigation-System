@@ -248,7 +248,46 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 	
+#
+#	Update field measurement
+#
+def update_field_measurements_by_id(id: str, data: Field) -> dict:
+
+	try:
+		# Create DTO object
+		updated_fieldDTO = FieldDTO(
+			id = id,
+			latitude = data.latitude,
+			longitude = data.longitude,
+			length = data.length,
+			width = data.width,
+			slope = data.slope,
+			soil_type = data.soil_type,
+			crop_name = data.crop_name,
+			user = data.user,
+			sensors = [sensor.to_dict() for sensor in data.sensors],
+		)
+		
+		# Update DB
+		REF.child(id).set(data.to_dict())
+
+		# Retrieve user data for mail sender
+		user_data = get_user_by_id(updated_fieldDTO.user)
+
+		# Send Mail
+		send_email("Field Updated",
+			 		f"Successfully updated measurements on location {get_location(updated_fieldDTO.latitude, updated_fieldDTO.longitude)}",
+					user_data['email'])
+		
+		logging.info(Fore.GREEN + 
+				f"Successfully updated field measurements for ID: {id}" + 
+				Style.RESET_ALL)
+		
+		return updated_fieldDTO.to_dict()
 	
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
+		
 #
 #	Delete field by ID
 #
