@@ -7,6 +7,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SensorsService } from '../../services/sensors.service';
 import { FieldsService } from '../../services/fields.service';
 import { ApiService } from '../../services/api.service';
+import { interval, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-field-display',
@@ -21,6 +23,8 @@ export class FieldDisplayComponent {
   	fieldForm!: FormGroup;
 	availableSensors: Sensor[] = [];
 	deletedSensors: Sensor[] = [];
+	fieldsSubscription!: Subscription;
+	
 
 	constructor(public dialogRef: MatDialogRef<FieldDisplayComponent>,
 		@Inject(MAT_DIALOG_DATA) public data: {field: Field },
@@ -43,6 +47,25 @@ export class FieldDisplayComponent {
 		});
 		
 		this.fetchAvailableSensors("available");
+		
+		// Fetch updates on a time period
+		this.fieldsSubscription = interval(5000) // 5 seconds
+			.pipe(
+				switchMap(() => this.fieldsService.get_user_fields(this.user?.id ?? ''))
+			)
+			.subscribe({
+				next: (fields: Field[]) => {
+					const updateField = fields.find(f => f.id === this.field.id);
+
+					if (updateField) {
+						this.field = updateField;
+					}
+				},
+
+				error: (error) => {
+					console.error("Error fetching fields: ", error);
+				}
+			})
 
 		// Fetch field location based on coordonates
 		this.apiService.getLocation(this.field.latitude, this.field.longitude).subscribe({
