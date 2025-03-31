@@ -55,14 +55,17 @@ def sensors_init():
 				else:
 					logging.warning(f"Sensor ID {sensor_id} is not connected or invalid.")
 
-			# elif type == Type.TEMPERATURE.name:
-			# 	# Search slave file for sensor port
-			# 	slave_file = sensor_file(port)
+			elif sensor_type == Type.TEMPERATURE.name:
+				# Search slave file for sensor port
+				slave_file = sensor_file(sensor_port)
 
-			# 	# Check if slave file exists
-			# 	if slave_file is not None:
-			# 		# Append value to temperature sensors map
-			# 		temperature_sensors[sensorDTO.id] = read_temperature(slave_file)
+				# Check if slave file exists
+				if slave_file is not None:
+					# Append value to temperature sensors map
+					temperature_sensors[sensor_id] = read_temperature(slave_file)
+
+				else:
+					logging.warning(f"Sensor ID {sensor_id} is not connected or invalid.")
 		
 		else:
 			logging.debug(f'Fail to start for port: {sensor_port}')
@@ -87,6 +90,7 @@ def sensors_init():
 	else:
 		for id, moisture in humidity_sensors.items():
 			print(f"\tSensor id: {id}\tMoisture: {moisture:.2f}%")
+		print('\n')
 
 	logging.info(Fore.MAGENTA +
 			   "\tTemperature Sensors"
@@ -103,3 +107,5 @@ def sensors_init():
 	else:
 		for id, temperature in temperature_sensors.items():
 			print(f"\tSensor id: {id}\tTemperature: {temperature:.1f}C")
+		print('\n')
+	

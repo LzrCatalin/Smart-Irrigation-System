@@ -18,8 +18,10 @@ DIR = '/sys/bus/w1/devices/'
 #   Retrieve sensor file
 #
 def sensor_file(port):
+	logging.debug('\t ===> Inside temperature file')
 	# Open folder for specific sensor
 	folder = glob.glob(DIR + '28*')[port]
+	logging.debug(f'Folder: {folder}')
 
 	# Return slave file 
 	return folder + '/w1_slave'
@@ -52,6 +54,7 @@ def read_temperature(slave_file):
 		# Close file
 		file.close()
 
+		logging.debug(f'New temperature: {temp_celsius}')
 		return temp_celsius
 	
 	# Close file

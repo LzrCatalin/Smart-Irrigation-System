@@ -76,7 +76,7 @@ def moisture_percentage(adc_value):
 	
 	# MH Sensor-Series values configuration
 	wet_value = 26330 # 100% soil humidity
-	dry_value = 13000 # 0% soil humidity
+	dry_value = 13330 # 0% soil humidity
 	
 	# TODO: Make more tests to find the best values for both ends
 	percentage = (1 - ((adc_value - dry_value)/(wet_value - dry_value))) * 100
