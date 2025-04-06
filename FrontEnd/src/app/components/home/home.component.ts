@@ -33,6 +33,8 @@ export class HomeComponent implements OnInit{
 	weatherData: any = null;
 	showWeatherInput: boolean = false;
 
+	togglePump: boolean = false;
+
 	newsItems: News[] = [];
 	paginatedNews: News[] = [];
 	errorMessage: string = '';
@@ -302,8 +304,19 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-	toggleMyProfile(): void {
+	toggleWaterPump(): void {
+		this.togglePump = !this.togglePump;
 		
+		this.fieldsService.toggle_pump(this.togglePump).subscribe({
+			next: (res: any) => {
+				console.log(res);
+			},
+
+			error: (error: any) => {
+				console.error('Failed updating pump toggle: ', error);
+				this.togglePump = !this.togglePump;
+			}
+		})
 	}
 
 	toggleLogOut(): void {

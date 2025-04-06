@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Field } from '../models/field.model';
 import { Sensor } from '../models/sensor.model';
+import { environment } from '../../environments/environment';
 
 const BASE_URL = 'http://localhost:5000'
 
@@ -35,5 +36,14 @@ export class FieldsService {
 			body: { sensors_name } 
 		};
 		return this.http.delete<Field>(`${BASE_URL}/api/fields/${id}`, options)
+	}
+
+	toggle_pump(state: boolean): Observable<any> {
+		const stateValue = state ? 1 : 0;
+
+		return this.http.post(
+			`http://${environment.raspberry_id}:5000/api/actuators/waterpump/toggle`,
+			{ state: stateValue },
+		);
 	}
 }
