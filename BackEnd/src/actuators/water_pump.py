@@ -1,4 +1,4 @@
-import time
+import time, logging
 import RPi.GPIO as GPIO
 
 ###################
@@ -7,44 +7,43 @@ import RPi.GPIO as GPIO
 #
 ###################
 pump_pin = 27
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(pump_pin, GPIO.OUT)
-#print("Setup Completed")
+
+def pump_setup() -> None:
+	logging.debug('Initializing water pump setup.')
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(pump_pin, GPIO.OUT)
+	GPIO.output(pump_pin, GPIO.HIGH)
+	logging.debug('Initialization finished.')
 
 ###################
 #
 #	Start Pump
 #
 ###################
-def start():
-    GPIO.output(pump_pin, GPIO.LOW)
-    print("Pump ON")
+def pump_start() -> None:
+	pump_setup()
+	GPIO.output(pump_pin, GPIO.LOW)
+	logging.debug('Pump working...')
 
 ###################
 #
 #	Stop Pump
 #
 ###################
-def stop():
-    GPIO.output(pump_pin, GPIO.HIGH)
-    print("Pump OFF")
-  
+def pump_stop() -> None:
+	GPIO.output(pump_pin, GPIO.HIGH)
+	logging.debug('Pump done.')
+	GPIO.cleanup()
+	logging.debug('GPIO clean.')
+
 ###################
 #
 #	Start Pump for a time period
 #
 ###################
-def working_pump(time):
-    print("Pumping water for: {time} seconds")
-    start()
-    time.sleep(time)
-    stop()
-    
-#try:
-#    pump_water()
-    
-#except KeyboardInterrupt:
-#    GPIO.cleanup()
-
-#finally:
-#    GPIO.cleanup()
+def irrigation_cycle(duration: int) -> None:
+	logging.debug(f'Pump working for {duration} seconds.')
+	pump_setup()
+	pump_start()
+	time.sleep(duration)
+	pump_stop()

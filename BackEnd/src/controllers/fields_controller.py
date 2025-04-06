@@ -22,8 +22,7 @@ fields_bp = Blueprint('fields', __name__, url_prefix= FIELDS_URL)
 #
 @fields_bp.route('', methods= ['GET'])
 def get_fields() -> jsonify:
-
-
+	
 	# Service response
 	response = get_fields_data()
 
