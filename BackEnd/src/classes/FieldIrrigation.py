@@ -1,6 +1,7 @@
+import time
 import logging
 
-# from src.actuators.water_pump import pump_start, pump_stop
+from src.actuators.water_pump import pump_start, pump_stop
 
 class FieldIrrigation:
 	def __init__(self, field_id: str, config: dict):
@@ -14,22 +15,16 @@ class FieldIrrigation:
 		self.min_humidity = config.get('min_humidity', 10)
 		self.max_watering_time = config.get('max_watering_time', 300)
 
-	# def control_pump(self, state: bool):
-	# 	"""Control the water for the field"""
-	# 	if state:
-	# 		pump_start()
-	# 		logging.debug(f'[{self.field_id}] Pump \'ON\'')
+	def control_pump(self, state: bool):
+		"""Control the water for the field"""
+		if state:
+			pump_start()
+			logging.debug(f'[{self.field_id}] Pump \'ON\'')
 		
-	# 	else:
-	# 		pump_stop()
-	# 		logging.debug(f'[{self.field_id}] Pump \'OFF\'')
-
+		else:
+			pump_stop()
+			logging.debug(f'[{self.field_id}] Pump \'OFF\'')
+		
 	def smart_irrigation(self) -> None:
-		print(f'Field_ID: {self.field_id}')
-		print(f' -> Field humidity: {self.current_humidity}')
-		print(f' -> Field temperature: {self.current_temperature}')
-		print(f' -> Target humidity: {self.target_humidity}')
-		print(f' -> Min humidity: {self.min_humidity}')
-		print(f' -> Max watering time: {self.max_watering_time}')
-		print('Incoming')
-
+		# TODO: Incoming implementation
+		print('incoming')

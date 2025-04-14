@@ -5,6 +5,7 @@ from flask_apscheduler import APScheduler
 from flask_cors import CORS
 
 from src.classes.SensorScheduler import SensorScheduler
+from src.classes.FieldIrrigationSystem import FieldIrrigationSystem
 from src.actuators.water_pump import  *
 from src.sensors.humidity_sensor import *
 
@@ -33,7 +34,7 @@ CORS(app)
 #
 ####################
 logging.basicConfig(
-	level = logging.DEBUG,
+	level = logging.INFO,
 	format =  '%(levelname)s - %(message)s',
 	handlers = [logging.StreamHandler()]
 )
@@ -48,18 +49,19 @@ class Config:
 
 app.config.from_object(Config())
 
+# Create irrigation system
+irrigation_system = FieldIrrigationSystem(app)
+irrigation_system.schedule_irrigation_cycles(30)
+
 # # Init sensor scheduler
-# sensors_scheduler = SensorScheduler(app)
+sensors_scheduler = SensorScheduler(app, irrigation_system)
+sensors_scheduler.schedule_sensor_updates(10)
 
-# ####################
-# #
-# #   Blueprints Initializations
-# #
-# ####################
-# sensors_init()
-
-# # Start periodic update at a 30 seconds interval
-# sensors_scheduler.schedule_sensor_updates(5)
+####################
+#
+#   Blueprints Initializations
+#
+####################
 app.register_blueprint(sensors_bp)
 app.register_blueprint(actuators_bp)
 

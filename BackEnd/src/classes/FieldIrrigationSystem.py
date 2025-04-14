@@ -1,22 +1,28 @@
 import time
+import logging
 
 from typing import Dict
-# from src.classes.FieldIrrigation import FieldIrrigation
-from FieldIrrigation import FieldIrrigation
+from flask_apscheduler import APScheduler
+from src.classes.FieldIrrigation import FieldIrrigation
 
 class FieldIrrigationSystem:
 	"""Store fields that needs to be managed"""
-	def __init__(self):
+	def __init__(self, app = None):
 		self.fields: Dict[str, FieldIrrigation] = {}
-		
+		self.scheduler = APScheduler()
+		self.scheduler.init_app(app)
+		self.scheduler.start()
+
 	def add_field(self, field_id: str, config: dict = None) -> None:
 		"""Add a new field to be managed"""
 		if field_id not in self.fields:
+			print(f'Adding id: {field_id}')
 			self.fields[field_id] = FieldIrrigation(field_id, config or {})
 
 	def update_field_measurements(self, field_id: str, humidity: float, temperature: float) -> None:
 		"""Update measurements of the field"""
 		if field_id in self.fields:
+			print(f'Updating field id: {field_id}')
 			self.fields[field_id].current_humidity = humidity
 			self.fields[field_id].current_temperature = temperature
 
@@ -27,33 +33,19 @@ class FieldIrrigationSystem:
 
 	def run_all_cycles(self):
 		"""Run irrigation for all fields"""
+		if self.fields is None:
+			print('Empty list.')
+
 		for field in self.fields:
 			self.run_cycle(field)
-
-
-if __name__ == "__main__":
 	
-	irrigation_system = FieldIrrigationSystem()
-
-	config = {
-		'target_humidity': 90,
-		'min_humidity': 30,
-		'max_watering_time': 500
-	}
-	field_id = 'ID_1'
-
-	irrigation_system.add_field(field_id, config)
-	irrigation_system.update_field_measurements(field_id, 53.30, 23.2)
-
-	irrigation_system.run_cycle(field_id)
-
-
-	"""
-		TODO: 
-			- Create an init function, that store all the fields
-		available in db into the system fields in case of reset
-			- At each field add, store it into the system fields,
-		but, make sure the fields has both humidity and temperature
-		sensors
-			- On update schedule too , make sure the values updates
-	"""
+	def schedule_irrigation_cycles(self, interval: int):
+		"""Schedule automatic irrigation cycles"""
+		if not self.scheduler.get_job('irrigation_cycle'):
+			self.scheduler.add_job(
+				id='irrigation_cycle',
+				func=self.run_all_cycles,
+				trigger='interval',
+				seconds=interval
+			)
+			logging.info(f'Scheduled irrigation cycles every {interval} seconds')
