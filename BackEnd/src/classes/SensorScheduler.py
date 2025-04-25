@@ -38,6 +38,7 @@ class SensorScheduler:
 			# Initialize measurements
 			new_humidity = None
 			new_temperature = None
+			new_port = None
 
 			# Update field's sensors
 			for sensor in field_data['sensors']:
@@ -47,6 +48,7 @@ class SensorScheduler:
 
 				sensor_type = sensor['type']['type']
 				sensor_port = sensor['type']['port']
+				new_port = sensor_port
 
 				if sensor_type == Type.HUMIDITY.name:
 					adc_value = sensor_setup(sensor_port)
@@ -73,7 +75,8 @@ class SensorScheduler:
 					humidity=new_humidity if new_humidity is not None 
 										else self.irrigation_system.fields[field_id].current_humidity,
 					temperature=new_temperature if new_temperature is not None 
-										else self.irrigation_system.fields[field_id].current_temperature					
+										else self.irrigation_system.fields[field_id].current_temperature,
+					port=new_port					
 										)
 
 	def schedule_sensor_updates(self, interval: int):

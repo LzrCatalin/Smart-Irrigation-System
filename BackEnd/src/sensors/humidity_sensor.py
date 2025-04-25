@@ -25,7 +25,7 @@ NOISE_THRESHOLD = 500
 #
 #################################
 def sensor_setup(port):
-	logging.info(Fore.WHITE + 
+	logging.debug(Fore.WHITE + 
 			  f"===INIT SETUP===\n\t Port: {port}"
 			  +Style.RESET_ALL)
 	
@@ -38,7 +38,7 @@ def sensor_setup(port):
 	if port in CHANNEL_MAPPING:
 
 		# Get corresponding channel
-		logging.info(Fore.WHITE +
+		logging.debug(Fore.WHITE +
 			f"\tChannel: {CHANNEL_MAPPING[port]}"
 			+ Style.RESET_ALL)
 		
@@ -61,7 +61,7 @@ def sensor_setup(port):
 
 	else:
 		logging.info(Fore.WHITE +
-			   f"\t<!>UNAVAILABLE<!>"
+			   "\t<!>UNAVAILABLE<!>"
 			   + Style.RESET_ALL)
 		
 		return None

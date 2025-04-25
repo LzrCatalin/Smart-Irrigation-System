@@ -19,12 +19,13 @@ class FieldIrrigationSystem:
 			print(f'Adding id: {field_id}')
 			self.fields[field_id] = FieldIrrigation(field_id, config or {})
 
-	def update_field_measurements(self, field_id: str, humidity: float, temperature: float) -> None:
+	def update_field_measurements(self, field_id: str, humidity: float, temperature: float, port: int) -> None:
 		"""Update measurements of the field"""
 		if field_id in self.fields:
 			print(f'Updating field id: {field_id}')
 			self.fields[field_id].current_humidity = humidity
 			self.fields[field_id].current_temperature = temperature
+			self.fields[field_id].current_port = port
 
 	def run_cycle(self, field_id: str) -> None:
 		"""Run irrigation for a specific field"""

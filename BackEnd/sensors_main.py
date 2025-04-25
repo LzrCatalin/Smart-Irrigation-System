@@ -51,11 +51,11 @@ app.config.from_object(Config())
 
 # Create irrigation system
 irrigation_system = FieldIrrigationSystem(app)
-irrigation_system.schedule_irrigation_cycles(30)
+irrigation_system.schedule_irrigation_cycles(60)
 
 # # Init sensor scheduler
 sensors_scheduler = SensorScheduler(app, irrigation_system)
-sensors_scheduler.schedule_sensor_updates(10)
+sensors_scheduler.schedule_sensor_updates(45)
 
 ####################
 #
