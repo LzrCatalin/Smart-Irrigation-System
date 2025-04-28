@@ -90,10 +90,6 @@ class SensorScheduler:
 			)
 			logging.info(f'Scheduled sensors updates cycles every {interval} seconds')
 
-	def scheduler_shutdown(self):
-		print("Sensors scheduler shutdown.")
-		atexit.register(lambda: self.scheduler_shutdown())
-
 	def get_schedules(self):
 		print(self.scheduler.get_jobs())
 
@@ -109,3 +105,46 @@ class SensorScheduler:
 		logging.debug(Fore.MAGENTA +
 			f"Status: {sensor_data['type']['status']}"
 			+ Style.RESET_ALL)
+
+	def start(self):
+		"""Turn ON the scheduler"""
+		if not self.scheduler.running:
+			logging.info('Turn ON sensor scheduler...')
+			self.scheduler.start()
+
+		else:
+			logging.info('Sensor scheduler is already running')
+
+	def stop(self):
+		"""Stop the scheduler"""
+		if self.scheduler.running:
+			logging.info('Stoping sensor scheduler...')
+			self.scheduler.shutdown()
+
+		else:
+			logging.info('Sensor scheduler is already stopped')
+
+	def pause_sensor_updates(self):
+		"""Pause the periodic sensor update job"""
+		job = self.scheduler.get_job('sensor_update_cycle')
+		
+		if job:
+			job.pause()
+			logging.info('Paused sensor updates')
+		
+		else:
+			logging.warning('Sensor update job not found to pause')
+
+	def resume_sensor_updates(self):
+		"""Resume the periodic sensor update job"""
+		job = self.scheduler.get_job('sensor_update_cycle')
+		
+		if job:
+			job.resume()
+			logging.info('Resumed sensor updates')
+		
+		else:
+			logging.warning('Sensor update job not found to resume')
+
+	def scheduler_shutdown(self):
+		atexit.register(self.stop)

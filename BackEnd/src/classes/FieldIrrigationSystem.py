@@ -12,12 +12,17 @@ class FieldIrrigationSystem:
 		self.scheduler = APScheduler()
 		self.scheduler.init_app(app)
 		self.scheduler.start()
+		self.sensors_scheduler = None
 
+	def set_scheduler(self, scheduler) -> None:
+		"""Set the scheduler of sensors"""
+		self.sensors_scheduler = scheduler
+		
 	def add_field(self, field_id: str, config: dict = None) -> None:
 		"""Add a new field to be managed"""
 		if field_id not in self.fields:
 			print(f'Adding id: {field_id}')
-			self.fields[field_id] = FieldIrrigation(field_id, config or {})
+			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
 
 	def update_field_measurements(self, field_id: str, humidity: float, temperature: float, port: int) -> None:
 		"""Update measurements of the field"""
