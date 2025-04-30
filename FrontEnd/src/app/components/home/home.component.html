@@ -17,9 +17,38 @@
 				<mat-icon>agriculture</mat-icon>
 				<span>Add Field</span>
 			</a>
-			<a mat-list-item (click)="toggleWaterPump()" aria-label="WaterPump">
-				<mat-icon>power_settings_new</mat-icon>
-				<span>Toggle Water Pump</span>
+			<a mat-list-item (click)="toggleWaterPump()" aria-label="WaterPump" class="sidenav-toggle-item">
+				<div class="sidenav-toggle-content">
+					<mat-icon>power_settings_new</mat-icon>
+					<span>Toggle Water Pump</span>
+				</div>
+				<mat-slide-toggle
+					[(ngModel)]="togglePump"
+					(change)="toggleWaterPump()"
+					aria-label="Water Pump State">
+				</mat-slide-toggle>
+			</a>
+			<a mat-list-item (click)="toggleSensors()" aria-label="scheduler" class="sidenav-toggle-item">
+				<div class="sidenav-toggle-content">
+					<mat-icon>power_settings_new</mat-icon>
+					<span>Toggle Scheduler</span>
+				</div>
+				<mat-slide-toggle
+					[(ngModel)]="toggleSensorsScheduler"
+					(change)="toggleSensors()"
+					aria-label="Scheduler State">
+				</mat-slide-toggle>
+			</a>
+			<a mat-list-item (click)="toggleIrrigation()" aria-label="scheduler" class="sidenav-toggle-item">
+				<div class="sidenav-toggle-content">
+					<mat-icon>power_settings_new</mat-icon>
+					<span>Toggle Irrigation</span>
+				</div>
+				<mat-slide-toggle
+					[(ngModel)]="toggleIrrigationSystem"
+					(change)="toggleIrrigation()"
+					aria-label="Irrigation State">
+				</mat-slide-toggle>
 			</a>
 			<a mat-list-item (click)="toggleLogOut()" aria-label="Logout">
 				<mat-icon>logout</mat-icon>

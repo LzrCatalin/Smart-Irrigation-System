@@ -34,6 +34,8 @@ export class HomeComponent implements OnInit{
 	showWeatherInput: boolean = false;
 
 	togglePump: boolean = false;
+	toggleSensorsScheduler: boolean = false;
+	toggleIrrigationSystem: boolean = false;
 
 	newsItems: News[] = [];
 	paginatedNews: News[] = [];
@@ -65,21 +67,33 @@ export class HomeComponent implements OnInit{
 				private snackBar: MatSnackBar,
 				private apiService: ApiService
 				) {}
+	
+	private getSchedulerKey(): string {
+		return this.user?.id ? `schedulerState_${this.user.id}` : 'schedulerState_default';
+	}
+
+	private getIrrigationKey(): string {
+		return this.user?.id ? `irrigationState_${this.user.id}` : 'irrigationState_default';
+	}
 
 	ngOnInit(): void {
-		console.log("LOADING HOME COMPONENT")
 		// Store loggedin user
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
 
 		// Fetch fields for loggedin user
 		if (this.user.id !== undefined) {
 			this.fetchUserFields(this.user.id);
+
+			const savedStateScheduler = localStorage.getItem(this.getSchedulerKey());
+    		this.toggleSensorsScheduler = savedStateScheduler ? JSON.parse(savedStateScheduler) : false;
+		
+			const savedStateIrrigation = localStorage.getItem(this.getIrrigationKey());
+			this.toggleIrrigationSystem = savedStateIrrigation ? JSON.parse(savedStateIrrigation) : false;
 		}
 
 		// Fetch news
 		this.fetchFarmingNews();
 	}
-
 
 	//////////////////////
 	//
@@ -315,6 +329,47 @@ export class HomeComponent implements OnInit{
 			error: (error: any) => {
 				console.error('Failed updating pump toggle: ', error);
 				this.togglePump = !this.togglePump;
+			}
+		})
+	}
+
+	toggleSensors(): void {
+		if (!this.user?.id) return;
+
+		this.toggleSensorsScheduler = !this.toggleSensorsScheduler;
+	
+		// Save to localStorage
+		localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
+
+		// Update backend
+		this.fieldsService.toggle_sensors_scheduler(this.toggleSensorsScheduler).subscribe({
+			next: () => console.log('Toggle Scheduler successful'),
+			
+			error: (error) => {
+				console.error('Toggle Scheduler failed', error);
+				this.toggleSensorsScheduler = !this.toggleSensorsScheduler;
+				localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
+			}
+		});
+	}
+
+
+	toggleIrrigation(): void {
+		if (!this.user?.id) return;
+
+		this.toggleIrrigationSystem = !this.toggleIrrigationSystem;
+
+		// Save to localStorage
+		localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));
+
+		// Update backend
+		this.fieldsService.toggle_irrigation_system(this.toggleIrrigationSystem).subscribe({
+			next: () => console.log('Toggle Irrigation successful'),
+
+			error: (error) => {
+				console.error('Toggle Irrigation failed', error);
+				this.toggleIrrigationSystem = !this.toggleIrrigationSystem;
+				localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));
 			}
 		})
 	}

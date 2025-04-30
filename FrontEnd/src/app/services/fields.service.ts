@@ -46,4 +46,23 @@ export class FieldsService {
 			{ state: stateValue },
 		);
 	}
+
+	toggle_sensors_scheduler(state: boolean): Observable<any> {
+		const stateValue = state ? 1 : 0;
+		console.log(stateValue)
+
+		return this.http.post(
+			`http://${environment.raspberry_id}:5000/api/actuators/scheduler/toggle`,
+			{ state: stateValue },
+		);
+	}
+
+	toggle_irrigation_system(state: boolean): Observable<any> {
+		const stateValue = state ? 1 : 0;
+
+		return this.http.post(
+			`http://${environment.raspberry_id}:5000/api/actuators/irrigation/toggle`,
+			{ state: stateValue },
+		);
+	}
 }
