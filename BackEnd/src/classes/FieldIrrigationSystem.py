@@ -55,3 +55,25 @@ class FieldIrrigationSystem:
 				seconds=interval
 			)
 			logging.info(f'Scheduled irrigation cycles every {interval} seconds')
+
+	def pause_irrigation_system(self):
+		"""Pause the periodic irrigation job"""
+		job = self.scheduler.get_job('irrigation_cycle')
+
+		if job:
+			job.pause()
+			logging.info('Paused irrigation system')
+
+		else:
+			logging.warning('Irrigation system job not found to pause')
+
+	def resume_irrigation_system(self):
+		"""Resume the periodic irrigation job"""
+		job = self.scheduler.get_job('irrigation_cycle')
+
+		if job:
+			job.resume()
+			logging.info('Resumed irrigation system')
+
+		else:
+			logging.warning('Irrigation system job not found to resume')

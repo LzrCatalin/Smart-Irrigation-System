@@ -49,6 +49,7 @@ class Config:
 
 app.config.from_object(Config())
 
+
 # Create irrigation system
 irrigation_system = FieldIrrigationSystem(app)
 
@@ -59,9 +60,11 @@ sensors_scheduler = SensorScheduler(app, irrigation_system)
 irrigation_system.set_scheduler(sensors_scheduler)
 
 # Schedule cycles
-sensors_scheduler.schedule_sensor_updates(45)
-irrigation_system.schedule_irrigation_cycles(60)
+sensors_scheduler.schedule_sensor_updates(5)
+irrigation_system.schedule_irrigation_cycles(6000)
 
+app.config['SENSORS_SCHEDULER'] = sensors_scheduler
+app.config['IRRIGATION_SYSTEM'] = irrigation_system
 ####################
 #
 #   Blueprints Initializations
