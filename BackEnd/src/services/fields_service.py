@@ -7,7 +7,7 @@ from src.classes.FieldDTO import *
 from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name, get_sensor_data_by_id, update_sensor_by_id, set_sensor_field_id, unset_sensor_field_id
 from src.services.users_service import get_user_by_id
 from firebase_admin import credentials, db
-from src.util.mail_sender import  send_email
+from src.util.mail_sender import  send_email, generate_field_creation_email_body, generate_field_update_mail_body, generate_field_delete_mail_body
 from src.api.geocodinAPI import get_location
 
 #######################
@@ -25,28 +25,20 @@ REF = db.reference(f'{DB_REF}')
 #
 ####################
 def get_soil_type(latitude: float, longitude: float) -> str:
-	logging.debug(f"\t\tRetrieving soil type: {longitude} : {latitude}")
+	# logging.debug(f"\t\tRetrieving soil type: {longitude} : {latitude}")
 
-	# # SoilGrids API endpoint
-	# url = f"https://rest.isric.org/soilgrids/v2.0/classification/query?lon={longitude}&lat={latitude}"
-
-	# # Make the request
-	# response = requests.get(url)
-	# logging.debug(f"URL RESPONSE: {response.status_code}")
-
-	# if response.status_code == 200:
-	# 	data = response.json()
-	# 	logging.debug(f"DATA RESPONSE: {data}")
-
-	# 	# Extract the soil type from the correct key
-	# 	soil_type = data.get('wrb_class_name', 'Unknown')
-	# 	logging.debug(f"Successfully fetched soil type: {soil_type}")
-	return "soil_type"
+	# url = f"https://api.open-soil-map.org/v1/soil?lat={latitude}&lng={longitude}"
+	# try:
+	# 	response = requests.get(url, timeout=5)  # Set timeout for faster fail
+		
+	# 	if response.status_code == 200:
+	# 		data = response.json()
+	# 		return data.get('soil_type', 'Unknown')
 	
-	# else:
-	# 	logging.debug("ERROR")
-	# 	logging.error(f"Error: {response.status_code} - {response.text}")
-	# 	return None
+	# except Exception as e:
+	# 	logging.error(f"Error fetching soil data: {e}")
+	
+	return "Unknown"
 	
 
 #######################
@@ -87,14 +79,14 @@ def get_field_by_id(id: str) -> dict:
 		field = Field.from_dict(field_ref)
 
 		# FieldDTO convert
-		fieldDTO = FieldDTO(id=id, 
+		field_dto = FieldDTO(id=id, 
 					latitude= field.latitude, longitude= field.longitude,
 					width= field.width, length= field.length, slope= field.slope,
 					user= field.user,
 					soil_type= field.soil_type, crop_name= field.crop_name,
 					sensors= [sensor.to_dict() for sensor in field.sensors])
 		
-		return fieldDTO.to_dict()
+		return field_dto.to_dict()
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -111,24 +103,23 @@ def get_fields_by_user_id(user_id: str) -> list[dict]:
 
 	# Check fetch response
 	if fields_ref is None:
-		return {"error": f"No fields for user: {user_id}"}
+		return [{"error": f"No fields for user: {user_id}"}]
 	
 	try:
 		# Create fieldDTO obj array
-		fieldsDTOs = [
+		fields_dtos = [
 			FieldDTO(
-				id = field_id,
+				id=field_id,
 				**Field.from_dict(field_data).to_dict()
 			).to_dict()
-
 			for field_id, field_data in fields_ref.items()
 		]
 
-		return fieldsDTOs
+		return fields_dtos
 
 
 	except KeyError as e:
-		return {"error": f"Key missing: {str(e)}"}
+		return [{"error": f"Key missing: {str(e)}"}]
 
 #######################
 #
@@ -156,7 +147,7 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 			set_sensor_field_id(id, field_ref.key)
 
 		# Create DTO object
-		fieldDTO = FieldDTO(
+		field_dto = FieldDTO(
 			id = field_ref.key,
 			latitude = data.latitude,
 			longitude = data.longitude,
@@ -170,18 +161,22 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		)	
 
 		# Retrieve user data for mail sender
-		user_data = get_user_by_id(fieldDTO.user)
+		user_data = get_user_by_id(field_dto.user)
 
 		# Send Mail
-		send_email("Adding New Field",
-			 		f"Added new field on location: {get_location(fieldDTO.latitude, fieldDTO.longitude)}",
+		send_email("Your New Field Has Been Successfully Added",
+			 		generate_field_creation_email_body(
+						user_data['email'],
+						get_location(field_dto.latitude, field_dto.longitude),
+						field_dto
+					),
 					user_data['email'])
 		
 		logging.info(Fore.GREEN + 
 				"Successfully added new field." +
 				Style.RESET_ALL)
 		
-		return fieldDTO.to_dict()
+		return field_dto.to_dict()
 		
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -215,7 +210,7 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 				set_sensor_field_id(sensor['firebase_id'], id)
 
 		# Create DTO object
-		updated_fieldDTO = FieldDTO(
+		updated_field_dto = FieldDTO(
 			id = id,
 			latitude = data.latitude,
 			longitude = data.longitude,
@@ -232,18 +227,22 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		REF.child(id).set(data.to_dict())
 
 		# Retrieve user data for mail sender
-		user_data = get_user_by_id(updated_fieldDTO.user)
+		user_data = get_user_by_id(updated_field_dto.user)
 
 		# Send Mail
-		send_email("Field Updated",
-			 		f"Successfully updated field on location {get_location(updated_fieldDTO.latitude, updated_fieldDTO.longitude)}",
+		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)}",
+			 		generate_field_update_mail_body(
+						user_data['email'],
+						get_location(updated_field_dto.latitude, updated_field_dto.longitude),
+						updated_field_dto
+					),
 					user_data['email'])
 		
 		logging.info(Fore.GREEN + 
 				f"Successfully updated field data for ID: {id}" + 
 				Style.RESET_ALL)
 		
-		return updated_fieldDTO.to_dict()
+		return updated_field_dto.to_dict()
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -255,7 +254,7 @@ def update_field_measurements_by_id(id: str, data: Field) -> dict:
 
 	try:
 		# Create DTO object
-		updated_fieldDTO = FieldDTO(
+		updated_field_dto = FieldDTO(
 			id = id,
 			latitude = data.latitude,
 			longitude = data.longitude,
@@ -272,18 +271,19 @@ def update_field_measurements_by_id(id: str, data: Field) -> dict:
 		REF.child(id).set(data.to_dict())
 
 		# Retrieve user data for mail sender
-		user_data = get_user_by_id(updated_fieldDTO.user)
+		user_data = get_user_by_id(updated_field_dto.user)
 
+			 		
 		# Send Mail
 		send_email("Field Updated",
-			 		f"Successfully updated measurements on location {get_location(updated_fieldDTO.latitude, updated_fieldDTO.longitude)}",
+			 		f"Successfully updated measurements on location {get_location(updated_field_dto.latitude, updated_field_dto.longitude)}",
 					user_data['email'])
 		
 		logging.info(Fore.GREEN + 
 				f"Successfully updated field measurements for ID: {id}" + 
 				Style.RESET_ALL)
 		
-		return updated_fieldDTO.to_dict()
+		return updated_field_dto.to_dict()
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -308,9 +308,12 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 				unset_sensor_field_id(name)
 
 		# Send Mail
-		logging.debug(f"Field coors: {fetched_field['latitude']}, {fetched_field['longitude']}")
-		send_email("Field Deleted",
-			 		f"Successfully deleted field from location {get_location(fetched_field['latitude'], fetched_field['longitude'])}",
+		send_email(f"Field Deleted: {fetched_field['crop_name']} at {get_location(fetched_field['latitude'], fetched_field['longitude'])}",
+			 		generate_field_delete_mail_body(
+						user_data['email'],
+						get_location(fetched_field['latitude'], fetched_field['longitude']),
+						fetched_field['crop_name']
+					),
 					user_data['email'])
 		
 		# Delete 
