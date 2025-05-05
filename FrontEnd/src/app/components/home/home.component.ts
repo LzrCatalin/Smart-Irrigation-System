@@ -1,4 +1,3 @@
-import { map, mergeMap, from } from 'rxjs';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { News } from '../../models/news.model';
@@ -19,7 +18,7 @@ import { ApiService } from '../../services/api.service';
 	selector: 'app-home',
 	templateUrl: './home.component.html',
 	styleUrls: ['./home.component.css']
-})
+})	
 export class HomeComponent implements OnInit{
 	user: User | undefined;
 	fields: Field[] = [];
@@ -186,7 +185,6 @@ export class HomeComponent implements OnInit{
 		})
 	}
 
-
 	//////////////////////
 	//
 	//	Fetch farming news
@@ -220,7 +218,6 @@ export class HomeComponent implements OnInit{
 		this.newsPageIndex = event.pageIndex;
 		this.updatePaginatedNews();
 	}
-
 
 	///////////////
 	//
@@ -266,6 +263,7 @@ export class HomeComponent implements OnInit{
 			}
 		})
 	}
+
 	openWeatherDialog(): void {
 		this.dialog.open(WeatherDialogComponent, {
 			width: '400px',
@@ -273,14 +271,12 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-
-	
 	//////////////////
 	//
 	//	Notifications
 	//
 	//////////////////
-	showNotification(message: string, action: string = 'Close', duration: number = 3000): void {
+	showNotification(message: string, action: string = 'X', duration: number = 3000): void {
 		this.snackBar.open(message, action, {
 			duration: duration, 
 			horizontalPosition: 'right', 
@@ -288,7 +284,6 @@ export class HomeComponent implements OnInit{
 			panelClass: ['custom-snackbar']
 		});
 	}
-
 
 	//////////////////
 	//
@@ -319,8 +314,16 @@ export class HomeComponent implements OnInit{
 	}
 
 	toggleWaterPump(): void {
+		if (!this.user?.id) return;
+
 		this.togglePump = !this.togglePump;
 		
+		if (this.togglePump){
+			this.showNotification('Water Pump -> Turn ON');
+		} else {
+			this.showNotification('Water Pump -> Turn OFF');
+		}
+
 		this.fieldsService.toggle_pump(this.togglePump).subscribe({
 			next: (res: any) => {
 				console.log(res);
@@ -337,6 +340,12 @@ export class HomeComponent implements OnInit{
 		if (!this.user?.id) return;
 
 		this.toggleSensorsScheduler = !this.toggleSensorsScheduler;
+
+		if (this.toggleSensorsScheduler){
+			this.showNotification('Sensors Updates -> Turn OFF');
+		} else {
+			this.showNotification('Sensors Updates -> Turn ON');
+		}
 	
 		// Save to localStorage
 		localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
@@ -353,11 +362,16 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-
 	toggleIrrigation(): void {
 		if (!this.user?.id) return;
 
 		this.toggleIrrigationSystem = !this.toggleIrrigationSystem;
+
+		if (this.toggleIrrigationSystem){
+			this.showNotification('Sensors Updates -> Turn OFF');
+		} else {
+			this.showNotification('Sensors Updates -> Turn ON');
+		}
 
 		// Save to localStorage
 		localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));

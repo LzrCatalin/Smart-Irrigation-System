@@ -71,7 +71,7 @@ export class FieldDisplayComponent {
 		this.apiService.getLocation(this.field.latitude, this.field.longitude).subscribe({
 			next: (response) => {
 				if (response.status === "OK" && response.results.length > 0) {
-					this.fieldLocation = response.results[0].formatted_address;
+					this.fieldLocation = response.results[0].formatted_address.slice(8);
 
 				} else {
 					this.fieldLocation = "Location not found.";
