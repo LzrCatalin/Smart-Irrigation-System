@@ -65,4 +65,22 @@ export class FieldsService {
 			{ state: stateValue },
 		);
 	}
+
+	update_scheduler_settings(interval: number): any {
+		const intervalValue = interval;
+
+		return this.http.post(
+			`http://${environment.raspberry_id}:5000/api/actuators/scheduler/updated_timer`,
+			{ interval: intervalValue },
+		);
+	}
+
+	update_irrigation_settings(interval: number): any {
+		const intervalValue = interval;
+
+		return this.http.post(
+			`http://${environment.raspberry_id}:5000/api/actuators/irrigation/updated_timer`,
+			{ interval: intervalValue },
+		);
+	}
 }

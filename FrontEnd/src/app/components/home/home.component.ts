@@ -13,6 +13,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddFieldComponent } from '../add-field/add-field.component';
 import { ApiService } from '../../services/api.service';
+import { IntervalDialogComponent } from './interval-dialog/interval-dialog.component';
 
 @Component({
 	selector: 'app-home',
@@ -35,6 +36,11 @@ export class HomeComponent implements OnInit{
 	togglePump: boolean = false;
 	toggleSensorsScheduler: boolean = false;
 	toggleIrrigationSystem: boolean = false;
+
+	schedulerInterval: number = 15; // Default 15 minutes
+	irrigationInterval: number = 20; // Default 20 minutes
+	showSchedulerIntervalDialog: boolean = false;
+	showIrrigationIntervalDialog: boolean = false;
 
 	newsItems: News[] = [];
 	paginatedNews: News[] = [];
@@ -75,6 +81,79 @@ export class HomeComponent implements OnInit{
 		return this.user?.id ? `irrigationState_${this.user.id}` : 'irrigationState_default';
 	}
 
+	//////////////////////
+	//
+	//	Timers Setup
+	//
+	//////////////////////
+	openSchedulerIntervalDialog(): void {
+		const dialogRef = this.dialog.open(IntervalDialogComponent, {
+			data: { title: 'Set Sensors Update Interval', initialValue: this.schedulerInterval }
+		});
+	
+		dialogRef.afterClosed().subscribe(result => {
+			if (result !== undefined) {
+				this.schedulerInterval = result;
+				this.saveSchedulerInterval();
+			}
+		});
+	}
+
+	saveSchedulerInterval(): void {
+		this.showSchedulerIntervalDialog = false;
+		// Save to localStorage
+		localStorage.setItem(`${this.getSchedulerKey()}_interval`, this.schedulerInterval.toString());
+		// Update backend
+		this.updateSchedulerSettings();
+	}
+
+	updateSchedulerSettings(): any {
+		if (!this.user?.id) return;
+		
+		this.fieldsService.update_scheduler_settings(this.schedulerInterval).subscribe({
+			next: () => console.log('Scheduler settings updated'),
+			
+			error: (error : any) => {
+				console.error('Failed to update scheduler settings', error);
+				this.showNotification('Failed to update scheduler settings', 'Retry', 5000);
+			}
+		});
+	}
+	  
+	openIrrigationIntervalDialog(): void {
+		const dialogRef = this.dialog.open(IntervalDialogComponent, {
+			data: { title: 'Set Irrigation Interval', initialValue: this.irrigationInterval }
+			});
+		
+		dialogRef.afterClosed().subscribe(result => {
+			if (result !== undefined) {
+				this.irrigationInterval = result;
+				this.saveIrrigationInterval();
+			}
+		});
+	}
+	
+	saveIrrigationInterval(): void {
+		this.showIrrigationIntervalDialog = false;
+		// Save to localStorage
+		localStorage.setItem(`${this.getIrrigationKey()}_interval`, this.irrigationInterval.toString());
+		// Update backend
+		this.updateIrrigationSettings();
+	}
+
+	updateIrrigationSettings(): any {
+		if (!this.user?.id) return;
+		
+		this.fieldsService.update_irrigation_settings(this.irrigationInterval).subscribe({
+			next: () => console.log('Irrigation settings updated'),
+			
+			error: (error : any) => {
+				console.error('Failed to update irrigation settings', error);
+				this.showNotification('Failed to update irrigation settings', 'Retry', 5000);
+			}
+		});
+	}
+
 	ngOnInit(): void {
 		// Store loggedin user
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
@@ -92,6 +171,13 @@ export class HomeComponent implements OnInit{
 
 		// Fetch news
 		this.fetchFarmingNews();
+
+		// Load saved intervals
+		const savedSchedulerInterval = localStorage.getItem(`${this.getSchedulerKey()}_interval`);
+		this.schedulerInterval = savedSchedulerInterval ? parseInt(savedSchedulerInterval) : 15;
+		
+		const savedIrrigationInterval = localStorage.getItem(`${this.getIrrigationKey()}_interval`);
+		this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;
 	}
 
 	//////////////////////

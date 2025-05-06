@@ -38,6 +38,10 @@
 					(change)="toggleSensors()"
 					aria-label="Scheduler State">
 				</mat-slide-toggle>
+				<button mat-icon-button (click)="$event.stopPropagation(); openSchedulerIntervalDialog()" 
+						aria-label="Set scheduler interval">
+					<mat-icon>timer</mat-icon>
+				</button>
 			</a>
 			<a mat-list-item (click)="toggleIrrigation()" aria-label="scheduler" class="sidenav-toggle-item">
 				<div class="sidenav-toggle-content">
@@ -49,6 +53,10 @@
 					(change)="toggleIrrigation()"
 					aria-label="Irrigation State">
 				</mat-slide-toggle>
+				<button mat-icon-button (click)="$event.stopPropagation(); openIrrigationIntervalDialog()" 
+						aria-label="Set irrigation interval">
+					<mat-icon>timer</mat-icon>
+				</button>
 			</a>
 			<a mat-list-item (click)="toggleLogOut()" aria-label="Logout">
 				<mat-icon>logout</mat-icon>

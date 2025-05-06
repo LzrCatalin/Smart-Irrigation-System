@@ -1,0 +1,13 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: 320px;
+	padding: 16px;
+}
+
+.dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}

@@ -35,6 +35,7 @@ import { FieldDisplayComponent } from './components/field-display/field-display.
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { IntervalDialogComponent } from './components/home/interval-dialog/interval-dialog.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { MatSelectModule } from '@angular/material/select';
     WeatherDialogComponent,
     FieldDisplayComponent,
     ConfirmationDialogComponent,
+    IntervalDialogComponent,
   ],
   imports: [
     BrowserModule,
