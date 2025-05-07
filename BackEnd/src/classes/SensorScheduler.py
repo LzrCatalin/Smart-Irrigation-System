@@ -146,5 +146,20 @@ class SensorScheduler:
 		else:
 			logging.warning('Sensor update job not found to resume')
 
+	def update_interval(self, new_interval: int) -> None:
+		"""Update scheduler time interval"""
+		job = self.scheduler.get_job('sensor_update_cycle')
+
+		if job:
+			self.scheduler.scheduler.reschedule_job(
+				job_id='sensor_update_cycle',
+				trigger='interval',
+				seconds=new_interval
+			)
+			logging.info(f'Sensor updates timer updated to run every {new_interval} seconds')
+		
+		else:
+			logging.warning('Sensor update job not found to update interval')
+
 	def scheduler_shutdown(self):
 		atexit.register(self.stop)

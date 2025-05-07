@@ -77,3 +77,18 @@ class FieldIrrigationSystem:
 
 		else:
 			logging.warning('Irrigation system job not found to resume')
+
+	def update_interval(self, new_interval: int) -> None:
+		"""Update timer of irrigations"""
+		job  = self.scheduler.get_job('irrigation_cycle')
+		
+		if job:
+			self.scheduler.scheduler.reschedule_job(
+				job_id='irrigation_cycle',
+				trigger='interval',
+				seconds=new_interval
+			)
+			logging.info(f'Irrigation timer updated to run every {new_interval} seconds')
+
+		else:
+			logging.warning('Irrigation update job not found to update interval')
