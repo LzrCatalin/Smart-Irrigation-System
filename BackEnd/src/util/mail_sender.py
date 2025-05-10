@@ -1,23 +1,65 @@
+import os
 import logging
 import smtplib
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from src.classes.FieldDTO import FieldDTO
+from dotenv import load_dotenv
 
 
-#
-# SMTP Config
-#
-PORT = 587
-SMTP_SERVER = 'smtp.gmail.com'
-SENDER_EMAIL = 'faculty.electiv.courses@gmail.com'
-SENDER_PASSWORD = 'vfsizenwkhheavyw'
-
+# Load environment variables
+load_dotenv()
 
 #
-#	Mail Defines
+#	Fetch config from env file
 #
+PORT = os.getenv('PORT')
+SMTP_SERVER = os.getenv('SMTP_SERVER')
+SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+SENDER_PASSWORD = os.getenv('SENDER_PASSWORD')
+
+#
+#	Mail Bodies
+#
+def generate_register_mail_body(email: str, password: str) -> str:
+	email_body = f"""
+		Thank you for registering! We're excited to help you optimize your agricultural operations.
+
+		🌟 **Your Account is Ready**  
+		Email: {email}
+		Password: {password}  
+		Registration Date: {datetime.now().strftime("%d %b %Y")}
+
+		📌 Next Steps:
+		1. Explore your dashboard
+		2. Add your first field
+		3. Connect your sensors
+
+		Happy Farming! 🌱
+
+		Best regards,  
+		Team
+		"""
+	
+	return email_body
+
+def generate_login_mail_body(email: str) -> str:
+	email_body = f"""
+		Hi {email},
+
+		You've successfully logged into your account.
+
+		📅 Login Time: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+
+		Stay secure,
+		Team
+
+		_P.S. Never share your password with anyone._"""
+	
+	return email_body
+
 def generate_field_creation_email_body(mail: str, location: str, field_dto: FieldDTO) -> str:
 	email_body = f"""
 		Dear {mail},
@@ -25,7 +67,7 @@ def generate_field_creation_email_body(mail: str, location: str, field_dto: Fiel
 		We're pleased to inform you that your new field has been successfully registered in our system!
 
 		Field Details:
-		📍 Location: {location}
+		📍 Location: {location[:8]}
 		🌱 Crop: {field_dto.crop_name}
 		📏 Dimensions: {field_dto.length}m × {field_dto.width}m
 		🌍 Soil Type: {field_dto.soil_type}

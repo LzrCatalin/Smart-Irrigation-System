@@ -1,11 +1,14 @@
 import logging
 import requests
 from colorama import Fore, Style
-from src.classes.Status import *
-from src.classes.Field import *
-from src.classes.FieldDTO import *
+
+from src.classes.Status import Status
+from src.classes.Field import Field
+from src.classes.FieldDTO import FieldDTO
 from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name, get_sensor_data_by_id, update_sensor_by_id, set_sensor_field_id, unset_sensor_field_id
 from src.services.users_service import get_user_by_id
+from src.util.utils import get_soil_info
+
 from firebase_admin import credentials, db
 from src.util.mail_sender import  send_email, generate_field_creation_email_body, generate_field_update_mail_body, generate_field_delete_mail_body
 from src.api.geocodinAPI import get_location
@@ -17,29 +20,6 @@ from src.api.geocodinAPI import get_location
 #######################
 DB_REF = 'irrigation-system/field_data'
 REF = db.reference(f'{DB_REF}')
-
-
-####################
-#
-#	Util functions
-#
-####################
-def get_soil_type(latitude: float, longitude: float) -> str:
-	# logging.debug(f"\t\tRetrieving soil type: {longitude} : {latitude}")
-
-	# url = f"https://api.open-soil-map.org/v1/soil?lat={latitude}&lng={longitude}"
-	# try:
-	# 	response = requests.get(url, timeout=5)  # Set timeout for faster fail
-		
-	# 	if response.status_code == 200:
-	# 		data = response.json()
-	# 		return data.get('soil_type', 'Unknown')
-	
-	# except Exception as e:
-	# 	logging.error(f"Error fetching soil data: {e}")
-	
-	return "Unknown"
-	
 
 #######################
 #
@@ -130,12 +110,10 @@ def get_fields_by_user_id(user_id: str) -> list[dict]:
 #
 #   Create
 #
-def create_field(data: Field, sensors_ids: list[str]) -> dict:
-	logging.debug(f"Recevied data: {data.to_dict()}")
-	
+def create_field(data: Field, sensors_ids: list[str]) -> dict:	
 	try:
 		# Fetch soil type based on longitude and longitude
-		data.soil_type = get_soil_type(data.longitude, data.latitude)
+		data.soil_type = get_soil_info(data.latitude, data.longitude)
 
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
@@ -230,10 +208,10 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		user_data = get_user_by_id(updated_field_dto.user)
 
 		# Send Mail
-		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)}",
+		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)[8:]}",
 			 		generate_field_update_mail_body(
 						user_data['email'],
-						get_location(updated_field_dto.latitude, updated_field_dto.longitude),
+						get_location(updated_field_dto.latitude, updated_field_dto.longitude)[8:],
 						updated_field_dto
 					),
 					user_data['email'])

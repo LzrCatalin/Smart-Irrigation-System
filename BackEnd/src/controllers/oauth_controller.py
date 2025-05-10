@@ -3,16 +3,16 @@ from urllib.parse import urlencode
 
 from flask import redirect, url_for, session, Blueprint, request, jsonify, current_app
 
-from src.services.users_service import *
-from src.util.encrypt import *
-from src.services.token_service import *
-from src.util.mail_sender import *
+from src.classes.User import User
+from src.services.users_service import get_user_by_email_and_password, available_email, get_user_by_email, create_user
+from src.util.encrypt import encrypt, generate_random_password
+from src.services.token_service import generate_token
+from src.util.mail_sender import send_email, generate_register_mail_body, generate_login_mail_body
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/')
 def hello_world():
-
 	email = dict(session).get('email', None)
 	return f'Hello, you are logged in as {email}!' if email else 'Hello, you are not logged in!'
 
@@ -43,8 +43,8 @@ def login() -> jsonify:
 			token = generate_token({'id': response['id']})
 
 			# Send Mail for register
-			send_email("Register Successfully",
-			  			f"Successfully created account on our website.\nCredentials:{email} - {password}",
+			send_email("Welcome to our Team.",
+			  			generate_register_mail_body(email, password),
 						email)
 			
 			return jsonify({
@@ -101,8 +101,8 @@ def authorize() -> jsonify:
 	token = generate_token({'id': user['id']})
 
 	# Send connection email
-	send_email("Login Successfully",
-				f"Successfully loggedin with mail: {user_email}", 
+	send_email("Successful login to your account ✅",
+				generate_login_mail_body(user_email), 
 				user_email)
 	
 	# Serialize user data
