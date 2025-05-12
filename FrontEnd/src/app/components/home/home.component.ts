@@ -4,6 +4,7 @@ import { News } from '../../models/news.model';
 import { Field } from '../../models/field.model';
 import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
+import { ActuatorsService } from '../../services/actuators.service';
 import { Sensor } from '../../models/sensor.model';
 import { Router } from '@angular/router';
 import { WeatherDialogComponent } from '../weather-dialog/weather-dialog.component';
@@ -70,7 +71,8 @@ export class HomeComponent implements OnInit{
 				private fieldsService: FieldsService,
 				private dialog: MatDialog,
 				private snackBar: MatSnackBar,
-				private apiService: ApiService
+				private apiService: ApiService,
+				private actuatorsService: ActuatorsService
 				) {}
 	
 	private getSchedulerKey(): string {
@@ -110,7 +112,7 @@ export class HomeComponent implements OnInit{
 	updateSchedulerSettings(): any {
 		if (!this.user?.id) return;
 		
-		this.fieldsService.update_scheduler_settings(this.schedulerInterval).subscribe({
+		this.actuatorsService.update_scheduler_settings(this.schedulerInterval).subscribe({
 			next: () => console.log('Scheduler settings updated'),
 			
 			error: (error : any) => {
@@ -144,7 +146,7 @@ export class HomeComponent implements OnInit{
 	updateIrrigationSettings(): any {
 		if (!this.user?.id) return;
 		
-		this.fieldsService.update_irrigation_settings(this.irrigationInterval).subscribe({
+		this.actuatorsService.update_irrigation_settings(this.irrigationInterval).subscribe({
 			next: () => console.log('Irrigation settings updated'),
 			
 			error: (error : any) => {
@@ -410,7 +412,7 @@ export class HomeComponent implements OnInit{
 			this.showNotification('Water Pump -> Turn OFF');
 		}
 
-		this.fieldsService.toggle_pump(this.togglePump).subscribe({
+		this.actuatorsService.toggle_pump(this.togglePump).subscribe({
 			next: (res: any) => {
 				console.log(res);
 			},
@@ -437,7 +439,7 @@ export class HomeComponent implements OnInit{
 		localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
 
 		// Update backend
-		this.fieldsService.toggle_sensors_scheduler(this.toggleSensorsScheduler).subscribe({
+		this.actuatorsService.toggle_sensors_scheduler(this.toggleSensorsScheduler).subscribe({
 			next: () => console.log('Toggle Scheduler successful'),
 			
 			error: (error) => {
@@ -463,7 +465,7 @@ export class HomeComponent implements OnInit{
 		localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));
 
 		// Update backend
-		this.fieldsService.toggle_irrigation_system(this.toggleIrrigationSystem).subscribe({
+		this.actuatorsService.toggle_irrigation_system(this.toggleIrrigationSystem).subscribe({
 			next: () => console.log('Toggle Irrigation successful'),
 
 			error: (error) => {

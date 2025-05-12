@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ActuatorsService } from '../../../services/actuators.service';
 
 @Component({
 	selector: 'app-config-dialog',
@@ -14,6 +15,7 @@ export class ConfigDialogComponent {
 	constructor(
 		private fb: FormBuilder,
 		public dialogRef: MatDialogRef<ConfigDialogComponent>,
+		private actuatorService: ActuatorsService,
 		@Inject(MAT_DIALOG_DATA) public data: {fieldId: string}
 	)
 	{
@@ -35,7 +37,17 @@ export class ConfigDialogComponent {
 				fieldId: this.fieldId,
 				...this.configForm.value
 			};
-
+			
+			this.actuatorService.update_field_config(result).subscribe({
+				next: (response: any) => {
+					console.log(response);
+				},
+				
+				error: (error: any) => {
+					console.error(error)
+				}
+			})
+			
 			this.dialogRef.close(result);
 		}
 	}
