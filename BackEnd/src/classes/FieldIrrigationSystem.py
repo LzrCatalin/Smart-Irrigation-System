@@ -48,7 +48,7 @@ class FieldIrrigationSystem:
 			logging.info(f"[{field_id}] Configuration updated: {config}")
 
 		else:
-			logging.warning(f"Field {field_id} not found for config update")
+			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
 			
 	def run_cycle(self, field_id: str) -> None:
 		"""Run irrigation for a specific field"""
