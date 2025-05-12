@@ -7,7 +7,7 @@ from src.classes.Sensor import *
 from src.classes.Field import *
 from src.sensors.humidity_sensor import *
 from src.sensors.temperature_sensor import *
-from src.services import fields_service
+from src.services.fields_service import get_fields_data
 
 ####################
 #
@@ -29,7 +29,7 @@ class SensorScheduler:
 				+ Style.RESET_ALL)
 
 		# Fetch fields ids
-		fields_data = fields_service.get_fields_data()
+		fields_data = get_fields_data()
 
 		for field_id, field_data in fields_data.items():
 			if not field_data or not field_data['sensors']:

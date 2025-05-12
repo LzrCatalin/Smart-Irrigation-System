@@ -104,3 +104,28 @@ def update_irrigation_interval(data: dict) -> dict:
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
+	
+def update_field_irrigation_config(data: dict) -> dict:
+	try:
+		# Extract variables
+		field_id = data['fieldId']
+
+		# Create config dict
+		config = {
+			'min_humidity': data['min_humidity'],
+			'target_humidity': data['target_humidity'],
+			'max_watering_time': data['max_watering_time']
+		}
+
+		# Get job
+		irrigation = get_irrigation_system()
+		if not irrigation:
+			return {"error": "Irrigation not initialized"}
+		
+		# Update config values
+		irrigation.update_field_config(field_id, config)
+
+		return {"message": f"Field {field_id} config updated."}
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
