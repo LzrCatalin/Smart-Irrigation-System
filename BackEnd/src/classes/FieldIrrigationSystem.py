@@ -21,17 +21,35 @@ class FieldIrrigationSystem:
 	def add_field(self, field_id: str, config: dict = None) -> None:
 		"""Add a new field to be managed"""
 		if field_id not in self.fields:
-			print(f'Adding id: {field_id}')
 			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
 
 	def update_field_measurements(self, field_id: str, humidity: float, temperature: float, port: int) -> None:
 		"""Update measurements of the field"""
 		if field_id in self.fields:
-			print(f'Updating field id: {field_id}')
 			self.fields[field_id].current_humidity = humidity
 			self.fields[field_id].current_temperature = temperature
 			self.fields[field_id].current_port = port
 
+	def update_field_config(self, field_id: str, config: dict) -> None:
+		"""Update irrigation configuration of the field"""
+		if field_id in self.fields:	
+			field = self.fields[field_id]
+
+			# Update field's config values
+			if 'target_humidity' in config:
+				field.target_humidity = config['target_humidity']
+
+			if 'min_humidity' in config:
+				field.min_humidity = config['min_humidity']
+
+			if 'max_watering_time' in config:
+				field.max_watering_time = config['max_watering_time']
+			
+			logging.info(f"[{field_id}] Configuration updated: {config}")
+
+		else:
+			logging.warning(f"Field {field_id} not found for config update")
+			
 	def run_cycle(self, field_id: str) -> None:
 		"""Run irrigation for a specific field"""
 		if field_id in self.fields:
@@ -40,7 +58,7 @@ class FieldIrrigationSystem:
 	def run_all_cycles(self):
 		"""Run irrigation for all fields"""
 		if self.fields is None:
-			print('Empty list.')
+			logging.info('Empty list for irrigation system')
 
 		for field in self.fields:
 			self.run_cycle(field)
@@ -92,3 +110,4 @@ class FieldIrrigationSystem:
 
 		else:
 			logging.warning('Irrigation update job not found to update interval')
+

@@ -9,6 +9,8 @@ import { FieldsService } from '../../services/fields.service';
 import { ApiService } from '../../services/api.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
 	selector: 'app-field-display',
@@ -31,7 +33,8 @@ export class FieldDisplayComponent {
 		private fb: FormBuilder,
 		private sensorsService: SensorsService,
 		private fieldsService: FieldsService,
-		private apiService: ApiService
+		private apiService: ApiService,
+		private dialog: MatDialog
 	) {
 		this.field = data.field;
 	}
@@ -152,6 +155,20 @@ export class FieldDisplayComponent {
 
 		// Remove the sensor from the available sensors list
 		this.availableSensors = this.availableSensors.filter(s => s !== sensor);
+	}
+
+	openConfigDialog(): void {
+		const dialogRef = this.dialog.open(ConfigDialogComponent, {
+			width: '400px',
+			data: { fieldId: this.field.id }
+		});
+	
+		dialogRef.afterClosed().subscribe(
+			result => {
+				if (result) {
+					console.log("Configuration saved: ", result);
+				}
+		});
 	}
 
 	onSubmit(): void {
