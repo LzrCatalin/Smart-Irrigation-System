@@ -5,6 +5,8 @@ from colorama import Fore, Style
 from src.classes.Status import Status
 from src.classes.Field import Field
 from src.classes.FieldDTO import FieldDTO
+from src.classes.AlertDefinition import AlertDefinition
+from src.services.alerts_service import create_alert
 from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name, get_sensor_data_by_id, update_sensor_by_id, set_sensor_field_id, unset_sensor_field_id
 from src.services.users_service import get_user_by_id
 from src.util.utils import get_soil_info
@@ -115,9 +117,12 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		# Fetch soil type based on longitude and longitude
 		data.soil_type = get_soil_info(data.latitude, data.longitude)
 
+		# Retrieve user data for mail sender
+		user_data = get_user_by_id(data.user)
+		
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
-		
+
 		# Update selected sensors status and field id
 		for id in sensors_ids:
 			# Update status and field id
@@ -138,18 +143,23 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 			sensors = [sensor.to_dict() for sensor in data.sensors],
 		)	
 
-		# Retrieve user data for mail sender
-		user_data = get_user_by_id(field_dto.user)
-
 		# Send Mail
 		send_email("Your New Field Has Been Successfully Added",
 			 		generate_field_creation_email_body(
 						user_data['email'],
-						get_location(field_dto.latitude, field_dto.longitude),
+						get_location(data.latitude, data.longitude),
 						field_dto
 					),
 					user_data['email'])
 		
+		# Create the alert
+		alert_def = AlertDefinition(
+			user_id=user_data['id'],
+			message="Your New Field Has Been Successfully Added",
+			alert_type="INFO"
+		)
+		create_alert(alert_def)
+
 		logging.info(Fore.GREEN + 
 				"Successfully added new field." +
 				Style.RESET_ALL)
