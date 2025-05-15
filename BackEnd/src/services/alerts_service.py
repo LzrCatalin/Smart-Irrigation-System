@@ -15,10 +15,14 @@ REF = db.reference(f'{DB_REF}')
 
 def get_user_alerts(user_id: str) -> UserAlerts:
 	"""Helper to fetch existing alerts"""
-	snapshot = REF.child(user_id).get()
-	
-	return UserAlerts.from_dict(snapshot) if snapshot else None
+	get_user_by_id(user_id)
 
+	snapshot = REF.child(user_id).get()
+	if snapshot is not None:
+		snapshot['user_id'] = user_id
+		return UserAlerts.from_dict(snapshot)
+
+	return None
 #######################
 #
 #   CRUD Operations

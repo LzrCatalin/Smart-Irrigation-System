@@ -4,13 +4,13 @@ from typing import Dict
 
 @dataclass
 class AlertDefinition:
-    """Standardized alert structure"""
-    user_id: str
-    message: str
-    alert_type: str = "INFO" # Default
-    timestamp: str = None
+	"""Standardized alert structure"""
+	user_id: str
+	message: str
+	alert_type: str = "INFO" # Default
+	timestamp: str = None
 
-    def __post_init__(self):
-        """Auto-generate timestamp if not provided"""
-        if self.timestamp is None:
-            self.timestamp = datetime.now().isoformat()
+	def __post_init__(self):
+		"""Auto-generate timestamp if not provided"""
+		if self.timestamp is None:
+			self.timestamp = datetime.now().isoformat()
