@@ -6,6 +6,9 @@
 		<div class="sidenav-content">
 		<header class="sidenav-header">
 			<h2>Menu</h2>
+			<button mat-icon-button (click)="alertsDrawer.toggle()" aria-label="Show Alerts">
+				<mat-icon>notifications</mat-icon>
+			</button>
 		</header>
 		<nav>
 			<mat-nav-list>
@@ -64,6 +67,20 @@
 			</a>
 			</mat-nav-list>
 		</nav>
+		<mat-drawer #alertsDrawer position="end" mode="over" class="alerts-drawer">
+			<h2>User Alerts</h2>
+			<mat-nav-list *ngIf="userAlerts && userAlerts.length > 0; else noAlerts">
+				<mat-list-item *ngFor="let alert of userAlerts">
+					<p>{{ alert.type }}</p>
+					<p>{{ alert.timestamp }}</p>
+					<div matLine>{{ alert.message }}</div>
+					<div matLine class="timestamp">{{ alert.timestamp | date: 'short' }}</div>
+				</mat-list-item>
+			</mat-nav-list>
+			<ng-template #noAlerts>
+				<p>No alerts available.</p>
+			</ng-template>
+		</mat-drawer>
 		</div>
 	</mat-sidenav>
 

@@ -5,6 +5,7 @@ import { Field } from '../../models/field.model';
 import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { ActuatorsService } from '../../services/actuators.service';
+import { AlertsService } from '../../services/alerts.service';
 import { Sensor } from '../../models/sensor.model';
 import { Router } from '@angular/router';
 import { WeatherDialogComponent } from '../weather-dialog/weather-dialog.component';
@@ -15,6 +16,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddFieldComponent } from '../add-field/add-field.component';
 import { ApiService } from '../../services/api.service';
 import { IntervalDialogComponent } from './interval-dialog/interval-dialog.component';
+import { UserAlerts } from '../../models/user-alerts.model';
+import { AlertDefinition } from '../../models/alerts-definition.model';
 
 @Component({
 	selector: 'app-home',
@@ -28,6 +31,7 @@ export class HomeComponent implements OnInit{
 	selectedField: Field | null = null;
 	paginatedFields = this.fields.slice(0, 3);
 	fieldLocations: { [key: string]: string } = {};
+	userAlerts: any[] = [];
 
 	city = '';
 	selectedDate = new Date();
@@ -72,7 +76,8 @@ export class HomeComponent implements OnInit{
 				private dialog: MatDialog,
 				private snackBar: MatSnackBar,
 				private apiService: ApiService,
-				private actuatorsService: ActuatorsService
+				private actuatorsService: ActuatorsService,
+				private alertsService: AlertsService
 				) {}
 	
 	private getSchedulerKey(): string {
@@ -163,6 +168,7 @@ export class HomeComponent implements OnInit{
 		// Fetch fields for loggedin user
 		if (this.user.id !== undefined) {
 			this.fetchUserFields(this.user.id);
+			this.fetchUserAlerts(this.user.id);
 
 			const savedStateScheduler = localStorage.getItem(this.getSchedulerKey());
     		this.toggleSensorsScheduler = savedStateScheduler ? JSON.parse(savedStateScheduler) : false;
@@ -361,7 +367,7 @@ export class HomeComponent implements OnInit{
 
 	//////////////////
 	//
-	//	Notifications
+	//	Notifications & Alerts
 	//
 	//////////////////
 	showNotification(message: string, action: string = 'X', duration: number = 3000): void {
@@ -371,6 +377,51 @@ export class HomeComponent implements OnInit{
 			verticalPosition: 'top',
 			panelClass: ['custom-snackbar']
 		});
+	}
+
+	fetchUserAlerts(user_id: string): void {
+		this.alertsService.get_user_alerts(user_id).subscribe({
+			next: (response: any) => {
+				console.log("Raw response: ", response);
+			
+				const alertsObject = response.alerts || {};
+				const alertArray = Object.entries(alertsObject).map(([timestampKey, alert]: [string, any]) => ({
+					...alert,
+					timestamp: this.parseTimestamp(timestampKey)
+				}));
+			
+				this.userAlerts = alertArray;
+			
+				console.log("Processed alerts: ", this.userAlerts);
+				console.log("Length: ", this.userAlerts.length);
+			},
+
+			error: (error) => {
+				console.error(error);
+			}
+		});
+	}
+
+	parseTimestamp(timestampKey: string): Date | null {
+		// Example input: "2025-05-15T01-14-18-043255"
+		// Goal: "2025-05-15T01:14:18.043255"
+		
+		// Split date and time:
+		const [datePart, timePart] = timestampKey.split('T');
+		if (!timePart) return null;
+	
+		// Replace first two dashes with colons, the rest keep as is or replace last dash with dot for fractional seconds
+		// timePart example: "01-14-18-043255"
+		// Replace to: "01:14:18.043255"
+		
+		const parts = timePart.split('-');
+		if(parts.length < 3) return null;
+	
+		const formattedTime = `${parts[0]}:${parts[1]}:${parts[2]}` + (parts[3] ? `.${parts[3]}` : '');
+		const isoString = `${datePart}T${formattedTime}`;
+	
+		const dateObj = new Date(isoString);
+		return isNaN(dateObj.getTime()) ? null : dateObj;
 	}
 
 	//////////////////

@@ -128,6 +128,30 @@ body {
 	align-self: flex-end; /* Position in the lower-right corner */
 }
 
+.alerts-drawer {
+	width: 200px;
+	padding: 1rem;
+	background-color: #fafafa;
+	border-left: 1px solid #ccc;
+}
+
+.alerts-drawer mat-icon.info {
+	color: #1976d2;
+}
+.alerts-drawer mat-icon.warning {
+	color: #ffa000;
+}
+.alerts-drawer mat-icon.error {
+	color: #d32f2f;
+}
+.alerts-drawer mat-icon.critical {
+	color: #b71c1c;
+}
+.timestamp {
+	font-size: 0.75rem;
+	color: gray;
+}
+  
 /* Modal Styles */
 .modal {
 	position: fixed;
