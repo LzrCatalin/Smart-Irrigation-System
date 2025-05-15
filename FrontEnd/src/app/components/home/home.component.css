@@ -8,6 +8,7 @@ body {
 .dashboard-container {
 	display: flex;
 	height: 100vh;
+	position: relative;
 }
 
 .sidenav-container {
@@ -44,8 +45,8 @@ body {
 
 .content {
 	padding: 20px;
-	height: calc(100vh - 80px); /* Fixed height to prevent expansion */
-	overflow-y: auto; /* Add scroll if content overflows */
+	height: calc(100vh - 80px);
+	overflow-y: auto;
 }
 
 .split-layout {
@@ -124,34 +125,81 @@ body {
 }
 
 .calendar-weather-display {
-	width: 300px; /* Smaller calendar */
-	align-self: flex-end; /* Position in the lower-right corner */
+	width: 300px;
+	align-self: flex-end;
 }
 
-.alerts-drawer {
-	width: 200px;
-	padding: 1rem;
-	background-color: #fafafa;
-	border-left: 1px solid #ccc;
+.spacer {
+	flex: 1 1 auto;
 }
 
-.alerts-drawer mat-icon.info {
-	color: #1976d2;
+/* Alert Drawer Styles */
+.alert-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 998;
 }
-.alerts-drawer mat-icon.warning {
-	color: #ffa000;
+
+.alert-drawer-container {
+	position: fixed;
+	top: 0;
+	right: -320px;
+	width: 320px;
+	height: 100%;
+	background-color: white;
+	z-index: 999;
+	transition: right 0.3s ease;
+	box-shadow: -3px 0 10px rgba(0, 0, 0, 0.2);
 }
-.alerts-drawer mat-icon.error {
-	color: #d32f2f;
+
+.alert-drawer-container.open {
+	right: 0;
 }
-.alerts-drawer mat-icon.critical {
-	color: #b71c1c;
+
+.alert-drawer {
+	height: 100%;
+	padding: 16px;
+	overflow-y: auto;
 }
-.timestamp {
-	font-size: 0.75rem;
+
+.drawer-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #eee;
+	margin-bottom: 16px;
+}
+
+.toggle-group {
+	display: flex;
+	justify-content: center;
+	margin: 1rem 0;
+}
+
+.alert-date {
+	font-size: 12px;
 	color: gray;
 }
-  
+
+.info-icon {
+	color: #2196f3;
+}
+
+.warning-icon {
+	color: #ff9800;
+}
+
+.no-alerts {
+	text-align: center;
+	color: gray;
+	padding: 2rem;
+}
+
 /* Modal Styles */
 .modal {
 	position: fixed;

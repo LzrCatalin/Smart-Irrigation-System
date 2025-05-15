@@ -1,174 +1,199 @@
 <div class="dashboard-container">
 	<!-- Angular Material Sidenav -->
 	<mat-sidenav-container class="sidenav-container">
-	<!-- Sidenav -->
-	<mat-sidenav #sidenav mode="side" opened="false" position="start" class="sidenav">
+	  <!-- Sidenav -->
+	  <mat-sidenav #sidenav mode="side" opened="false" position="start" class="sidenav">
 		<div class="sidenav-content">
-		<header class="sidenav-header">
+		  <header class="sidenav-header">
 			<h2>Menu</h2>
-			<button mat-icon-button (click)="alertsDrawer.toggle()" aria-label="Show Alerts">
-				<mat-icon>notifications</mat-icon>
-			</button>
-		</header>
-		<nav>
+		  </header>
+		  <nav>
 			<mat-nav-list>
-			<a mat-list-item (click)="toggleHome()" aria-label="Dashboard">
+			  <a mat-list-item (click)="toggleHome()" aria-label="Dashboard">
 				<mat-icon>dashboard</mat-icon>
 				<span>Dashboard</span>
-			</a>
-			<a mat-list-item (click)="toggleCreateField()" aria-label="Fields">
+			  </a>
+			  <a mat-list-item (click)="toggleCreateField()" aria-label="Fields">
 				<mat-icon>agriculture</mat-icon>
 				<span>Add Field</span>
-			</a>
-			<a mat-list-item (click)="toggleWaterPump()" aria-label="WaterPump" class="sidenav-toggle-item">
+			  </a>
+			  <a mat-list-item (click)="toggleWaterPump()" aria-label="WaterPump" class="sidenav-toggle-item">
 				<div class="sidenav-toggle-content">
-					<mat-icon>power_settings_new</mat-icon>
-					<span>Toggle Water Pump</span>
+				  <mat-icon>power_settings_new</mat-icon>
+				  <span>Toggle Water Pump</span>
 				</div>
 				<mat-slide-toggle
-					[(ngModel)]="togglePump"
-					(change)="toggleWaterPump()"
-					aria-label="Water Pump State">
+				  [(ngModel)]="togglePump"
+				  (change)="toggleWaterPump()"
+				  aria-label="Water Pump State">
 				</mat-slide-toggle>
-			</a>
-			<a mat-list-item (click)="toggleSensors()" aria-label="scheduler" class="sidenav-toggle-item">
+			  </a>
+			  <a mat-list-item (click)="toggleSensors()" aria-label="scheduler" class="sidenav-toggle-item">
 				<div class="sidenav-toggle-content">
-					<mat-icon>power_settings_new</mat-icon>
-					<span>Toggle Scheduler</span>
+				  <mat-icon>power_settings_new</mat-icon>
+				  <span>Toggle Scheduler</span>
 				</div>
 				<mat-slide-toggle
-					[(ngModel)]="toggleSensorsScheduler"
-					(change)="toggleSensors()"
-					aria-label="Scheduler State">
+				  [(ngModel)]="toggleSensorsScheduler"
+				  (change)="toggleSensors()"
+				  aria-label="Scheduler State">
 				</mat-slide-toggle>
 				<button mat-icon-button (click)="$event.stopPropagation(); openSchedulerIntervalDialog()" 
-						aria-label="Set scheduler interval">
-					<mat-icon>timer</mat-icon>
+					  aria-label="Set scheduler interval">
+				  <mat-icon>timer</mat-icon>
 				</button>
-			</a>
-			<a mat-list-item (click)="toggleIrrigation()" aria-label="scheduler" class="sidenav-toggle-item">
+			  </a>
+			  <a mat-list-item (click)="toggleIrrigation()" aria-label="scheduler" class="sidenav-toggle-item">
 				<div class="sidenav-toggle-content">
-					<mat-icon>power_settings_new</mat-icon>
-					<span>Toggle Irrigation</span>
+				  <mat-icon>power_settings_new</mat-icon>
+				  <span>Toggle Irrigation</span>
 				</div>
 				<mat-slide-toggle
-					[(ngModel)]="toggleIrrigationSystem"
-					(change)="toggleIrrigation()"
-					aria-label="Irrigation State">
+				  [(ngModel)]="toggleIrrigationSystem"
+				  (change)="toggleIrrigation()"
+				  aria-label="Irrigation State">
 				</mat-slide-toggle>
 				<button mat-icon-button (click)="$event.stopPropagation(); openIrrigationIntervalDialog()" 
-						aria-label="Set irrigation interval">
-					<mat-icon>timer</mat-icon>
+					  aria-label="Set irrigation interval">
+				  <mat-icon>timer</mat-icon>
 				</button>
-			</a>
-			<a mat-list-item (click)="toggleLogOut()" aria-label="Logout">
+			  </a>
+			  <a mat-list-item (click)="toggleLogOut()" aria-label="Logout">
 				<mat-icon>logout</mat-icon>
 				<span>Logout</span>
-			</a>
+			  </a>
 			</mat-nav-list>
-		</nav>
-		<mat-drawer #alertsDrawer position="end" mode="over" class="alerts-drawer">
-			<h2>User Alerts</h2>
-			<mat-nav-list *ngIf="userAlerts && userAlerts.length > 0; else noAlerts">
-				<mat-list-item *ngFor="let alert of userAlerts">
-					<p>{{ alert.type }}</p>
-					<p>{{ alert.timestamp }}</p>
-					<div matLine>{{ alert.message }}</div>
-					<div matLine class="timestamp">{{ alert.timestamp | date: 'short' }}</div>
-				</mat-list-item>
-			</mat-nav-list>
-			<ng-template #noAlerts>
-				<p>No alerts available.</p>
-			</ng-template>
-		</mat-drawer>
+		  </nav>
 		</div>
-	</mat-sidenav>
-
-	<!-- Main Content -->
-	<mat-sidenav-content>
+	  </mat-sidenav>
+  
+	  <!-- Main Content -->
+	  <mat-sidenav-content>
 		<!-- Navbar with Toggle Button -->
 		<header class="navbar">
-			<button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu Toggle">
-				<mat-icon>menu</mat-icon>
-			</button>
-		<h1>Smart Irrigation Dashboard</h1>
+		  <button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu Toggle">
+			<mat-icon>menu</mat-icon>
+		  </button>
+		  <h1>Smart Irrigation Dashboard</h1>
+  
+		  <!-- Alert Button Top Right -->
+		  <span class="spacer"></span>
+		  <button mat-icon-button (click)="toggleAlertDrawer()" aria-label="Show Alerts">
+			<mat-icon>notifications</mat-icon>
+		  </button>
 		</header>
-
+		
+		<!-- Alert Drawer - New Implementation -->
+		<div class="alert-overlay" *ngIf="alertDrawerOpen" (click)="toggleAlertDrawer()"></div>
+		<div class="alert-drawer-container" [class.open]="alertDrawerOpen">
+		  <div class="alert-drawer">
+			<div class="drawer-header">
+			  <h3>Alerts</h3>
+			  <button mat-icon-button (click)="toggleAlertDrawer()" aria-label="Close Alerts">
+				<mat-icon>close</mat-icon>
+			  </button>
+			</div>
+		  
+			<mat-button-toggle-group [(ngModel)]="selectedAlertType" 
+                           (change)="onAlertTypeChange()"
+                           class="toggle-group">
+			  <mat-button-toggle value="INFO">INFO</mat-button-toggle>
+			  <mat-button-toggle value="WARNING">WARNING</mat-button-toggle>
+			</mat-button-toggle-group>
+		  
+			<div *ngIf="filteredAlerts.length === 0" class="no-alerts">
+			  No {{ selectedAlertType }} alerts available.
+			</div>
+		  
+			<mat-list *ngIf="filteredAlerts.length > 0">
+			  <mat-list-item *ngFor="let alert of filteredAlerts">
+				<mat-icon matListIcon [ngClass]="{
+				  'info-icon': alert.type === 'INFO',
+				  'warning-icon': alert.type === 'WARNING'
+				}">
+				  {{ alert.type === 'INFO' ? 'info' : 'warning' }}
+				</mat-icon>
+				<div matLine>{{ alert.message }}</div>
+				<div matLine class="alert-date">{{ alert.timestamp | date:'short' }}</div>
+			  </mat-list-item>
+			</mat-list>
+		  </div>
+		</div>
+  
 		<!-- Content -->
 		<div class="content">
-		<main class="split-layout">
+		  <main class="split-layout">
 			<!-- Left Half: Farming News -->
 			<div class="left-panel">
-			<div class="card news-display">
+			  <div class="card news-display">
 				<h2>Farming News</h2>
 				<div class="news-list">
-				<article *ngFor="let news of paginatedNews">
+				  <article *ngFor="let news of paginatedNews">
 					<div class="news-item">
-					<img [src]="news.imageUrl" [alt]="news.title" class="news-image" />
-					<div class="news-content">
+					  <img [src]="news.imageUrl" [alt]="news.title" class="news-image" />
+					  <div class="news-content">
 						<h3>{{ news.title }}</h3>
 						<a [href]="news.newsUrl" target="_blank">Read more</a>
+					  </div>
 					</div>
-					</div>
-				</article>
+				  </article>
 				</div>
 				<mat-paginator [length]="newsItems.length" [pageSize]="1" [pageSizeOptions]="[1]" (page)="onNewsPageChange($event)">
 				</mat-paginator>
+			  </div>
 			</div>
-			</div>
-
+  
 			<!-- Right Half: Fields and Calendar -->
 			<div class="right-panel">
-			<!-- Top: Fields Display -->
-			<div class="card fields-display">
+			  <!-- Top: Fields Display -->
+			  <div class="card fields-display">
 				<h2>Your Fields</h2>
 				<mat-paginator [length]="fields.length" [pageSize]="2" [pageSizeOptions]="[2]" (page)="onFieldsPageChange($event)">
 				</mat-paginator>
 				<div class="fields-list">
-				<article class="field-item" *ngFor="let field of paginatedFields" (click)="openFieldDetails(field)">
+				  <article class="field-item" *ngFor="let field of paginatedFields" (click)="openFieldDetails(field)">
 					<div class="field-image">
-						<img src="https://cdn-icons-png.flaticon.com/512/4614/4614344.png" [alt]="field.crop_name" />
-						<button mat-icon-button (click)="deleteField(field.id, field.sensors, $event)" aria-label="Delete Field">
-							<mat-icon>delete</mat-icon>
-						</button>
-
+					  <img src="https://cdn-icons-png.flaticon.com/512/4614/4614344.png" [alt]="field.crop_name" />
+					  <button mat-icon-button (click)="deleteField(field.id, field.sensors, $event)" aria-label="Delete Field">
+						<mat-icon>delete</mat-icon>
+					  </button>
 					</div>
 					<div class="field-summary">
-						<p><strong>Crop:</strong> {{ field.crop_name }}</p>
-						<p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
+					  <p><strong>Crop:</strong> {{ field.crop_name }}</p>
+					  <p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
 					</div>
-				</article>
+				  </article>
 				</div>
-			</div>
-
-			<!-- Bottom: Calendar & Weather -->
-			<div class="calendar-weather-container">
+			  </div>
+  
+			  <!-- Bottom: Calendar & Weather -->
+			  <div class="calendar-weather-container">
 				<!-- Weather Input Section -->
 				<div class="card weather-input-section">
-				<button mat-icon-button (click)="toggleWeatherInput()" aria-label="Toggle weather input">
+				  <button mat-icon-button (click)="toggleWeatherInput()" aria-label="Toggle weather input">
 					<mat-icon>edit</mat-icon>
-				</button>
-				<div class="weather-input-fields" *ngIf="showWeatherInput">
+				  </button>
+				  <div class="weather-input-fields" *ngIf="showWeatherInput">
 					<mat-form-field appearance="outline">
-					<mat-label>City</mat-label>
-					<input matInput [(ngModel)]="city" placeholder="Enter city">
+					  <mat-label>City</mat-label>
+					  <input matInput [(ngModel)]="city" placeholder="Enter city">
 					</mat-form-field>
 					<div class="weather-input-buttons">
-						<button mat-raised-button color="primary" (click)="fetchWeather()">Get Weather for Today</button>
-						<button mat-raised-button color="accent" (click)="fetchWeeklyWeather()">Get Long Term Weather</button>
+					  <button mat-raised-button color="primary" (click)="fetchWeather()">Get Weather for Today</button>
+					  <button mat-raised-button color="accent" (click)="fetchWeeklyWeather()">Get Long Term Weather</button>
 					</div>
+				  </div>
 				</div>
-				</div>
-
+  
 				<!-- Calendar -->
 				<div class="card calendar-weather-display">
-				<h2>Calendar</h2>
-				<mat-calendar [selected]="selectedDate" (selectedChange)="dateChanged($event)"></mat-calendar>
+				  <h2>Calendar</h2>
+				  <mat-calendar [selected]="selectedDate" (selectedChange)="dateChanged($event)"></mat-calendar>
 				</div>
+			  </div>
 			</div>
-			</div>
-		</main>
+		  </main>
 		</div>
-	</mat-sidenav-content>
+	  </mat-sidenav-content>
 	</mat-sidenav-container>
-</div>
+  </div>

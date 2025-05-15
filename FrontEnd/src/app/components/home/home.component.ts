@@ -18,6 +18,7 @@ import { ApiService } from '../../services/api.service';
 import { IntervalDialogComponent } from './interval-dialog/interval-dialog.component';
 import { UserAlerts } from '../../models/user-alerts.model';
 import { AlertDefinition } from '../../models/alerts-definition.model';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
 	selector: 'app-home',
@@ -25,6 +26,8 @@ import { AlertDefinition } from '../../models/alerts-definition.model';
 	styleUrls: ['./home.component.css']
 })	
 export class HomeComponent implements OnInit{
+	@ViewChild('alertDrawer') alertDrawer!: MatSidenav;
+
 	user: User | undefined;
 	fields: Field[] = [];
 	isFieldExpanded = false;
@@ -32,6 +35,10 @@ export class HomeComponent implements OnInit{
 	paginatedFields = this.fields.slice(0, 3);
 	fieldLocations: { [key: string]: string } = {};
 	userAlerts: any[] = [];
+	filteredAlerts: any[] = [];
+	availableTypes: string[] = [];
+	selectedAlertType: 'INFO' | 'WARNING' = 'INFO';
+	alertDrawerOpen = false;
 
 	city = '';
 	selectedDate = new Date();
@@ -391,6 +398,7 @@ export class HomeComponent implements OnInit{
 				}));
 			
 				this.userAlerts = alertArray;
+				this.filterAlerts();
 			
 				console.log("Processed alerts: ", this.userAlerts);
 				console.log("Length: ", this.userAlerts.length);
@@ -402,6 +410,25 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
+	filterAlerts(): void {
+		console.log('Filtering alerts by type:', this.selectedAlertType);
+		
+		this.filteredAlerts = this.userAlerts.filter(
+			(alert) => alert.type === this.selectedAlertType
+		);
+
+		console.log('Filtered alerts:', this.filteredAlerts);
+	}
+
+	onAlertTypeChange() {
+		console.log('Alert type changed to:', this.selectedAlertType);
+		this.filterAlerts();
+	}
+
+	toggleAlertDrawer() {
+		this.alertDrawerOpen = !this.alertDrawerOpen;
+	}
+	
 	parseTimestamp(timestampKey: string): Date | null {
 		// Example input: "2025-05-15T01-14-18-043255"
 		// Goal: "2025-05-15T01:14:18.043255"
