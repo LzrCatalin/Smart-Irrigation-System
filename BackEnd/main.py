@@ -11,6 +11,7 @@ from src.controllers.users_controller import users_bp
 from src.controllers.fields_controller import fields_bp
 from src.controllers.oauth_controller import auth_bp
 from src.controllers.alerts_controller import alerts_bp
+from src.controllers.history_controller import irrigations_bp
 
 ####################
 #
@@ -62,6 +63,7 @@ app.register_blueprint(users_bp)
 app.register_blueprint(fields_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(alerts_bp)
+app.register_blueprint(irrigations_bp)
 
 if __name__ == '__main__':
 	app.run(debug=False, host = "0.0.0.0", port = 5000)
