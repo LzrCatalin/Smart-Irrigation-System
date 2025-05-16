@@ -1,5 +1,7 @@
 import logging
 
+from src.classes.AlertDefinition import AlertDefinition
+from src.services.alerts_service import create_alert
 from src.actuators.water_pump import pump_start, pump_stop
 from src.util.extensions import get_sensors_scheduler, get_irrigation_system
 
@@ -12,12 +14,31 @@ def toggle_water_pump(data: dict) -> dict:
 	try:
 		# Extract state
 		state = data['state']
+		user_id = data['user_id']
 
 		if state == 1:
 			pump_start()
+
+			# Create alert
+			alert_def = AlertDefinition(
+				user_id=user_id,
+				message="Water Pump manually activated.",
+				alert_type="INFO"
+			)
+			create_alert(alert_def)
+
 			return {"message": "WATER PUMP -> ON"}
 		
 		pump_stop()
+
+		# Create alert
+		alert_def = AlertDefinition(
+			user_id=user_id,
+			message="Water Pump manually stopped.",
+			alert_type="INFO"
+		)
+		create_alert(alert_def)
+
 		return {"message": "WATER PUMP -> OFF"}
 	
 	except KeyError as e:
