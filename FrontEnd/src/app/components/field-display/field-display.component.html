@@ -21,7 +21,7 @@
             </mat-card-actions>
         </mat-card>
     </div>
-
+    
     <!-- Edit Form Section (Visible in Edit Mode) -->
     <div *ngIf="editMode" class="edit-form-card">
         <mat-card class="card">
@@ -86,7 +86,7 @@
                 </ng-template>
             </mat-card-content>
         </mat-card>
-
+    
         <!-- Add Sensors Section (Visible Only in Edit Mode) -->
         <div *ngIf="editMode" class="add-sensors-section">
             <mat-card class="card">
@@ -108,5 +108,26 @@
                 </mat-card-content>
             </mat-card>
         </div>
+    </div>
+
+    <div *ngIf="!editMode">
+        <mat-card class="card">
+            <mat-card-header class="card-header">
+                <mat-card-title class="card-title">Irrigation History</mat-card-title>
+                <mat-card-subtitle class="card-subtitle">Recent irrigation events</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="card-content">
+                <ng-container *ngIf="irrigationHistory?.history?.length! > 0; else noHistory">
+                    <ul class="history-list">
+                        <li *ngFor="let date of irrigationHistory.history">
+                            {{ date | date:'medium' }}
+                        </li>
+                    </ul>
+                </ng-container>
+                <ng-template #noHistory>
+                    <p>No irrigation history available for this field.</p>
+                </ng-template>
+            </mat-card-content>
+        </mat-card>
     </div>
 </div>

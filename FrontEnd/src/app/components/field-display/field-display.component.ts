@@ -7,10 +7,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SensorsService } from '../../services/sensors.service';
 import { FieldsService } from '../../services/fields.service';
 import { ApiService } from '../../services/api.service';
-import { interval, Subscription } from 'rxjs';
+import { interval, Observable, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { IrrigationHistory } from '../../models/irrigation-history.mode';
+import { HistoryService } from '../../services/history.service';
 
 @Component({
 	selector: 'app-field-display',
@@ -26,6 +28,7 @@ export class FieldDisplayComponent {
 	availableSensors: Sensor[] = [];
 	deletedSensors: Sensor[] = [];
 	fieldsSubscription!: Subscription;
+	irrigationHistory!: IrrigationHistory;
 	
 
 	constructor(public dialogRef: MatDialogRef<FieldDisplayComponent>,
@@ -33,6 +36,7 @@ export class FieldDisplayComponent {
 		private fb: FormBuilder,
 		private sensorsService: SensorsService,
 		private fieldsService: FieldsService,
+		private historyService: HistoryService,
 		private apiService: ApiService,
 		private dialog: MatDialog
 	) {
@@ -85,6 +89,9 @@ export class FieldDisplayComponent {
 				console.error("Failed to fetch location for selected field: ", error);
 			}
 		})
+
+		// Fetch field history
+		this.fetchHistory(this.field.id);
 	}
 
 	////////////////////////
@@ -209,5 +216,23 @@ export class FieldDisplayComponent {
 
 	close(): void {
 		this.dialogRef.close();
+	}
+
+	fetchHistory(field_id: string): void {
+		this.historyService.fetch_field_history(field_id).subscribe({
+			next: (response: IrrigationHistory) => {
+				console.log(response);
+				this.irrigationHistory = {
+					...response,
+					history: response.history.map(dateStr => 
+						dateStr.replace(/(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d+)/, '$1:$2:$3.$4')
+					)
+				};
+			},
+
+			error: (error: IrrigationHistory[]) => {
+				console.log(error);
+			}
+		})
 	}
 }
