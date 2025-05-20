@@ -29,7 +29,7 @@ export class FieldDisplayComponent {
 	deletedSensors: Sensor[] = [];
 	fieldsSubscription!: Subscription;
 	irrigationHistory!: IrrigationHistory;
-	
+	showAllHistory = false;
 
 	constructor(public dialogRef: MatDialogRef<FieldDisplayComponent>,
 		@Inject(MAT_DIALOG_DATA) public data: {field: Field },
@@ -166,7 +166,8 @@ export class FieldDisplayComponent {
 
 	openConfigDialog(): void {
 		const dialogRef = this.dialog.open(ConfigDialogComponent, {
-			width: '400px',
+			width: '23vw',
+			height: '26vw',
 			data: { 
 				fieldId: this.field.id,
 				userId: this.user?.id
@@ -237,5 +238,10 @@ export class FieldDisplayComponent {
 				console.log(error);
 			}
 		})
+	}
+
+
+	toggleHistory(): void {
+		this.showAllHistory = !this.showAllHistory;
 	}
 }

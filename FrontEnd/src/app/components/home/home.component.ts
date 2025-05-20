@@ -267,7 +267,8 @@ export class HomeComponent implements OnInit{
 	openFieldDetails(field: Field) {
 		// Open FieldDisplay component
 		const dialogRef = this.dialog.open(FieldDisplayComponent, {
-			width: '400px',
+			width: '47vw',
+			height: '40vw',
 			data: { field }
 		});
 		
