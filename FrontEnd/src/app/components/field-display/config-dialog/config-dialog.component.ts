@@ -11,15 +11,17 @@ import { ActuatorsService } from '../../../services/actuators.service';
 export class ConfigDialogComponent {
 	configForm !: FormGroup;
 	fieldId: string;
+	userId: string;
 
 	constructor(
 		private fb: FormBuilder,
 		public dialogRef: MatDialogRef<ConfigDialogComponent>,
 		private actuatorService: ActuatorsService,
-		@Inject(MAT_DIALOG_DATA) public data: {fieldId: string}
+		@Inject(MAT_DIALOG_DATA) public data: {fieldId: string, userId: string}
 	)
 	{
 		this.fieldId = data.fieldId;
+		this.userId = data.userId;
 	}
 
 	ngOnInit(): void {
@@ -35,6 +37,7 @@ export class ConfigDialogComponent {
 		{
 			const result = {
 				fieldId: this.fieldId,
+				userId: this.userId,
 				...this.configForm.value
 			};
 			

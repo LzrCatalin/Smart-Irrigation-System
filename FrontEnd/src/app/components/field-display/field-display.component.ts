@@ -167,7 +167,10 @@ export class FieldDisplayComponent {
 	openConfigDialog(): void {
 		const dialogRef = this.dialog.open(ConfigDialogComponent, {
 			width: '400px',
-			data: { fieldId: this.field.id }
+			data: { 
+				fieldId: this.field.id,
+				userId: this.user?.id
+			}
 		});
 	
 		dialogRef.afterClosed().subscribe(

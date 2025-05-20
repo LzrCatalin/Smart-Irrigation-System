@@ -124,7 +124,7 @@ export class HomeComponent implements OnInit{
 	updateSchedulerSettings(): any {
 		if (!this.user?.id) return;
 		
-		this.actuatorsService.update_scheduler_settings(this.schedulerInterval).subscribe({
+		this.actuatorsService.update_scheduler_settings(this.schedulerInterval, this.user.id).subscribe({
 			next: () => console.log('Scheduler settings updated'),
 			
 			error: (error : any) => {
@@ -154,11 +154,11 @@ export class HomeComponent implements OnInit{
 		// Update backend
 		this.updateIrrigationSettings();
 	}
-
+	
 	updateIrrigationSettings(): any {
 		if (!this.user?.id) return;
 		
-		this.actuatorsService.update_irrigation_settings(this.irrigationInterval).subscribe({
+		this.actuatorsService.update_irrigation_settings(this.irrigationInterval, this.user.id).subscribe({
 			next: () => console.log('Irrigation settings updated'),
 			
 			error: (error : any) => {
@@ -490,7 +490,7 @@ export class HomeComponent implements OnInit{
 			this.showNotification('Water Pump -> Turn OFF');
 		}
 
-		this.actuatorsService.toggle_pump(this.togglePump).subscribe({
+		this.actuatorsService.toggle_pump(this.togglePump, this.user.id).subscribe({
 			next: (res: any) => {
 				console.log(res);
 			},
@@ -517,7 +517,7 @@ export class HomeComponent implements OnInit{
 		localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
 
 		// Update backend
-		this.actuatorsService.toggle_sensors_scheduler(this.toggleSensorsScheduler).subscribe({
+		this.actuatorsService.toggle_sensors_scheduler(this.toggleSensorsScheduler, this.user.id).subscribe({
 			next: () => console.log('Toggle Scheduler successful'),
 			
 			error: (error) => {
@@ -543,7 +543,7 @@ export class HomeComponent implements OnInit{
 		localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));
 
 		// Update backend
-		this.actuatorsService.toggle_irrigation_system(this.toggleIrrigationSystem).subscribe({
+		this.actuatorsService.toggle_irrigation_system(this.toggleIrrigationSystem, this.user.id).subscribe({
 			next: () => console.log('Toggle Irrigation successful'),
 
 			error: (error) => {

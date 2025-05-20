@@ -10,49 +10,68 @@ export class ActuatorsService {
 
 	constructor(private http: HttpClient) { }
 
-	toggle_pump(state: boolean): Observable<any> {
+	toggle_pump(state: boolean, id: string): Observable<any> {
 		const stateValue = state ? 1 : 0;
+		const user_id = id;
 
 		return this.http.post(
 			`http://${environment.raspberry_id}:5000/api/actuators/waterpump/toggle`,
-			{ state: stateValue },
+			{ 
+				state: stateValue,
+				user_id: user_id
+			},
 		);
 	}
 
-	toggle_sensors_scheduler(state: boolean): Observable<any> {
+	toggle_sensors_scheduler(state: boolean, id: string): Observable<any> {
 		const stateValue = state ? 1 : 0;
-		console.log(stateValue)
+		const user_id = id;
 
 		return this.http.post(
 			`http://${environment.raspberry_id}:5000/api/actuators/scheduler/toggle`,
-			{ state: stateValue },
+			{ 
+				state: stateValue,
+				user_id: user_id
+			},
 		);
 	}
 
-	toggle_irrigation_system(state: boolean): Observable<any> {
+	toggle_irrigation_system(state: boolean, id: string): Observable<any> {
 		const stateValue = state ? 1 : 0;
+		const user_id = id;
 
 		return this.http.post(
 			`http://${environment.raspberry_id}:5000/api/actuators/irrigation/toggle`,
-			{ state: stateValue },
+			{ 
+				state: stateValue,
+				user_id: user_id
+			},
 		);
 	}
 
-	update_scheduler_settings(interval: number): any {
+	update_scheduler_settings(interval: number, id: string): any {
 		const intervalValue = interval;
+		const user_id = id;
 
 		return this.http.post(
 			`http://${environment.raspberry_id}:5000/api/actuators/scheduler/updated_timer`,
-			{ interval: intervalValue },
+			{ 
+				interval: intervalValue,
+				user_id: user_id 
+			},
 		);
 	}
 
-	update_irrigation_settings(interval: number): any {
+	update_irrigation_settings(interval: number, id: string): any {
 		const intervalValue = interval;
+		const user_id = id;
 
 		return this.http.post(
 			`http://${environment.raspberry_id}:5000/api/actuators/irrigation/updated_timer`,
-			{ interval: intervalValue },
+			{ 
+				interval: intervalValue,
+				user_id: user_id 
+			},
 		);
 	}
 
