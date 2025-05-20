@@ -36,6 +36,13 @@ def get_users_data() -> list[dict]:
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 
+#
+#	Fetch user ids from db
+#
+def get_user_ids() -> list[str]:
+	users_data = REF.get()
+
+	return list(users_data.keys() if users_data else [])
 
 #
 #	Fetch user by ID

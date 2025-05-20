@@ -124,6 +124,27 @@ def generate_field_delete_mail_body(mail: str, location: str, crop_name: str) ->
 	"""
 	return body
 
+def generate_field_config_update(mail: str, location: str, crop_name: str, config: dict) -> str:
+	body = f"""
+		Dear {mail},
+
+		The irrigation configuration for your field has been successfully updated:
+
+		🔧 **Updated Field Configuration**  
+		📍 Location: {location}  
+		🌱 Crop: {crop_name}  
+		💧 Minimum Humidity: {config['min_humidity']}%  
+		🎯 Target Humidity: {config['target_humidity']}%  
+		⏱️ Max Watering Time: {config['max_watering_time']} minutes
+
+		These changes will take effect immediately.  
+		If you did not make this update or need help, please contact our support team.
+
+		Best regards,  
+		Team
+	"""
+	return body	
+
 #
 #	Mail Config	
 #

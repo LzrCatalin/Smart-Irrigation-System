@@ -9,7 +9,7 @@ from src.classes.AlertDefinition import AlertDefinition
 from src.services.alerts_service import create_alert
 from src.services.sensors_services import set_available_status, set_not_available_status, get_sensor_by_name, get_sensor_data_by_id, update_sensor_by_id, set_sensor_field_id, unset_sensor_field_id
 from src.services.users_service import get_user_by_id
-from src.util.utils import get_soil_info
+from src.util.soil_fetch import get_soil_info
 
 from firebase_admin import credentials, db
 from src.util.mail_sender import  send_email, generate_field_creation_email_body, generate_field_update_mail_body, generate_field_delete_mail_body
@@ -42,6 +42,13 @@ def get_fields_data() -> dict:
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
 	
+#
+#	Fetch all field ids from db
+#
+def get_field_ids() -> list[str]:
+	fields_data = REF.get()
+
+	return list(fields_data.keys() if fields_data else [])
 
 #
 #	Fetch field by ID

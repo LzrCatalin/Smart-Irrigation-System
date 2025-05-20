@@ -5,6 +5,9 @@ from typing import Dict
 from flask_apscheduler import APScheduler
 from src.classes.FieldIrrigation import FieldIrrigation
 
+from src.services.users_service import get_user_ids
+from src.util.utils import alert
+
 class FieldIrrigationSystem:
 	"""Store fields that needs to be managed"""
 	def __init__(self, app = None):
@@ -60,8 +63,25 @@ class FieldIrrigationSystem:
 		if self.fields is None:
 			logging.info('Empty list for irrigation system')
 
+		user_ids = get_user_ids()
+		for id in user_ids:
+			# Send alert
+			alert(
+				user_id=id,
+				message="Irrigation cycle started.",
+				type="INFO"
+			)
+
 		for field in self.fields:
 			self.run_cycle(field)
+
+		for id in user_ids:
+			# Send alert
+			alert(
+				user_id=id,
+				message="Irrigation cycle succesfully run.",
+				type="INFO"
+			)
 	
 	def schedule_irrigation_cycles(self, interval: int):
 		"""Schedule automatic irrigation cycles"""
