@@ -3,6 +3,7 @@ import logging
 
 from src.actuators.water_pump import pump_start, pump_stop
 from src.sensors.humidity_sensor import sensor_setup, moisture_percentage
+from src.services.history_service import add_irrigation
 
 class FieldIrrigation:
 	def __init__(self, field_id: str, config: dict, sensors_scheduler: None):
@@ -73,6 +74,9 @@ class FieldIrrigation:
 				self.control_pump(False)
 				self.last_irrigation = time.time()
 				logging.info(f'[{self.field_id}] Irrigation complete')
+
+				# Add history
+				add_irrigation(self.field_id)
 
 				# Resume sensors updates
 				if self.sensors_scheduler:
