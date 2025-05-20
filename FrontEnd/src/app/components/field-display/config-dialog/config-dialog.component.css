@@ -1,0 +1,57 @@
+.dialog-card {
+    background-color: var(--dialog-bg, #ffffff);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    width: 90vw;
+    max-width: 420px;
+    margin: auto;
+    box-sizing: border-box;
+  }
+  
+  .dialog-title {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-color, #222);
+    margin-bottom: 1.5rem;
+  }
+  
+  .config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .form-field {
+    width: 100%;
+  }
+  
+  .dialog-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+  }
+  
+  button {
+    border-radius: 999px !important;
+    font-weight: 500;
+  }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .dialog-card {
+      --dialog-bg: #ffffff;
+      --text-color: #0603af;
+    }
+  
+    input {
+      color: rgb(0, 0, 0)000;
+    }
+  
+    .mat-form-field-appearance-fill .mat-form-field-flex {
+      background-color: #3a3a3a;
+      border-radius: 10px;
+    }
+  }
+  
