@@ -6,13 +6,9 @@ from flask_cors import CORS
 
 from src.classes.SensorScheduler import SensorScheduler
 from src.classes.FieldIrrigationSystem import FieldIrrigationSystem
-from src.actuators.water_pump import  *
-from src.sensors.humidity_sensor import *
-
 from src.controllers.sensors_controller import sensors_bp
 from src.controllers.actuators_controller import actuators_bp
-from src.services.sensors_services import *
-from src.firebase.sensors_init import sensors_init
+from src.controllers.system_controller import system_bp
 
 ####################
 #
@@ -72,7 +68,7 @@ app.config['IRRIGATION_SYSTEM'] = irrigation_system
 ####################
 app.register_blueprint(sensors_bp)
 app.register_blueprint(actuators_bp)
-
+app.register_blueprint(system_bp)
 
 if __name__ == '__main__':
 	app.run(debug=False, host = "0.0.0.0", port = 5000)

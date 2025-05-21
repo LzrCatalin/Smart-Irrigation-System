@@ -6,6 +6,7 @@ from flask_apscheduler import APScheduler
 from src.classes.FieldIrrigation import FieldIrrigation
 
 from src.services.users_service import get_user_ids
+from src.services.fields_service import get_field_ids, get_field_user
 from src.util.utils import alert
 
 class FieldIrrigationSystem:
@@ -20,11 +21,32 @@ class FieldIrrigationSystem:
 	def set_scheduler(self, scheduler) -> None:
 		"""Set the scheduler of sensors"""
 		self.sensors_scheduler = scheduler
-		
+	
+	def system_init(self) -> None:
+		"""Initialize system fields in case of a reset"""
+		field_ids = get_field_ids()
+
+		if field_ids:
+			for id in field_ids:
+				print(f"{id}")
+				self.add_field(id)
+			
+			logging.info("System initialization completed.")
+
+		else:
+			logging.warning("Could not find any field ids found for init.")
+
 	def add_field(self, field_id: str, config: dict = None) -> None:
 		"""Add a new field to be managed"""
 		if field_id not in self.fields:
 			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
+			logging.info(f"Field {field_id} added to system.")
+
+	def remove_field(self, field_id: str) -> None:
+		"""Remove data for a deleted field"""
+		if field_id in self.fields:
+			del self.fields[field_id]
+			logging.info(f"Field {field_id} removed from the system.")
 
 	def update_field_measurements(self, field_id: str, humidity: float, temperature: float, port: int) -> None:
 		"""Update measurements of the field"""
@@ -32,6 +54,7 @@ class FieldIrrigationSystem:
 			self.fields[field_id].current_humidity = humidity
 			self.fields[field_id].current_temperature = temperature
 			self.fields[field_id].current_port = port
+			logging.info(f"Field {field_id} measurements updated.")
 
 	def update_field_config(self, field_id: str, config: dict) -> None:
 		"""Update irrigation configuration of the field"""
@@ -49,7 +72,7 @@ class FieldIrrigationSystem:
 				field.max_watering_time = config['max_watering_time']
 			
 			logging.info(f"[{field_id}] Configuration updated: {config}")
-
+		
 		else:
 			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
 			
@@ -92,6 +115,10 @@ class FieldIrrigationSystem:
 				trigger='interval',
 				seconds=interval
 			)
+
+			# Initialize fields in case of a reset
+			self.system_init()
+
 			logging.info(f'Scheduled irrigation cycles every {interval} seconds')
 
 	def pause_irrigation_system(self):

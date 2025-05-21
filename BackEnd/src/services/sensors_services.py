@@ -3,9 +3,9 @@ from colorama import Fore, Style
 from firebase_admin import credentials, db
 from src.firebase.db_init import db_init
 from src.classes.Sensor import Sensor
-from src.classes.Type import *
-from src.classes.Status import *
-from src.classes.SensorDTO import *
+from src.classes.Type import Type
+from src.classes.Status import Status
+from src.classes.SensorDTO import SensorDTO
 
 # Database init
 db_init()

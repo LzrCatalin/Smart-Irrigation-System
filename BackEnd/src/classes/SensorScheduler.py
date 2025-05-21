@@ -7,7 +7,8 @@ from src.classes.Sensor import *
 from src.classes.Field import *
 from src.sensors.humidity_sensor import *
 from src.sensors.temperature_sensor import *
-from src.services.fields_service import get_fields_data
+from src.services.fields_service import get_fields_data, get_field_user
+from src.util.utils import alert
 
 ####################
 #
@@ -78,6 +79,12 @@ class SensorScheduler:
 										else self.irrigation_system.fields[field_id].current_temperature,
 					port=new_port					
 										)
+				
+				# Send alert
+				alert(
+					user_id=get_field_user(field_id),
+					message=f"Crop {field_data['crop_name']} system measurements updated."
+				)
 
 	def schedule_sensor_updates(self, interval: int):
 		"""Schedule automatic updates on sensors cycle"""
