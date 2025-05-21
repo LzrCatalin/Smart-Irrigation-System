@@ -161,7 +161,7 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		send_email("Your New Field Has Been Successfully Added",
 			 		generate_field_creation_email_body(
 						user_data['email'],
-						get_location(data.latitude, data.longitude),
+						get_location(data.latitude, data.longitude)[8:],
 						field_dto
 					),
 					user_data['email'])
@@ -232,7 +232,7 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		user_data = get_user_by_id(updated_field_dto.user)
 
 		# Send Mail
-		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)[:8]}",
+		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)[8:]}",
 			 		generate_field_update_mail_body(
 						user_data['email'],
 						get_location(updated_field_dto.latitude, updated_field_dto.longitude)[8:],
