@@ -28,7 +28,10 @@ export class FieldDisplayComponent {
 	availableSensors: Sensor[] = [];
 	deletedSensors: Sensor[] = [];
 	fieldsSubscription!: Subscription;
-	irrigationHistory!: IrrigationHistory;
+	irrigationHistory: IrrigationHistory = {
+		fieldId: '',
+		history: []
+	};
 	showAllHistory = false;
 
 	constructor(public dialogRef: MatDialogRef<FieldDisplayComponent>,

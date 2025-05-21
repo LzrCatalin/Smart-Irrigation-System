@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ActuatorsService } from '../../../services/actuators.service';
+import { SystemService } from '../../../services/system.service';
 
 @Component({
 	selector: 'app-config-dialog',
@@ -16,7 +16,7 @@ export class ConfigDialogComponent {
 	constructor(
 		private fb: FormBuilder,
 		public dialogRef: MatDialogRef<ConfigDialogComponent>,
-		private actuatorService: ActuatorsService,
+		private systemService: SystemService,
 		@Inject(MAT_DIALOG_DATA) public data: {fieldId: string, userId: string}
 	)
 	{
@@ -41,7 +41,7 @@ export class ConfigDialogComponent {
 				...this.configForm.value
 			};
 			
-			this.actuatorService.update_field_config(result).subscribe({
+			this.systemService.update_field_config(result).subscribe({
 				next: (response: any) => {
 					console.log(response);
 				},

@@ -19,6 +19,7 @@ import { IntervalDialogComponent } from './interval-dialog/interval-dialog.compo
 import { UserAlerts } from '../../models/user-alerts.model';
 import { AlertDefinition } from '../../models/alerts-definition.model';
 import { MatSidenav } from '@angular/material/sidenav';
+import { SystemService } from '../../services/system.service';
 
 @Component({
 	selector: 'app-home',
@@ -84,7 +85,8 @@ export class HomeComponent implements OnInit{
 				private snackBar: MatSnackBar,
 				private apiService: ApiService,
 				private actuatorsService: ActuatorsService,
-				private alertsService: AlertsService
+				private alertsService: AlertsService,
+				private systemService: SystemService
 				) {}
 	
 	private getSchedulerKey(): string {
@@ -124,7 +126,7 @@ export class HomeComponent implements OnInit{
 	updateSchedulerSettings(): any {
 		if (!this.user?.id) return;
 		
-		this.actuatorsService.update_scheduler_settings(this.schedulerInterval, this.user.id).subscribe({
+		this.systemService.update_scheduler_settings(this.schedulerInterval, this.user.id).subscribe({
 			next: () => console.log('Scheduler settings updated'),
 			
 			error: (error : any) => {
@@ -158,7 +160,7 @@ export class HomeComponent implements OnInit{
 	updateIrrigationSettings(): any {
 		if (!this.user?.id) return;
 		
-		this.actuatorsService.update_irrigation_settings(this.irrigationInterval, this.user.id).subscribe({
+		this.systemService.update_irrigation_settings(this.irrigationInterval, this.user.id).subscribe({
 			next: () => console.log('Irrigation settings updated'),
 			
 			error: (error : any) => {
@@ -240,6 +242,17 @@ export class HomeComponent implements OnInit{
 			result => {
 				if (result) {
 					const sensorNames = field_sensors.map(sensor => sensor.name);
+					
+					this.systemService.delete_field_from_system(field_id).subscribe({
+						next: (res: any) => {
+							console.log(res);
+						},
+
+						err: (err: any) => {
+							console.log(err);
+						}
+					})
+					
 					this.fieldsService.delete_field(field_id, sensorNames).subscribe({
 						next: () => {
 							// Refetch fields after deletion
@@ -518,7 +531,7 @@ export class HomeComponent implements OnInit{
 		localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
 
 		// Update backend
-		this.actuatorsService.toggle_sensors_scheduler(this.toggleSensorsScheduler, this.user.id).subscribe({
+		this.systemService.toggle_sensors_scheduler(this.toggleSensorsScheduler, this.user.id).subscribe({
 			next: () => console.log('Toggle Scheduler successful'),
 			
 			error: (error) => {
@@ -544,7 +557,7 @@ export class HomeComponent implements OnInit{
 		localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));
 
 		// Update backend
-		this.actuatorsService.toggle_irrigation_system(this.toggleIrrigationSystem, this.user.id).subscribe({
+		this.systemService.toggle_irrigation_system(this.toggleIrrigationSystem, this.user.id).subscribe({
 			next: () => console.log('Toggle Irrigation successful'),
 
 			error: (error) => {

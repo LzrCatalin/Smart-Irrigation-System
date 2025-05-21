@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { SensorsService } from '../../services/sensors.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
+import { SystemService } from '../../services/system.service';
 
 declare var google: any;
 
@@ -31,7 +32,8 @@ export class AddFieldComponent implements OnInit {
 			private fieldService: FieldsService, 
 			private router: Router, 
 			private sensorService: SensorsService,
-			private dialogRef: MatDialogRef<AddFieldComponent>
+			private dialogRef: MatDialogRef<AddFieldComponent>,
+			private systemService: SystemService
 			) {}
 
 	ngOnInit(): void {
@@ -112,7 +114,7 @@ export class AddFieldComponent implements OnInit {
 
 	onSubmit(): void {
 		this.field.sensors =  this.selectedSensors;
-
+		
 		this.fieldService.add_field(this.field.latitude, this.field.longitude,
 									this.field.length, this.field.width, this.field.slope,
 									this.field.crop_name, this.field.soil_type,
