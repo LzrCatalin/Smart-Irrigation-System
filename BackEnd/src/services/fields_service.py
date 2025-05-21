@@ -110,6 +110,13 @@ def get_fields_by_user_id(user_id: str) -> list[dict]:
 	except KeyError as e:
 		return [{"error": f"Key missing: {str(e)}"}]
 
+#
+#	Fetch field's user
+#
+def get_field_user(field_id: str) -> str:
+	field_data = get_field_by_id(field_id)
+	return field_data['user']
+
 #######################
 #
 #   CRUD Operations
@@ -225,7 +232,7 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		user_data = get_user_by_id(updated_field_dto.user)
 
 		# Send Mail
-		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)[8:]}",
+		send_email(f"Field Updated: {updated_field_dto.crop_name} at {get_location(updated_field_dto.latitude, updated_field_dto.longitude)[:8]}",
 			 		generate_field_update_mail_body(
 						user_data['email'],
 						get_location(updated_field_dto.latitude, updated_field_dto.longitude)[8:],
@@ -303,10 +310,10 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 				unset_sensor_field_id(name)
 
 		# Send Mail
-		send_email(f"Field Deleted: {fetched_field['crop_name']} at {get_location(fetched_field['latitude'], fetched_field['longitude'])}",
+		send_email(f"Field Deleted: {fetched_field['crop_name']} at {get_location(fetched_field['latitude'], fetched_field['longitude'])[8:]}",
 			 		generate_field_delete_mail_body(
 						user_data['email'],
-						get_location(fetched_field['latitude'], fetched_field['longitude']),
+						get_location(fetched_field['latitude'], fetched_field['longitude'])[8:],
 						fetched_field['crop_name']
 					),
 					user_data['email'])
