@@ -38,6 +38,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { IntervalDialogComponent } from './components/home/interval-dialog/interval-dialog.component';
 import { ConfigDialogComponent } from './components/field-display/config-dialog/config-dialog.component';
+import { MatChipsModule } from '@angular/material/chips';
+import { ToolbarComponent } from './components/home/toolbar/toolbar.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
@@ -52,6 +55,7 @@ import { ConfigDialogComponent } from './components/field-display/config-dialog/
     ConfirmationDialogComponent,
     IntervalDialogComponent,
     ConfigDialogComponent,
+    ToolbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -81,7 +85,9 @@ import { ConfigDialogComponent } from './components/field-display/config-dialog/
     MatPaginatorModule,
     ReactiveFormsModule,
     MatSelectModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatChipsModule,
+    MatToolbarModule
   ],
   providers: [
     provideAnimationsAsync()

@@ -32,4 +32,8 @@ export class ApiService {
 		const url = `${this.apiGeocodingUrl}?latlng=${latitude},${longitude}&key=${environment.googleMapsApiKey}`;
 		return this.http.get(url);
 	}
+
+	getExternal(url: string): Observable<any> {
+		return this.http.get(url);
+	}
 }
