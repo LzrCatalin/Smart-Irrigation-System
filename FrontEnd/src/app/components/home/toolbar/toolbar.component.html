@@ -1,0 +1,30 @@
+<mat-toolbar color="primary" class="toolbar">
+    <span class="title">Smart Irrigation</span>
+  
+    <span class="spacer"></span>
+  
+    <button mat-icon-button (click)="createField.emit()" matTooltip="Add Field">
+      <mat-icon>add_location_alt</mat-icon>
+    </button>
+  
+    <button mat-icon-button (click)="waterPump.emit()" matTooltip="Toggle Water Pump">
+      <mat-icon>water</mat-icon>
+    </button>
+  
+    <button mat-icon-button (click)="toggleSensors.emit()" matTooltip="Toggle Sensor Updates">
+      <mat-icon>sensors</mat-icon>
+    </button>
+  
+    <button mat-icon-button (click)="toggleIrrigation.emit()" matTooltip="Toggle Irrigation">
+      <mat-icon>opacity</mat-icon>
+    </button>
+  
+    <!-- <button mat-icon-button (click)="toggleDrawer.emit()" matTooltip="Alerts">
+      <mat-icon>notifications</mat-icon>
+    </button> -->
+  
+    <button mat-icon-button (click)="logout.emit()" matTooltip="Logout">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+  
