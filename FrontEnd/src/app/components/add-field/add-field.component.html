@@ -1,70 +1,88 @@
-<div class="add-field-container">
-	<mat-card>
-	  <mat-card-header>
-		<mat-card-title>Add New Field</mat-card-title>
-		<mat-card-subtitle>Fill in the details to add a new field</mat-card-subtitle>
+<div class="add-field-wrapper">
+	<mat-card class="form-card">
+	  <mat-card-header class="form-card-header">
+		<mat-card-title class="form-title">Add New Field</mat-card-title>
+		<mat-card-subtitle class="form-subtitle">Set the location and details of your field</mat-card-subtitle>
 	  </mat-card-header>
   
 	  <mat-card-content>
-		<form (ngSubmit)="onSubmit()" class="form-container">
-		  <!-- Map for location selection -->
-		  <div id="map" class="map-container"></div>
+		<form (ngSubmit)="onSubmit()" class="form-layout">
   
-		  <!-- Form fields for dimensions and details -->
-		  <div class="form-fields">
-			<mat-form-field appearance="fill">
-			  <mat-label>Length (m)</mat-label>
-			  <input matInput type="number" id="length" [(ngModel)]="field.length" name="length" required>
-			</mat-form-field>
+		  <!-- Map -->
+		  <div id="map" class="map-container large-map"></div>
   
-			<mat-form-field appearance="fill">
-			  <mat-label>Width (m)</mat-label>
-			  <input matInput type="number" id="width" [(ngModel)]="field.width" name="width" required>
-			</mat-form-field>
+		  <!-- Field Inputs -->
+		  <div class="grid-field-box">
+			<div class="input-card">
+			  <mat-icon class="input-icon">straighten</mat-icon>
+			  <div>
+				<label>Length (m)</label>
+				<input type="number" [(ngModel)]="field.length" name="length" required />
+			  </div>
+			</div>
   
-			<mat-form-field appearance="fill">
-			  <mat-label>Slope (%)</mat-label>
-			  <input matInput type="number" id="slope" [(ngModel)]="field.slope" name="slope" required>
-			</mat-form-field>
+			<div class="input-card">
+			  <mat-icon class="input-icon">swap_horiz</mat-icon>
+			  <div>
+				<label>Width (m)</label>
+				<input type="number" [(ngModel)]="field.width" name="width" required />
+			  </div>
+			</div>
   
-			<mat-form-field appearance="fill">
-			  <mat-label>Crop Name</mat-label>
-			  <input matInput type="text" id="cropName" [(ngModel)]="field.crop_name" name="cropName" required>
-			</mat-form-field>
+			<div class="input-card">
+			  <mat-icon class="input-icon">terrain</mat-icon>
+			  <div>
+				<label>Slope (%)</label>
+				<input type="number" [(ngModel)]="field.slope" name="slope" required />
+			  </div>
+			</div>
   
-			<!-- Dropdown for sensor selection -->
-			<mat-form-field appearance="fill">
-				<mat-label>Select Sensors</mat-label>
-				<mat-select id="sensor" (selectionChange)="onSensorSelect($event)" multiple>
-				  <mat-option *ngIf="!availableSensors?.length" disabled>No sensors available</mat-option>
-				  <mat-option *ngFor="let sensor of availableSensors" [value]="sensor">
-					{{ sensor.name }}
-				  </mat-option>
-				</mat-select>
-			  </mat-form-field>
-			  
-
+			<div class="input-card">
+			  <mat-icon class="input-icon">grass</mat-icon>
+			  <div>
+				<label>Crop Name</label>
+				<input type="text" [(ngModel)]="field.crop_name" name="cropName" required />
+			  </div>
+			</div>
 		  </div>
   
-		  <!-- List of selected sensors -->
-		  <div class="selected-sensors">
-			<h4>Selected Sensors:</h4>
-			<mat-list>
-			  <mat-list-item *ngFor="let sensor of selectedSensors">
+		  <!-- Sensors -->
+		  <mat-form-field appearance="outline" class="sensor-select">
+			<mat-label>Sensors</mat-label>
+			<mat-select 
+			  multiple 
+			  [(ngModel)]="selectedSensors" 
+			  name="sensorSelect"
+			  (selectionChange)="onSensorSelect($event)"
+			  [compareWith]="compareSensors">
+			  <mat-option *ngIf="!availableSensors.length" disabled>No sensors available</mat-option>
+			  <mat-option *ngFor="let sensor of availableSensors" [value]="sensor">
 				{{ sensor.name }}
-				<button mat-icon-button (click)="removeSensor(sensor)">
-				  <mat-icon>close</mat-icon>
-				</button>
-			  </mat-list-item>
-			</mat-list>
+			  </mat-option>
+			</mat-select>
+		  </mat-form-field>
+  
+		  <!-- Selected Sensors -->
+		  <div class="chip-container" *ngIf="selectedSensors.length">
+			<mat-chip-set>
+			  <mat-chip 
+				*ngFor="let sensor of selectedSensors" 
+				removable 
+				(removed)="removeSensor(sensor)">
+				{{ sensor.name }}
+				<mat-icon matChipRemove>cancel</mat-icon>
+			  </mat-chip>
+			</mat-chip-set>
 		  </div>
+  
+		  <!-- Actions -->
+		  <div class="form-actions">
+			<button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
+			<button mat-flat-button color="primary" type="submit">Add Field</button>
+		  </div>
+  
 		</form>
 	  </mat-card-content>
-  
-	  <!-- Submit and Cancel buttons -->
-	  <mat-card-actions align="end">
-		<button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
-		<button mat-raised-button color="primary" type="submit" (click)="onSubmit()">Add Field</button>
-	  </mat-card-actions>
 	</mat-card>
   </div>
+  

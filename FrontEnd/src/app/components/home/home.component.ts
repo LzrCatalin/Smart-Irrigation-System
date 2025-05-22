@@ -20,6 +20,7 @@ import { UserAlerts } from '../../models/user-alerts.model';
 import { AlertDefinition } from '../../models/alerts-definition.model';
 import { MatSidenav } from '@angular/material/sidenav';
 import { SystemService } from '../../services/system.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
 	selector: 'app-home',
@@ -41,17 +42,18 @@ export class HomeComponent implements OnInit{
 	selectedAlertType: 'INFO' | 'WARNING' = 'INFO';
 	alertDrawerOpen = false;
 
-	city = '';
 	selectedDate = new Date();
 	weatherData: any = null;
 	showWeatherInput: boolean = false;
+	forecastData: { day: string, icon: string, max: number, min: number, avg: number, description: string, humidity: number, wind: number }[] = [];
+	city: string = 'Timisoara';
 
 	togglePump: boolean = false;
 	toggleSensorsScheduler: boolean = false;
 	toggleIrrigationSystem: boolean = false;
 
-	schedulerInterval: number = 15; // Default 15 minutes
-	irrigationInterval: number = 20; // Default 20 minutes
+	schedulerInterval: number = 15; 
+	irrigationInterval: number = 20;
 	showSchedulerIntervalDialog: boolean = false;
 	showIrrigationIntervalDialog: boolean = false;
 
@@ -171,28 +173,29 @@ export class HomeComponent implements OnInit{
 	}
 
 	ngOnInit(): void {
-		// Store loggedin user
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
-
-		// Fetch fields for loggedin user
+	
 		if (this.user.id !== undefined) {
+			this.selectedField == null;
 			this.fetchUserFields(this.user.id);
 			this.fetchUserAlerts(this.user.id);
-
-			const savedStateScheduler = localStorage.getItem(this.getSchedulerKey());
-    		this.toggleSensorsScheduler = savedStateScheduler ? JSON.parse(savedStateScheduler) : false;
-		
-			const savedStateIrrigation = localStorage.getItem(this.getIrrigationKey());
-			this.toggleIrrigationSystem = savedStateIrrigation ? JSON.parse(savedStateIrrigation) : false;
 		}
-
-		// Fetch news
+	
+		// Apelul lipsă:
+		this.fetchForecast();
+	
+		// Restul codului
+		const savedStateScheduler = localStorage.getItem(this.getSchedulerKey());
+		this.toggleSensorsScheduler = savedStateScheduler ? JSON.parse(savedStateScheduler) : false;
+	
+		const savedStateIrrigation = localStorage.getItem(this.getIrrigationKey());
+		this.toggleIrrigationSystem = savedStateIrrigation ? JSON.parse(savedStateIrrigation) : false;
+	
 		this.fetchFarmingNews();
-
-		// Load saved intervals
+	
 		const savedSchedulerInterval = localStorage.getItem(`${this.getSchedulerKey()}_interval`);
 		this.schedulerInterval = savedSchedulerInterval ? parseInt(savedSchedulerInterval) : 15;
-		
+	
 		const savedIrrigationInterval = localStorage.getItem(`${this.getIrrigationKey()}_interval`);
 		this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;
 	}
@@ -280,8 +283,8 @@ export class HomeComponent implements OnInit{
 	openFieldDetails(field: Field) {
 		// Open FieldDisplay component
 		const dialogRef = this.dialog.open(FieldDisplayComponent, {
-			width: '47vw',
-			height: '40vw',
+			width: '25vw',
+			height: '45vw',
 			data: { field }
 		});
 		
@@ -298,6 +301,20 @@ export class HomeComponent implements OnInit{
 				}
 			}
 		})
+	}
+
+	selectField(field: Field): void {
+		if (this.selectedField?.id === field.id) {
+			// Deselect field if it's already selected
+			this.selectedField = null;
+			this.city = "Timisoara";
+			this.fetchForecast();
+			this.showNotification('Field deselected. Showing weather for Timisoara.');
+		
+		} else {
+			this.selectedField = field;
+			
+		}
 	}
 
 	//////////////////////
@@ -379,6 +396,88 @@ export class HomeComponent implements OnInit{
 		})
 	}
 
+	fetchForecast(): void {
+		const url = `https://api.openweathermap.org/data/2.5/forecast?q=${this.city}&units=metric&appid=${environment.weatherApiKey}`;
+	
+		this.apiService.getExternal(url).subscribe({
+			next: (response: any) => {
+				const groupedByDay: { [key: string]: any[] } = {};
+		
+				response.list.forEach((item: any) => {
+					const date = new Date(item.dt_txt);
+					const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+					if (!groupedByDay[day]) groupedByDay[day] = [];
+					groupedByDay[day].push(item);
+					});
+			
+					this.forecastData = Object.entries(groupedByDay).slice(0, 7).map(([day, items]: [string, any[]]) => {
+						const temps = items.map((entry: any) => entry.main.temp);
+						const min = Math.min(...temps);
+						const max = Math.max(...temps);
+						const avg = temps.reduce((a, b) => a + b, 0) / temps.length;
+					
+						const iconCode = items[0].weather[0].icon;
+						const icon = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+						const description = items[0].weather[0].description;
+					
+						const humidity = Math.round(
+						items.reduce((sum, entry) => sum + entry.main.humidity, 0) / items.length
+						);
+					
+						const wind = Math.round(
+						items.reduce((sum, entry) => sum + entry.wind.speed, 0) / items.length
+						);
+					
+						return {
+							day,
+							min: Math.round(min),	
+							max: Math.round(max),
+							avg: Math.round(avg),
+							icon,
+							description,
+							humidity,
+							wind
+						};
+					}
+				);
+			},
+
+			error: (error) => {
+				console.error('Failed to fetch forecast:', error);
+			}
+		});
+	}
+
+	checkWeatherForSelectedField(): void {
+		if (!this.selectedField) return;
+	
+		this.apiService.getLocation(this.selectedField.latitude, this.selectedField.longitude).subscribe({
+			next: (response) => {
+				if (response.status === "OK" && response.results.length > 0) {
+					const cityName = response.results[0].address_components.find((c: any) =>
+						c.types.includes("locality") || c.types.includes("administrative_area_level_1")
+					)?.long_name;
+			
+					if (cityName) {
+						this.city = cityName;
+						this.fetchForecast();
+						this.showNotification(`Weather updated for ${cityName}`);
+					
+					} else {
+						this.showNotification("Could not determine city from location.");
+					}
+
+				} else {
+					this.showNotification("Location lookup failed.");
+				}
+			},
+
+			error: () => {
+				this.showNotification("Error getting location from coordinates.");
+			}
+		});
+	}
+	
 	openWeatherDialog(): void {
 		this.dialog.open(WeatherDialogComponent, {
 			width: '400px',
@@ -440,6 +539,7 @@ export class HomeComponent implements OnInit{
 	}
 
 	toggleAlertDrawer() {
+		console.log("Alert Drawer Clicked.")
 		this.alertDrawerOpen = !this.alertDrawerOpen;
 	}
 	
@@ -476,7 +576,8 @@ export class HomeComponent implements OnInit{
 
 	toggleCreateField(): void {
 		const dialogRef = this.dialog.open(AddFieldComponent, {
-			width: '1000px',
+			width: '42vw',
+			height: '42vw',
 			data: {} 
 		});
 	
@@ -494,26 +595,27 @@ export class HomeComponent implements OnInit{
 	}
 
 	toggleWaterPump(): void {
-		if (!this.user?.id) return;
-
-		this.togglePump = !this.togglePump;
-		
-		if (this.togglePump){
-			this.showNotification('Water Pump -> Turn ON');
-		} else {
-			this.showNotification('Water Pump -> Turn OFF');
+		if (!this.selectedField || !this.user?.id) {
+			this.showNotification('Please select a field first.', 'OK');
+			return;
 		}
-
-		this.actuatorsService.toggle_pump(this.togglePump, this.user.id).subscribe({
-			next: (res: any) => {
-				console.log(res);
-			},
-
+	
+		this.togglePump = !this.togglePump;
+	
+		if (this.togglePump) {
+			this.showNotification(`Water Pump -> Turn ON for ${this.selectedField.crop_name}`);
+		
+		} else {
+			this.showNotification(`Water Pump -> Turn OFF for ${this.selectedField.crop_name}`);
+		}
+	
+		this.actuatorsService.toggle_pump(this.togglePump, this.user.id, this.selectedField.id).subscribe({
+			next: (res: any) => console.log(res),
 			error: (error: any) => {
 				console.error('Failed updating pump toggle: ', error);
 				this.togglePump = !this.togglePump;
 			}
-		})
+		});
 	}
 
 	toggleSensors(): void {

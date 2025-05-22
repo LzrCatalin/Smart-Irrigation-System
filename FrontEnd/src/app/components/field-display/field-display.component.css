@@ -1,22 +1,29 @@
-.field-details-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 2rem;
-	max-width: 1400px;
-	margin: 2rem auto;
-	padding: 0 2rem;
-}
-
-.left-column,
-.right-column {
+.field-details-container {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
+	padding: 2rem;
+	max-width: 600px;
+	margin: 0 auto;
 }
 
+/* Card general: alb, rotunjit, cu umbră clară */
 .card {
 	border-radius: 18px;
-	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+	background-color: #fff;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	transition: box-shadow 0.3s ease, transform 0.2s ease;
+	padding: 1rem 1.2rem;
+}
+
+.card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* Spațiere suplimentară între carduri */
+.card + .card {
+	margin-top: 1.5rem;
 }
 
 .card-header {
@@ -36,14 +43,23 @@
 }
 
 .card-content {
-	padding: 1rem 1.5rem;
+	padding: 1rem 0;
+}
+
+.field-info p {
+	margin: 0.5rem 0;
+	font-size: 0.95rem;
 }
 
 .form-fields {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-	gap: 1.2rem;
+	gap: 1rem;
 	margin-top: 1rem;
+}
+
+.form-field {
+	width: 100%;
 }
 
 .form-actions {
@@ -54,12 +70,18 @@
 	margin-top: 1rem;
 }
 
+/* Sensor styling */
+.sensors-section {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
 .sensor-list,
 .available-sensors {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	grid-template-columns: 1fr;
 	gap: 1rem;
-	padding: 1rem;
 }
 
 .sensor-item {
@@ -82,9 +104,10 @@
 	right: 8px;
 }
 
+/* Irrigation */
 .irrigation-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	grid-template-columns: 1fr;
 	gap: 1rem;
 	margin-top: 1rem;
 	max-height: 300px;
@@ -107,10 +130,19 @@
 	color: #2196f3;
 }
 
-.edit-btn,
-.config-btn,
-.close-btn,
-.save-btn {
+/* Empty message fallback */
+.empty-state {
+	text-align: center;
+	padding: 1rem;
+	font-style: italic;
+	color: #888;
+	font-size: 0.95rem;
+}
+
+/* Modern buttons */
+::ng-deep button.mat-flat-button,
+::ng-deep button.mat-stroked-button,
+::ng-deep button.mat-button {
 	border-radius: 999px !important;
 	padding: 0.6rem 1.8rem !important;
 	font-weight: 600;
@@ -121,53 +153,72 @@
 }
 
 /* Accent (Edit Field) */
-button.mat-flat-button[color="accent"] {
+::ng-deep button.mat-flat-button[color="accent"] {
 	background-color: #fdd835;
 	color: #212121;
 }
 
-button.mat-flat-button[color="accent"]:hover {
+::ng-deep button.mat-flat-button[color="accent"]:hover {
 	background-color: #fbc02d;
 }
 
 /* Primary (Configure, Save, Add) */
-button.mat-flat-button[color="primary"] {
+::ng-deep button.mat-flat-button[color="primary"] {
 	background-color: #673ab7;
 	color: #fff;
 }
 
-button.mat-flat-button[color="primary"]:hover {
+::ng-deep button.mat-flat-button[color="primary"]:hover {
 	background-color: #5e35b1;
 	box-shadow: 0 4px 12px rgba(103, 58, 183, 0.4);
 }
 
 /* Warn (Cancel, Delete) */
-button.mat-stroked-button[color="warn"] {
+::ng-deep button.mat-stroked-button[color="warn"] {
 	color: #e53935;
 	border: 1px solid #e53935;
 }
 
-button.mat-stroked-button[color="warn"]:hover {
+::ng-deep button.mat-stroked-button[color="warn"]:hover {
 	background-color: #ffeaea;
 	box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
 }
 
 /* Secondary button (Close) */
-button.mat-stroked-button {
+::ng-deep button.mat-stroked-button:not([color="warn"]) {
 	border: 1px solid #ccc;
 	color: #555;
 }
 
-button.mat-stroked-button:hover {
+::ng-deep button.mat-stroked-button:not([color="warn"]):hover {
 	background-color: #f4f4f4;
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
-.empty-state {
-	text-align: center;
-	padding: 1rem;
-	font-style: italic;
-	color: #888;
-	font-size: 0.95rem;
+@media screen and (max-width: 600px) {
+	.field-details-container {
+		padding: 1rem;
+		max-width: 100%;
+	}
+
+	.form-fields {
+		grid-template-columns: 1fr;
+	}
+
+	.sensor-list,
+	.available-sensors,
+	.irrigation-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.form-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	::ng-deep button.mat-flat-button,
+	::ng-deep button.mat-stroked-button {
+		width: 100%;
+		text-align: center;
+	}
 }
-  

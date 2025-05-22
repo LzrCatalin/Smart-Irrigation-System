@@ -1,143 +1,135 @@
-<div class="field-details-grid">
+<div class="field-details-container">
 
-  <!-- LEFT COLUMN -->
-  <div class="left-column" [ngStyle]="{ 'padding-top': editMode ? '2rem' : '10rem' }">
-    
-    <!-- Field Details -->
-    <mat-card class="card" *ngIf="!editMode">
-      <mat-card-header class="card-header">
-        <mat-card-title class="card-title">{{ field.crop_name }}</mat-card-title>
-        <mat-card-subtitle class="card-subtitle">Field Details</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content class="card-content field-info">
-        <p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
-        <p><strong>Location:</strong> {{ fieldLocation }}</p>
-        <p><strong>Dimensions:</strong> {{ field.length }}m x {{ field.width }}m</p>
-        <p><strong>Slope:</strong> {{ field.slope }}°</p>
-        <p><strong>Crop:</strong> {{ field.crop_name }}</p>
-      </mat-card-content>
-    </mat-card>
+  <!-- Field Details -->
+  <mat-card class="card" *ngIf="!editMode">
+    <mat-card-header class="card-header">
+      <mat-card-title class="card-title">{{ field.crop_name }}</mat-card-title>
+      <mat-card-subtitle class="card-subtitle">Field Details</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="card-content field-info">
+      <p><strong>Soil Type:</strong> {{ field.soil_type }}</p>
+      <p><strong>Location:</strong> {{ fieldLocation }}</p>
+      <p><strong>Dimensions:</strong> {{ field.length }}m x {{ field.width }}m</p>
+      <p><strong>Slope:</strong> {{ field.slope }}°</p>
+      <p><strong>Crop:</strong> {{ field.crop_name }}</p>
+    </mat-card-content>
+  </mat-card>
 
-    <!-- Buttons -->
-    <div class="form-actions">
-      <button *ngIf="!editMode" mat-flat-button color="accent" class="edit-btn" (click)="toggleEditMode()">Edit Field</button>
-      <button *ngIf="!editMode" mat-flat-button color="primary" class="config-btn" (click)="openConfigDialog()">Configure Irrigation</button>
-      <button mat-stroked-button class="close-btn" (click)="close()">Close</button>
-    </div>
-
-    <!-- Edit Form -->
-    <mat-card class="card" *ngIf="editMode">
-      <mat-card-header class="card-header">
-        <mat-card-title>Edit Field Info</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="fieldForm" (ngSubmit)="onSubmit()">
-          <div class="form-fields">
-            <mat-form-field class="form-field" appearance="fill">
-              <mat-label>Crop Name</mat-label>
-              <input matInput formControlName="crop_name" />
-            </mat-form-field>
-            <mat-form-field class="form-field" appearance="fill">
-              <mat-label>Length (m)</mat-label>
-              <input matInput type="number" formControlName="length" />
-            </mat-form-field>
-            <mat-form-field class="form-field" appearance="fill">
-              <mat-label>Width (m)</mat-label>
-              <input matInput type="number" formControlName="width" />
-            </mat-form-field>
-            <mat-form-field class="form-field" appearance="fill">
-              <mat-label>Slope (°)</mat-label>
-              <input matInput type="number" formControlName="slope" />
-            </mat-form-field>
-          </div>
-          <div class="form-actions">
-            <button mat-stroked-button color="warn" class="close-btn" (click)="toggleEditMode()">Cancel</button>
-            <button mat-flat-button color="primary" class="save-btn" type="submit">Save</button>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
+  <!-- Buttons -->
+  <div class="form-actions">
+    <button *ngIf="!editMode" mat-flat-button color="accent" class="edit-btn" (click)="toggleEditMode()">Edit Field</button>
+    <button *ngIf="!editMode" mat-flat-button color="primary" class="config-btn" (click)="openConfigDialog()">Configure Irrigation</button>
+    <button mat-stroked-button class="close-btn" (click)="close()">Close</button>
   </div>
 
-  <!-- RIGHT COLUMN -->
-  <div class="right-column" [ngStyle]="{ 'padding-top': editMode ? '7rem' : '1rem' }">
-
-    <!-- Sensors View Mode -->
-    <mat-card class="card sensors-section" *ngIf="!editMode">
-      <mat-card-header>
-        <mat-card-title>Connected Sensors</mat-card-title>
-      </mat-card-header>
-      <div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensorsView">
-        <div class="sensor-item" *ngFor="let sensor of field.sensors">
-          <strong>{{ sensor.name }}</strong>
-          <p>{{ sensor.type.type }} - {{ sensor.type.measured_value | number: '1.2-2' }}</p>
+  <!-- Edit Form -->
+  <mat-card class="card" *ngIf="editMode">
+    <mat-card-header class="card-header">
+      <mat-card-title>Edit Field Info</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="fieldForm" (ngSubmit)="onSubmit()">
+        <div class="form-fields">
+          <mat-form-field class="form-field" appearance="fill">
+            <mat-label>Crop Name</mat-label>
+            <input matInput formControlName="crop_name" />
+          </mat-form-field>
+          <mat-form-field class="form-field" appearance="fill">
+            <mat-label>Length (m)</mat-label>
+            <input matInput type="number" formControlName="length" />
+          </mat-form-field>
+          <mat-form-field class="form-field" appearance="fill">
+            <mat-label>Width (m)</mat-label>
+            <input matInput type="number" formControlName="width" />
+          </mat-form-field>
+          <mat-form-field class="form-field" appearance="fill">
+            <mat-label>Slope (°)</mat-label>
+            <input matInput type="number" formControlName="slope" />
+          </mat-form-field>
         </div>
-      </div>
-      <ng-template #noSensorsView>
-        <div class="empty-state">No sensors connected to this field.</div>
-      </ng-template>
-    </mat-card>
+        <div class="form-actions">
+          <button mat-stroked-button color="warn" class="close-btn" (click)="toggleEditMode()">Cancel</button>
+          <button mat-flat-button color="primary" class="save-btn" type="submit">Save</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 
-    <!-- Sensors Edit Mode -->
-    <mat-card class="card sensors-section" *ngIf="editMode">
-      <mat-card-header>
-        <mat-card-title>Attached Sensors</mat-card-title>
-      </mat-card-header>
-      <div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensorsEdit">
-        <div class="sensor-item" *ngFor="let sensor of field.sensors">
-          <strong>{{ sensor.name }}</strong>
-          <p>{{ sensor.type.type }}</p>
-          <button mat-icon-button color="warn" (click)="deleteSensor(sensor)">
-            <mat-icon>delete</mat-icon>
+  <!-- Sensors View Mode -->
+  <mat-card class="card sensors-section" *ngIf="!editMode">
+    <mat-card-header>
+      <mat-card-title>Connected Sensors</mat-card-title>
+    </mat-card-header>
+    <div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensorsView">
+      <div class="sensor-item" *ngFor="let sensor of field.sensors">
+        <strong>{{ sensor.name }}</strong>
+        <p>{{ sensor.type.type }} - {{ sensor.type.measured_value | number: '1.2-2' }}</p>
+      </div>
+    </div>
+    <ng-template #noSensorsView>
+      <div class="empty-state">No sensors connected to this field.</div>
+    </ng-template>
+  </mat-card>
+
+  <!-- Sensors Edit Mode -->
+  <mat-card class="card sensors-section" *ngIf="editMode">
+    <mat-card-header>
+      <mat-card-title>Attached Sensors</mat-card-title>
+    </mat-card-header>
+    <div class="sensor-list" *ngIf="field.sensors.length > 0; else noSensorsEdit">
+      <div class="sensor-item" *ngFor="let sensor of field.sensors">
+        <strong>{{ sensor.name }}</strong>
+        <p>{{ sensor.type.type }}</p>
+        <button mat-icon-button color="warn" (click)="deleteSensor(sensor)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    <ng-template #noSensorsEdit>
+      <div class="empty-state">No sensors connected to this field.</div>
+    </ng-template>
+  </mat-card>
+
+  <!-- Available Sensors -->
+  <mat-card class="card sensors-section" *ngIf="editMode">
+    <mat-card-header>
+      <mat-card-title>Available Sensors</mat-card-title>
+    </mat-card-header>
+    <div class="available-sensors" *ngIf="availableSensors.length > 0; else noAvailable">
+      <div class="sensor-item" *ngFor="let sensor of availableSensors">
+        <strong>{{ sensor.name }}</strong>
+        <p>{{ sensor.type.type }}</p>
+        <button mat-flat-button color="primary" (click)="addSensor(sensor)">Add</button>
+      </div>
+    </div>
+    <ng-template #noAvailable>
+      <div class="empty-state">No available sensors found.</div>
+    </ng-template>
+  </mat-card>
+
+  <!-- Irrigation History -->
+  <mat-card class="card" *ngIf="!editMode">
+    <mat-card-header>
+      <mat-card-title>Irrigation History</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ng-container *ngIf="irrigationHistory && irrigationHistory.history && irrigationHistory.history.length > 0; else noHistory">
+        <div class="irrigation-grid">
+          <div class="irrigation-entry" *ngFor="let entry of irrigationHistory.history | slice:0:(showAllHistory ? undefined : 6)">
+            <mat-icon>opacity</mat-icon>
+            <span>{{ entry | date: "medium" }}</span>
+          </div>
+        </div>
+        <div class="form-actions" *ngIf="irrigationHistory.history.length > 6">
+          <button mat-button (click)="toggleHistory()">
+            {{ showAllHistory ? 'Show less' : 'Show all' }}
           </button>
         </div>
-      </div>
-      <ng-template #noSensorsEdit>
-        <div class="empty-state">No sensors connected to this field.</div>
+      </ng-container>
+
+      <ng-template #noHistory>
+        <div class="empty-state">No irrigation records yet for this field.</div>
       </ng-template>
-    </mat-card>
-
-    <!-- Available Sensors -->
-    <mat-card class="card sensors-section" *ngIf="editMode">
-      <mat-card-header>
-        <mat-card-title>Available Sensors</mat-card-title>
-      </mat-card-header>
-      <div class="available-sensors" *ngIf="availableSensors.length > 0; else noAvailable">
-        <div class="sensor-item" *ngFor="let sensor of availableSensors">
-          <strong>{{ sensor.name }}</strong>
-          <p>{{ sensor.type.type }}</p>
-          <button mat-flat-button color="primary" (click)="addSensor(sensor)">Add</button>
-        </div>
-      </div>
-      <ng-template #noAvailable>
-        <div class="empty-state">No available sensors found.</div>
-      </ng-template>
-    </mat-card>
-
-    <!-- Irrigation History -->
-    <mat-card class="card" *ngIf="!editMode">
-      <mat-card-header>
-        <mat-card-title>Irrigation History</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <ng-container *ngIf="irrigationHistory && irrigationHistory.history && irrigationHistory.history.length > 0; else noHistory">
-          <div class="irrigation-grid">
-            <div class="irrigation-entry" *ngFor="let entry of irrigationHistory.history | slice:0:(showAllHistory ? undefined : 6)">
-              <mat-icon>opacity</mat-icon>
-              <span>{{ entry }}</span>
-            </div>
-          </div>
-          <div class="form-actions" *ngIf="irrigationHistory.history.length > 6">
-            <button mat-button (click)="toggleHistory()">
-              {{ showAllHistory ? 'Show less' : 'Show all' }}
-            </button>
-          </div>
-        </ng-container>
-
-        <ng-template #noHistory>
-          <div class="empty-state">No irrigation records yet for this field.</div>
-        </ng-template>
-      </mat-card-content>
-    </mat-card>
-  </div>
+    </mat-card-content>
+  </mat-card>
 </div>

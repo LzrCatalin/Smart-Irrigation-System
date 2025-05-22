@@ -48,53 +48,40 @@ export class FieldDisplayComponent {
 
 	ngOnInit(): void {
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
-		
+	
 		this.fieldForm = this.fb.group({
 			crop_name: [this.field.crop_name, Validators.required],
 			length: [this.field.length, [Validators.required, Validators.min(1)]],
 			width: [this.field.width, [Validators.required, Validators.min(1)]],
 			slope: [this.field.slope, [Validators.required, Validators.min(0)]]
 		});
-		
+	
 		this.fetchAvailableSensors("available");
-		
-		// Fetch updates on a time period
-		this.fieldsSubscription = interval(5000) // 5 seconds
-			.pipe(
-				switchMap(() => this.fieldsService.get_user_fields(this.user?.id ?? ''))
-			)
-			.subscribe({
-				next: (fields: Field[]) => {
-					const updateField = fields.find(f => f.id === this.field.id);
-
-					if (updateField) {
-						this.field = updateField;
-					}
-				},
-
-				error: (error) => {
-					console.error("Error fetching fields: ", error);
-				}
-			})
-
-		// Fetch field location based on coordonates
+	
+		// PORNEȘTE auto-update DOAR dacă NU e în edit mode
+		this.startFieldPolling();
+	
+		// Fetch location
 		this.apiService.getLocation(this.field.latitude, this.field.longitude).subscribe({
 			next: (response) => {
 				if (response.status === "OK" && response.results.length > 0) {
-					this.fieldLocation = response.results[0].formatted_address.slice(8);
-
+				this.fieldLocation = response.results[0].formatted_address.slice(8);
 				} else {
-					this.fieldLocation = "Location not found.";
+				this.fieldLocation = "Location not found.";
 				}
 			},
-
 			error: (error) => {
 				console.error("Failed to fetch location for selected field: ", error);
 			}
-		})
-
-		// Fetch field history
+		});
+	
 		this.fetchHistory(this.field.id);
+	}
+
+	ngOnDestroy(): void {
+		if (this.fieldsSubscription) {
+			this.fieldsSubscription.unsubscribe();
+		}
 	}
 
 	////////////////////////
@@ -133,27 +120,74 @@ export class FieldDisplayComponent {
 		}
 	}
 
+	startFieldPolling(): void {
+		this.fieldsSubscription = interval(15000)
+			.pipe(switchMap(() => this.fieldsService.get_user_fields(this.user?.id ?? '')))
+				.subscribe({
+					next: (fields: Field[]) => {
+						const updateField = fields.find(f => f.id === this.field.id);
+				
+						if (updateField && !this.editMode) {
+							this.field.length = updateField.length;
+							this.field.width = updateField.width;
+							this.field.slope = updateField.slope;
+							this.field.crop_name = updateField.crop_name;
+							this.field.latitude = updateField.latitude;
+							this.field.longitude = updateField.longitude;
+				
+							// Update sensors only if no local changes exist
+							const localChanges = this.deletedSensors.length > 0 || 
+												this.field.sensors.length !== updateField.sensors.length;
+				
+							if (!localChanges) {
+								this.field.sensors = updateField.sensors;
+							}
+						}
+					},
+
+					error: (error) => {
+						console.error("Error fetching fields: ", error);
+					}
+		});
+	}
+
+	  
 	toggleEditMode(): void {
 		this.editMode = !this.editMode;
-		if (this.editMode) {
 
-			// Patch the form with the current field values
+		if (this.editMode) {
+			// Stop auto refresh
+			if (this.fieldsSubscription) {
+				this.fieldsSubscription.unsubscribe();
+			}
+
+			// Patch the form
 			this.fieldForm.patchValue({
 				crop_name: this.field.crop_name,
 				length: this.field.length,
 				width: this.field.width,
 				slope: this.field.slope
 			});
+
+		} else {
+			// Resume auto refresh
+			this.startFieldPolling();
 		}
 	}
 
-  	deleteSensor(sensor: Sensor): void {
-		console.log("Deleted sensor: ", sensor);
-		// Remove the sensor from the field's sensors list
-		this.field.sensors = this.field.sensors.filter(s => s !== sensor);	
-		
-		// Add the deleted sensor to the deletedSensors list
-		this.deletedSensors.push(sensor);
+	deleteSensor(sensor: Sensor): void {
+		// Remove sensor from field's active sensors
+		this.field.sensors = this.field.sensors.filter(s => s.id !== sensor.id);
+	
+		// Put it into the availableSensors list if missing
+		if (!this.availableSensors.some(s => s.id === sensor.id)) {
+			this.availableSensors.push(sensor);
+		}
+	
+		// Add to deleted list for saving
+		if (!this.deletedSensors.some(s => s.id === sensor.id)) {
+			this.deletedSensors.push(sensor);
+		}
 	}
 	
 
@@ -164,7 +198,10 @@ export class FieldDisplayComponent {
 		}
 
 		// Remove the sensor from the available sensors list
-		this.availableSensors = this.availableSensors.filter(s => s !== sensor);
+		this.availableSensors = this.availableSensors.filter(s => s.id !== sensor.id);
+
+		// If sensor is marked as deleted, do not put it back to deleted sensors list
+		this.deletedSensors = this.deletedSensors.filter(s => s.id !== sensor.id);
 	}
 
 	openConfigDialog(): void {

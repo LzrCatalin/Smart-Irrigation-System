@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Field } from '../../models/field.model';
 import { Sensor } from '../../models/sensor.model';
-import { SensorType } from '../../models/sensor-type.model';
-import { Status } from '../../models/status.model';
-import { Type } from '../../models/type.model';
 import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { Router } from '@angular/router';
@@ -15,9 +12,9 @@ import { SystemService } from '../../services/system.service';
 declare var google: any;
 
 @Component({
-	selector: 'app-add-field',
-	templateUrl: './add-field.component.html',
-	styleUrls: ['./add-field.component.css']
+selector: 'app-add-field',
+templateUrl: './add-field.component.html',
+styleUrls: ['./add-field.component.css']
 })
 export class AddFieldComponent implements OnInit {
 	user: User | undefined;
@@ -29,12 +26,12 @@ export class AddFieldComponent implements OnInit {
 	marker: any;
 
 	constructor(
-			private fieldService: FieldsService, 
-			private router: Router, 
-			private sensorService: SensorsService,
-			private dialogRef: MatDialogRef<AddFieldComponent>,
-			private systemService: SystemService
-			) {}
+		private fieldService: FieldsService,
+		private router: Router,
+		private sensorService: SensorsService,
+		private dialogRef: MatDialogRef<AddFieldComponent>,
+		private systemService: SystemService
+	) {}
 
 	ngOnInit(): void {
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
@@ -57,7 +54,7 @@ export class AddFieldComponent implements OnInit {
 	}
 
 	initMap(): void {
-		const center = { lat:46.0, lng: 25.0 };
+		const center = { lat: 46.0, lng: 25.0 };
 		this.map = new google.maps.Map(document.getElementById('map'), {
 			center: center,
 			zoom: 6
@@ -72,21 +69,20 @@ export class AddFieldComponent implements OnInit {
 		this.sensorService.get_sensors_by_status(status).subscribe({
 			next: (response) => {
 				this.availableSensors = response.map(sensor => ({
-					id: sensor.id,
-					name: sensor.name,
-					type: {
-						type: sensor.type.type,
-						measured_value: sensor.type.measured_value,
-						status: sensor.type.status,
-						port: sensor.type.port
-					}
+				id: sensor.id,
+				name: sensor.name,
+				type: {
+					type: sensor.type.type,
+					measured_value: sensor.type.measured_value,
+					status: sensor.type.status,
+					port: sensor.type.port
+				}
 				}));
 			},
-
 			error: (error) => {
 				console.error(error);
 			}
-		})
+		});
 	}
 
 	placeMarker(location: any): void {
@@ -95,9 +91,9 @@ export class AddFieldComponent implements OnInit {
 		
 		} else {
 			this.marker = new google.maps.Marker({
-				position: location, 
-				map: this.map
-			});	
+			position: location,
+			map: this.map
+		});
 		}
 
 		this.field.latitude = location.lat();
@@ -105,31 +101,46 @@ export class AddFieldComponent implements OnInit {
 	}
 
 	onSensorSelect(event: MatSelectChange): void {
-		this.selectedSensors = event.value;
+		const newlySelected: Sensor[] = event.value;
+		const addedSensors = newlySelected.filter(s => !this.selectedSensors.find(sel => sel.id === s.id));
+
+		addedSensors.forEach(sensor => {
+		if (!this.selectedSensors.find(s => s.id === sensor.id)) {
+			this.selectedSensors.push(sensor);
+			this.availableSensors = this.availableSensors.filter(s => s.id !== sensor.id);
+		}
+		});
 	}
 
 	removeSensor(sensor: Sensor): void {
-		this.selectedSensors = this.selectedSensors.filter(s => s !== sensor);
+		this.selectedSensors = this.selectedSensors.filter(s => s.id !== sensor.id);
+		if (!this.availableSensors.find(s => s.id === sensor.id)) {
+			this.availableSensors.push(sensor);
+		}
 	}
 
 	onSubmit(): void {
-		this.field.sensors =  this.selectedSensors;
-		
-		this.fieldService.add_field(this.field.latitude, this.field.longitude,
-									this.field.length, this.field.width, this.field.slope,
-									this.field.crop_name, this.field.soil_type,
-									this.field.user_id, this.field.sensors).subscribe
-		({
+		this.field.sensors = this.selectedSensors;
+		this.fieldService.add_field(
+		this.field.latitude, this.field.longitude,
+		this.field.length, this.field.width, this.field.slope,
+		this.field.crop_name, this.field.soil_type,
+		this.field.user_id, this.field.sensors
+		).subscribe({
 			next: (response: Field) => {
 				this.dialogRef.close(response);
 			},
 			error: (error) => {
-				console.error("Error" + error)
+				console.error("Error" + error);
 			}
-		})
+		});
 	}
 
 	onCancel(): void {
 		this.dialogRef.close();
+	}
+
+	compareSensors(a: Sensor, b: Sensor): boolean {
+		return a && b ? a.id === b.id : a === b;
 	}
 }

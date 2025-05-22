@@ -1,43 +1,178 @@
-.add-field-container {
-	padding: 20px;
-	max-width: 800px;
-	margin: 0 auto;
+.add-field-wrapper {
+	max-width: 900px;
+	margin: 2rem auto;
+	padding: 1rem;
 }
 
-.map-container {
-	height: 300px;
-	width: 100%;
-	margin-bottom: 20px;
-	border-radius: 4px;
+.form-card {
+	width: 40vw;
+	background: #fff;
+	border-radius: 20px;
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
 	overflow: hidden;
+	animation: fadeInCard 0.6s ease;
 }
 
-.form-container {
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
+@keyframes fadeInCard {
+	from {
+	opacity: 0;
+	transform: translateY(20px);
+	}
+	to {
+	opacity: 1;
+	transform: translateY(0);
+	}
 }
 
-.form-fields {
+.form-card-header {
+	padding-bottom: 0;
+}
+
+.form-title {
+	font-size: 1.8rem;
+	font-weight: 600;
+}
+
+.form-subtitle {
+	font-size: 1rem;
+	color: #666;
+}
+
+.large-map {
+	width: 100%;
+	height: 400px;
+	border-radius: 12px;
+	overflow: hidden;
+	margin: 1rem 0 2rem;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+	animation: scaleFadeIn 0.4s ease;
+}
+
+@keyframes scaleFadeIn {
+	from {
+	transform: scale(0.98);
+	opacity: 0;
+	}
+	to {
+	transform: scale(1);
+	opacity: 1;
+	}
+}
+
+.grid-field-box {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 20px;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 }
 
-.selected-sensors {
-	margin-top: 20px;
-}
-
-.selected-sensors h4 {
-	margin-bottom: 10px;
-}
-
-mat-list-item {
+.input-card {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
+	background: #f5f5f5;
+	border-radius: 12px;
+	padding: 1rem;
+	gap: 1rem;
+	transition: box-shadow 0.3s, transform 0.2s;
 }
 
-mat-card-actions {
-	padding: 16px;
+.input-card:hover {
+	box-shadow: 0 6px 12px rgba(103, 58, 183, 0.2);
+	transform: translateY(-2px);
+}
+
+.input-icon {
+	font-size: 28px;
+	color: #673ab7;
+}
+
+.input-card label {
+	font-weight: 500;
+	display: block;
+	margin-bottom: 4px;
+	color: #333;
+}
+
+.input-card input {
+	width: 100%;
+	border: none;
+	outline: none;
+	padding: 0.4rem 0.6rem;
+	border-radius: 6px;
+	background: white;
+	transition: box-shadow 0.2s;
+	box-shadow: inset 0 0 0 1px #ccc;
+}
+
+.input-card input:focus {
+	box-shadow: inset 0 0 0 2px #673ab7;
+}
+
+.sensor-select {
+	width: 100%;
+	margin-bottom: 1.5rem;
+}
+
+.chip-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+}
+
+mat-chip {
+	background-color: #e0e0e0;
+	font-size: 0.95rem;
+	border-radius: 999px;
+	padding: 0 0.6rem;
+	transition: background-color 0.2s ease;
+}
+
+mat-chip:hover {
+	background-color: #d1c4e9;
+}
+
+.form-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 1rem;
+}
+
+/* Button styling */
+::ng-deep button.mat-flat-button,
+::ng-deep button.mat-stroked-button {
+	border-radius: 999px !important;
+	padding: 0.6rem 1.6rem !important;
+	font-weight: 600;
+	text-transform: none;
+	letter-spacing: 0.5px;
+	transition: all 0.25s ease;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+::ng-deep button.mat-flat-button:hover {
+	background-color: #5e35b1 !important;
+	color: white !important;
+}
+
+::ng-deep button.mat-stroked-button:hover {
+	background-color: #f4f4f4;
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+	.form-actions {
+	flex-direction: column;
+	align-items: stretch;
+	}
+
+	.grid-field-box {
+	grid-template-columns: 1fr;
+	}
+
+	.form-title {
+	font-size: 1.5rem;
+	}
 }
