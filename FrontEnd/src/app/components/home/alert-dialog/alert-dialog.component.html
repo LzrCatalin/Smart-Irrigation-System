@@ -1,0 +1,53 @@
+<!-- HEADER TOP ROW -->
+<div class="alert-dialog-header">
+  <mat-form-field appearance="outline" class="time-select">
+    <mat-label>Time range</mat-label>
+    <mat-select [(value)]="selectedTimeRange" (selectionChange)="filterAlerts()">
+      <mat-option value="24h">Last 24 hours</mat-option>
+      <mat-option value="3d">Last 3 days</mat-option>
+      <mat-option value="7d">Last 7 days</mat-option>
+      <mat-option value="all">All time</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <h2 class="alerts-title">Alerts</h2>
+</div>
+
+<!-- CATEGORY SELECTOR CENTERED -->
+<div class="category-selector-wrapper">
+  <mat-button-toggle-group [(ngModel)]="selectedAlertType" (change)="filterAlerts()" exclusive>
+    <mat-button-toggle value="INFO">
+      <mat-icon>info</mat-icon> Info
+    </mat-button-toggle>
+    <mat-button-toggle value="WARNING">
+      <mat-icon>warning</mat-icon> Warning
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+<!-- ALERT LIST -->
+<div mat-dialog-content class="alerts-dialog-content">
+
+  <div *ngFor="let group of groupedAlerts | keyvalue : sortDescending">
+    <h4 class="group-date">{{ group.key }}</h4>
+
+    <div class="alert-card" *ngFor="let alert of group.value">
+      <mat-icon [ngClass]="{ 'info-icon': alert.alert_type === 'INFO', 'warn-icon': alert.alert_type === 'WARNING' }">
+        {{ alert.alert_type === 'INFO' ? 'info' : 'warning' }}
+      </mat-icon>
+
+      <div class="alert-details">
+        <strong>{{ alert.message }}</strong>
+        <div class="timestamp">{{ alert.timestamp | date:'shortTime' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isGroupedAlertsEmpty()" class="empty-alert-message">
+    <p>No alerts from the selected time range.</p>
+  </div>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</div>

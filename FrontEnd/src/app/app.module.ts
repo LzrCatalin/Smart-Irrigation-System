@@ -41,6 +41,7 @@ import { ConfigDialogComponent } from './components/field-display/config-dialog/
 import { MatChipsModule } from '@angular/material/chips';
 import { ToolbarComponent } from './components/home/toolbar/toolbar.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { AlertDialogComponent } from './components/home/alert-dialog/alert-dialog.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     IntervalDialogComponent,
     ConfigDialogComponent,
     ToolbarComponent,
+    AlertDialogComponent,
   ],
   imports: [
     BrowserModule,
