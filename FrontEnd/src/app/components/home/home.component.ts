@@ -16,8 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddFieldComponent } from '../add-field/add-field.component';
 import { ApiService } from '../../services/api.service';
 import { IntervalDialogComponent } from './interval-dialog/interval-dialog.component';
-import { UserAlerts } from '../../models/user-alerts.model';
-import { AlertDefinition } from '../../models/alerts-definition.model';
+import { AlertDialogComponent } from './alert-dialog/alert-dialog.component';
 import { MatSidenav } from '@angular/material/sidenav';
 import { SystemService } from '../../services/system.service';
 import { environment } from '../../../environments/environment';
@@ -37,10 +36,6 @@ export class HomeComponent implements OnInit{
 	paginatedFields = this.fields.slice(0, 3);
 	fieldLocations: { [key: string]: string } = {};
 	userAlerts: any[] = [];
-	filteredAlerts: any[] = [];
-	availableTypes: string[] = [];
-	selectedAlertType: 'INFO' | 'WARNING' = 'INFO';
-	alertDrawerOpen = false;
 
 	selectedDate = new Date();
 	weatherData: any = null;
@@ -173,7 +168,7 @@ export class HomeComponent implements OnInit{
 	}
 
 	ngOnInit(): void {
-		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
+		this.user = JSON.parse(sessionStorage.getItem('user') ?? '{}').user_data as User;
 	
 		if (this.user.id !== undefined) {
 			this.selectedField == null;
@@ -197,7 +192,7 @@ export class HomeComponent implements OnInit{
 		this.schedulerInterval = savedSchedulerInterval ? parseInt(savedSchedulerInterval) : 15;
 	
 		const savedIrrigationInterval = localStorage.getItem(`${this.getIrrigationKey()}_interval`);
-		this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;
+		this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;	
 	}
 
 	//////////////////////
@@ -327,7 +322,7 @@ export class HomeComponent implements OnInit{
 			next: (response: any) => {
 				this.newsItems = response.articles.map((article: any) => ({
 					title: article.title,
-					imageUrl: article.urlToImage || 'https://via.placeholder.com/150',
+					imageUrl: article.urlToImage ?? 'https://via.placeholder.com/150',
 					newsUrl: article.url
 				}));
 				this.updatePaginatedNews();
@@ -455,7 +450,7 @@ export class HomeComponent implements OnInit{
 			next: (response) => {
 				if (response.status === "OK" && response.results.length > 0) {
 					const cityName = response.results[0].address_components.find((c: any) =>
-						c.types.includes("locality") || c.types.includes("administrative_area_level_1")
+						c.types.includes("locality") ?? c.types.includes("administrative_area_level_1")
 					)?.long_name;
 			
 					if (cityName) {
@@ -504,14 +499,13 @@ export class HomeComponent implements OnInit{
 			next: (response: any) => {
 				console.log("Raw response: ", response);
 			
-				const alertsObject = response.alerts || {};
+				const alertsObject = response.alerts ?? {};
 				const alertArray = Object.entries(alertsObject).map(([timestampKey, alert]: [string, any]) => ({
 					...alert,
 					timestamp: this.parseTimestamp(timestampKey)
 				}));
 			
 				this.userAlerts = alertArray;
-				this.filterAlerts();
 			
 				console.log("Processed alerts: ", this.userAlerts);
 				console.log("Length: ", this.userAlerts.length);
@@ -522,47 +516,31 @@ export class HomeComponent implements OnInit{
 			}
 		});
 	}
-
-	filterAlerts(): void {
-		console.log('Filtering alerts by type:', this.selectedAlertType);
-		
-		this.filteredAlerts = this.userAlerts.filter(
-			(alert) => alert.type === this.selectedAlertType
-		);
-
-		console.log('Filtered alerts:', this.filteredAlerts);
-	}
-
-	onAlertTypeChange() {
-		console.log('Alert type changed to:', this.selectedAlertType);
-		this.filterAlerts();
-	}
-
-	toggleAlertDrawer() {
-		console.log("Alert Drawer Clicked.")
-		this.alertDrawerOpen = !this.alertDrawerOpen;
-	}
 	
 	parseTimestamp(timestampKey: string): Date | null {
-		// Example input: "2025-05-15T01-14-18-043255"
-		// Goal: "2025-05-15T01:14:18.043255"
-		
-		// Split date and time:
 		const [datePart, timePart] = timestampKey.split('T');
 		if (!timePart) return null;
 	
-		// Replace first two dashes with colons, the rest keep as is or replace last dash with dot for fractional seconds
-		// timePart example: "01-14-18-043255"
-		// Replace to: "01:14:18.043255"
-		
 		const parts = timePart.split('-');
-		if(parts.length < 3) return null;
+		if (parts.length < 3) return null;
 	
 		const formattedTime = `${parts[0]}:${parts[1]}:${parts[2]}` + (parts[3] ? `.${parts[3]}` : '');
 		const isoString = `${datePart}T${formattedTime}`;
 	
 		const dateObj = new Date(isoString);
-		return isNaN(dateObj.getTime()) ? null : dateObj;
+		if (isNaN(dateObj.getTime())) {
+			console.warn('Invalid ISO date:', isoString);
+			return null;
+		}
+	
+		return dateObj;
+	}
+
+	toggleAlertDrawer() {
+		this.dialog.open(AlertDialogComponent, {
+			width: '600px',
+			data: { alerts: this.userAlerts }
+		});
 	}
 
 	//////////////////

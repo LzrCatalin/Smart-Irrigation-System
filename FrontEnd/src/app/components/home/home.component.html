@@ -86,29 +86,6 @@
   </div>
 </div>
 
-<!-- ALERT DRAWER -->
-<mat-drawer-container class="alert-container" autosize>
-	<mat-drawer #alertDrawer position="end" mode="over" [opened]="alertDrawerOpen">
-	  <div class="alert-drawer-header">
-		<h3>Alerts</h3>
-		<mat-button-toggle-group [(ngModel)]="selectedAlertType" (change)="onAlertTypeChange()" exclusive>
-		  <mat-button-toggle value="INFO">Info</mat-button-toggle>
-		  <mat-button-toggle value="WARNING">Warning</mat-button-toggle>
-		</mat-button-toggle-group>
-	  </div>
-
-	  <mat-list *ngIf="filteredAlerts.length > 0">
-		<mat-list-item *ngFor="let alert of filteredAlerts">
-		  <mat-icon mat-list-icon>{{ alert.type === 'INFO' ? 'info' : 'warning' }}</mat-icon>
-		  <h4 matLine>{{ alert.message }}</h4>
-		  <p matLine class="timestamp">{{ alert.timestamp | date: 'short' }}</p>
-		</mat-list-item>
-	  </mat-list>
-
-	  <p *ngIf="filteredAlerts.length === 0" class="empty-alert">No alerts found for selected type.</p>
-	</mat-drawer>
-  </mat-drawer-container>
-
 <!-- FAB Alert Icon -->
 <button mat-fab class="fab-alert" (click)="toggleAlertDrawer()">
 	<mat-icon>notifications</mat-icon>
