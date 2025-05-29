@@ -75,7 +75,12 @@ class FieldIrrigationSystem:
 		
 		else:
 			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
-			
+
+	def check_critical_humidity(self, field_id: str) -> None:
+		"""Verify if the field humidity is under the minimum level"""
+		if field_id in self.fields:
+			self.fields[field_id].is_critical_humidity()
+
 	def run_cycle(self, field_id: str) -> None:
 		"""Run irrigation for a specific field"""
 		if field_id in self.fields:

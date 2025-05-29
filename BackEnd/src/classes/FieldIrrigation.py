@@ -1,6 +1,10 @@
 import time
 import logging
 
+from src.services.fields_service import get_field_user
+from src.api.geocodinAPI import get_location_by_field_id
+from src.util.utils import alert
+from src.util.mail_sender import send_email
 from src.actuators.water_pump import pump_start, pump_stop
 from src.sensors.humidity_sensor import sensor_setup, moisture_percentage
 from src.services.history_service import add_irrigation
@@ -20,6 +24,29 @@ class FieldIrrigation:
 		self.target_humidity = config.get('target_humidity', 60)
 		self.min_humidity = config.get('min_humidity', 10)
 		self.max_watering_time = config.get('max_watering_time', 300)
+
+	def is_critical_humidity(self) -> None:
+		"""Alert user when the current humidity is less than configured minimal"""
+		# Fetch field's user
+		user_id = get_field_user(self.field_id)
+		# Fetch field's location
+		field_location = get_location_by_field_id(self.field_id)
+
+		# Verify critical level
+		if (self.current_humidity < self.min_humidity):
+			
+			# Send alert
+			alert(
+				user_id=user_id,
+				message=f"Field on [{field_location[8:]}] below minimum humidity.",
+				type="WARNING"
+			)
+
+			# Send emal: TODO
+			# send_email(
+
+			# )
+			
 
 	def control_pump(self, state: bool):
 		"""Control the water for the field"""

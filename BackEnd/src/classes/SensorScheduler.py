@@ -80,6 +80,9 @@ class SensorScheduler:
 					port=new_port					
 										)
 				
+				# Check if the field's humidity is on a critical value
+				self.irrigation_system.check_critical_humidity(field_id)
+				
 				# Send alert
 				alert(
 					user_id=get_field_user(field_id),
