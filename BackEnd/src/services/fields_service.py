@@ -117,6 +117,17 @@ def get_field_user(field_id: str) -> str:
 	field_data = get_field_by_id(field_id)
 	return field_data['user']
 
+#
+#	Fetch field's location
+#
+def get_location_by_field_id(field_id: str) -> str:
+
+	# Verify field id
+	field_data = get_field_by_id(field_id)
+
+	# Return the location
+	return (get_location(field_data['latitude'], field_data['longitude']))
+
 #######################
 #
 #   CRUD Operations

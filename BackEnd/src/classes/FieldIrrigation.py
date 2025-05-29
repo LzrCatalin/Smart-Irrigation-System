@@ -2,7 +2,7 @@ import time
 import logging
 
 from src.services.fields_service import get_field_user
-from src.api.geocodinAPI import get_location_by_field_id
+from src.services.fields_service import get_location_by_field_id
 from src.util.utils import alert
 from src.util.mail_sender import send_email
 from src.actuators.water_pump import pump_start, pump_stop
