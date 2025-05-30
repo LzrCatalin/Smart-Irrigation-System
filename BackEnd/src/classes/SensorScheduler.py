@@ -7,7 +7,7 @@ from src.classes.Sensor import *
 from src.classes.Field import *
 from src.sensors.humidity_sensor import *
 from src.sensors.temperature_sensor import *
-from src.services.fields_service import get_fields_data, get_field_user
+from src.services.fields_service import get_fields_data, get_field_user, get_fields_with_sensors
 from src.util.utils import alert
 
 ####################
@@ -30,7 +30,7 @@ class SensorScheduler:
 				+ Style.RESET_ALL)
 
 		# Fetch fields ids
-		fields_data = get_fields_data()
+		fields_data = get_fields_with_sensors()
 
 		for field_id, field_data in fields_data.items():
 			if not field_data or not field_data['sensors']:
@@ -86,7 +86,8 @@ class SensorScheduler:
 				# Send alert
 				alert(
 					user_id=get_field_user(field_id),
-					message=f"Crop {field_data['crop_name']} system measurements updated."
+					message=f"Crop {field_data['crop_name']} system measurements updated.",
+					type="INFO"
 				)
 
 	def schedule_sensor_updates(self, interval: int):

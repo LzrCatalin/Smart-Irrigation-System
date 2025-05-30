@@ -41,6 +41,26 @@ def get_fields_data() -> dict:
 	
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
+
+#
+#	Fetch fields with placed sensors 
+#
+def get_fields_with_sensors() -> dict:
+
+	try:
+		fields_data = get_fields_data()
+
+		# Filter
+		fields_with_sensors = {
+			field_id: field
+			for field_id, field in fields_data.items()
+			if "sensors" in field and field["sensors"]
+		}
+
+		return fields_with_sensors
+
+	except KeyError as e:
+		return {"error": f"Key missing: {str(e)}"}
 	
 #
 #	Fetch all field ids from db
@@ -49,6 +69,21 @@ def get_field_ids() -> list[str]:
 	fields_data = REF.get()
 
 	return list(fields_data.keys() if fields_data else [])
+
+#
+#	Fetch all fields ids with sensors
+#
+def get_field_ids_with_sensors() -> list[str]:
+	fields_data = REF.get()
+
+	if not fields_data:
+		return []
+
+	return [
+		field_id
+		for field_id, field in fields_data.items()
+		if 'sensors' in field and field['sensors']
+	]
 
 #
 #	Fetch field by ID
@@ -148,11 +183,16 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		# Push the field into db
 		field_ref = REF.push(data.to_dict())
 
-		# Update selected sensors status and field id
-		for id in sensors_ids:
-			# Update status and field id
-			set_not_available_status(id)
-			set_sensor_field_id(id, field_ref.key)
+		# Check if there are selected sensors
+		if not sensors_ids:
+			data.sensors = []
+		
+		else:
+			# Update selected sensors status and field id
+			for id in sensors_ids:
+				# Update status and field id
+				set_not_available_status(id)
+				set_sensor_field_id(id, field_ref.key)
 
 		# Create DTO object
 		field_dto = FieldDTO(
@@ -165,7 +205,7 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 			soil_type = data.soil_type,
 			crop_name = data.crop_name,
 			user = data.user,
-			sensors = [sensor.to_dict() for sensor in data.sensors],
+			sensors = [sensor.to_dict() for sensor in data.sensors or []],
 		)	
 
 		# Send Mail

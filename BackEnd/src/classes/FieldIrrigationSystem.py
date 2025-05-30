@@ -6,7 +6,7 @@ from flask_apscheduler import APScheduler
 from src.classes.FieldIrrigation import FieldIrrigation
 
 from src.services.users_service import get_user_ids
-from src.services.fields_service import get_field_ids, get_field_user
+from src.services.fields_service import get_field_ids, get_field_user, get_field_ids_with_sensors
 from src.util.utils import alert
 
 class FieldIrrigationSystem:
@@ -24,7 +24,7 @@ class FieldIrrigationSystem:
 	
 	def system_init(self) -> None:
 		"""Initialize system fields in case of a reset"""
-		field_ids = get_field_ids()
+		field_ids = get_field_ids_with_sensors()
 
 		if field_ids:
 			for id in field_ids:
