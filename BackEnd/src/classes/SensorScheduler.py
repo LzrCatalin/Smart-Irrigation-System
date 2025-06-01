@@ -7,7 +7,7 @@ from src.classes.Sensor import *
 from src.classes.Field import *
 from src.sensors.humidity_sensor import *
 from src.sensors.temperature_sensor import *
-from src.services.fields_service import get_fields_data, get_field_user, get_fields_with_sensors
+from src.services.fields_service import get_field_user, get_fields_with_sensors, get_location_by_field_id
 from src.util.utils import alert
 
 ####################
@@ -71,6 +71,7 @@ class SensorScheduler:
 
 				# Update irrigation system management
 				self.irrigation_system.add_field(field_id)
+
 				self.irrigation_system.update_field_measurements(
 					field_id= field_id,
 					humidity=new_humidity if new_humidity is not None 
@@ -86,7 +87,7 @@ class SensorScheduler:
 				# Send alert
 				alert(
 					user_id=get_field_user(field_id),
-					message=f"Crop {field_data['crop_name']} system measurements updated.",
+					message=f"Field from [{get_location_by_field_id(field_id)[8:]}] system measurements updated.",
 					type="INFO"
 				)
 
@@ -103,19 +104,6 @@ class SensorScheduler:
 
 	def get_schedules(self):
 		print(self.scheduler.get_jobs())
-
-	def display_sensor_details(self, sensor_data: dict) -> None:
-		logging.debug(Fore.MAGENTA +
-			f"Port: {sensor_data['type']['port']}"
-			+ Style.RESET_ALL)
-		
-		logging.debug(Fore.MAGENTA +
-			f"Type: {sensor_data['type']['type']}"
-			+ Style.RESET_ALL)
-		
-		logging.debug(Fore.MAGENTA +
-			f"Status: {sensor_data['type']['status']}"
-			+ Style.RESET_ALL)
 
 	def start(self):
 		"""Turn ON the scheduler"""
@@ -174,3 +162,16 @@ class SensorScheduler:
 
 	def scheduler_shutdown(self):
 		atexit.register(self.stop)
+
+	def display_sensor_details(self, sensor_data: dict) -> None:
+		logging.debug(Fore.MAGENTA +
+			f"Port: {sensor_data['type']['port']}"
+			+ Style.RESET_ALL)
+		
+		logging.debug(Fore.MAGENTA +
+			f"Type: {sensor_data['type']['type']}"
+			+ Style.RESET_ALL)
+		
+		logging.debug(Fore.MAGENTA +
+			f"Status: {sensor_data['type']['status']}"
+			+ Style.RESET_ALL)

@@ -1,10 +1,11 @@
 import time
 import logging
 
-from src.services.fields_service import get_field_user
+from src.services.users_service import get_user_by_id
+from src.services.fields_service import get_field_user, get_field_by_id
 from src.services.fields_service import get_location_by_field_id
 from src.util.utils import alert
-from src.util.mail_sender import send_email
+from src.util.mail_sender import send_email, generate_critical_humidity_alert
 from src.actuators.water_pump import pump_start, pump_stop
 from src.sensors.humidity_sensor import sensor_setup, moisture_percentage
 from src.services.history_service import add_irrigation
@@ -16,7 +17,6 @@ class FieldIrrigation:
 		self.current_temperature = 0
 		self.current_port = None
 		self.pump_running = False
-		self.last_irrigation = 0
 
 		self.sensors_scheduler = sensors_scheduler
 
@@ -29,6 +29,8 @@ class FieldIrrigation:
 		"""Alert user when the current humidity is less than configured minimal"""
 		# Fetch field's user
 		user_id = get_field_user(self.field_id)
+		field_data = get_field_by_id(self.field_id)
+
 		# Fetch field's location
 		field_location = get_location_by_field_id(self.field_id)
 
@@ -38,14 +40,22 @@ class FieldIrrigation:
 			# Send alert
 			alert(
 				user_id=user_id,
-				message=f"Field on [{field_location[8:]}] below minimum humidity.",
+				message=f"Field from [{field_location[8:]}] below minimum humidity.",
 				type="WARNING"
 			)
 
-			# Send emal: TODO
-			# send_email(
-
-			# )
+			# Send emal
+			send_email("Critical Humidity Alert",
+				generate_critical_humidity_alert(
+					get_user_by_id(user_id)['email'],
+					field_location[8:],
+					field_data['crop_name'],
+					self.current_humidity, 
+					self.min_humidity
+				),
+				get_user_by_id(user_id)['email']
+			)
+				
 			
 
 	def control_pump(self, state: bool):

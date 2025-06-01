@@ -1,5 +1,6 @@
 import logging
 import requests
+import datetime
 from colorama import Fore, Style
 
 from src.classes.Status import Status
@@ -13,6 +14,7 @@ from src.util.soil_fetch import get_soil_info
 
 from firebase_admin import credentials, db
 from src.util.mail_sender import  send_email, generate_field_creation_email_body, generate_field_update_mail_body, generate_field_delete_mail_body
+from src.util.mail_sender import generate_field_measurements_update_mail
 from src.api.geocodinAPI import get_location
 
 #######################
@@ -328,9 +330,14 @@ def update_field_measurements_by_id(id: str, data: Field) -> dict:
 
 			 		
 		# Send Mail
-		send_email("Field Updated",
-			 		f"Successfully updated measurements on location {get_location(updated_field_dto.latitude, updated_field_dto.longitude)}",
-					user_data['email'])
+		send_email("Field Sensor Values Update",
+			 		generate_field_measurements_update_mail(
+						user_data['email'], 
+						get_location_by_field_id(id)[8:],
+						data.crop_name,
+						datetime.datetime.now().strftime("%Y-%m-%d %H:%M")),
+					user_data['email']
+				)
 		
 		logging.info(Fore.GREEN + 
 				f"Successfully updated field measurements for ID: {id}" + 

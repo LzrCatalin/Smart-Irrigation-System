@@ -107,6 +107,27 @@ def generate_field_update_mail_body(mail: str, location: str, field_dto: FieldDT
 	"""
 	return body
 
+def generate_field_measurements_update_mail(mail: str, location: str, crop_name: str, timestamp: str) -> str:
+	body = f"""
+		Dear {mail},
+
+		The environmental sensor data on your field has just been updated.
+
+		📍 **Field Location**: {location}
+		🌱 Crop: {crop_name}
+		📅 **Update Time**: {timestamp}
+
+		These measurements are now available in your dashboard and reflect the most recent field conditions, based on data collected by your sensors.
+
+		🌱 Regular updates like this ensure your irrigation system operates efficiently and in line with real-time soil and weather conditions.
+
+		No action is needed unless you observe irregularities in the readings.
+
+		Best regards,  
+		Team
+	"""
+	return body
+
 def generate_field_delete_mail_body(mail: str, location: str, crop_name: str) -> str:
 	body = f"""
 		Dear {mail},
@@ -144,6 +165,31 @@ def generate_field_config_update(mail: str, location: str, crop_name: str, confi
 		Team
 	"""
 	return body	
+
+def generate_critical_humidity_alert(mail: str, location: str, crop_name: str, current_humidity: float, min_humidity: float) -> str:
+	body = f"""
+		Dear {mail},
+
+		⚠️ **Critical Humidity Alert** ⚠️
+
+		We have detected a critical humidity level on your field located at:  
+		📍 Location: {location}  
+		🌱 Crop: {crop_name}  
+
+		💧 Current Humidity: {current_humidity:.2f}%  
+		🔻 Minimum Required Humidity: {min_humidity:.2f}%  
+
+		This means your crops may be at risk due to insufficient soil moisture.
+
+		✅ Recommended Action:  
+		Please consider starting irrigation as soon as possible to avoid damage to your crop health.
+
+		You can monitor and manage irrigation settings directly from your dashboard.
+
+		Stay safe,  
+		Team
+	"""
+	return body
 
 #
 #	Mail Config	

@@ -4,7 +4,7 @@ from src.util.utils import alert
 from src.actuators.water_pump import pump_start, pump_stop
 from src.services.fields_service import get_field_ids
 from src.services.history_service import add_irrigation
-from src.services.fields_service import get_location_by_field_id
+from src.services.fields_service	 import get_location_by_field_id
 
 ####################
 #
