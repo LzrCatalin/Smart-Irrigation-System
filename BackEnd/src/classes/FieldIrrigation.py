@@ -1,14 +1,18 @@
 import time
 import logging
 
-from src.services.users_service import get_user_by_id
-from src.services.fields_service import get_field_user, get_field_by_id
-from src.services.fields_service import get_location_by_field_id
 from src.util.utils import alert
 from src.util.mail_sender import send_email, generate_critical_humidity_alert
+
+from src.api.weatherAPI import retrieve_weather_data
 from src.actuators.water_pump import pump_start, pump_stop
-from src.sensors.humidity_sensor import sensor_setup, moisture_percentage
+
+from src.services.users_service import get_user_by_id
 from src.services.history_service import add_irrigation
+from src.services.fields_service import get_location_by_field_id
+from src.services.fields_service import get_field_user, get_field_by_id
+
+from src.sensors.humidity_sensor import sensor_setup, moisture_percentage
 
 class FieldIrrigation:
 	def __init__(self, field_id: str, config: dict, sensors_scheduler: None):
@@ -71,55 +75,68 @@ class FieldIrrigation:
 			logging.debug(f'[{self.field_id}] Pump \'OFF\'')
 		
 	def smart_irrigation(self) -> None:
-		"""Irrigation system implementation"""
+		"""Irrigation system implementation enhanced with weather data"""
+
 		current_time = time.time()
 
-		# Check if watering is needed
+		# Get field location and extract city
+		location_str = get_location_by_field_id(self.field_id)
+		city_name = location_str.split(',')[0].strip()
+
+		# Retrieve weather data
+		weather = retrieve_weather_data(city_name)
+
+		if not weather:
+			logging.warning(f"[{self.field_id}] Failed to retrieve weather data. Proceeding with default logic.")
+		
+		else:
+			# Check rain condition
+			if "rain" in weather['condition'].lower() or weather['precip_mm'] > 0.1:
+				logging.info(f"[{self.field_id}] Rain expected or ongoing ({weather['condition']}, {weather['precip_mm']}mm). Skipping irrigation.")
+				return
+
+			# Adjust watering time based on temp & humidity
+			if weather['temp'] > 30:
+				self.max_watering_time *= 1.2
+				logging.info(f"[{self.field_id}] High temperature ({weather['temp']}°C). Increasing watering time.")
+
+			elif weather['humidity'] > 70:
+				self.max_watering_time *= 0.85
+				logging.info(f"[{self.field_id}] High air humidity ({weather['humidity']}%). Reducing watering time.")
+
+		# Check if irrigation is necessary
 		if self.current_humidity < self.min_humidity:
-			logging.info(f'[{self.field_id}] Low humidity: ({self.current_humidity}%). Starting irrigation.')
+			logging.info(f'[{self.field_id}] Low soil humidity: ({self.current_humidity}%). Starting irrigation.')
 
-			# Pause sensors updates
-			if self.sensors_scheduler:
-				self.sensors_scheduler.pause_sensor_updates()
-
-			# Turn ON the water pump
+			# Start irrigation
 			self.control_pump(True)
 			start_time = current_time
 
 			try:
-				print(f'Pump state: {self.pump_running}')
 				while self.pump_running:
 					elapsed = time.time() - start_time
-
-					# Fetch data about humidity and check the improvements
 					new_humidity = moisture_percentage(sensor_setup(self.current_port))
-					print(f'Measure humidity in the process: {new_humidity}')
+					logging.debug(f'[{self.field_id}] Measuring humidity: {new_humidity}%')
 
-					# Stop conditions
 					if new_humidity >= self.target_humidity:
-						logging.info(f'[{self.field_id}] Target reached ({new_humidity}%)')
+						logging.info(f'[{self.field_id}] Target soil humidity reached: {new_humidity}%')
 						break
-				
+
 					elif elapsed >= self.max_watering_time:
-						logging.info(f'[{self.field_id}] Max watering time reached')
+						logging.info(f'[{self.field_id}] Maximum watering time reached.')
 						break
-					
-					print('Remaking the process')
+
 					time.sleep(2)
-			
+
 			finally:
 				self.control_pump(False)
 				self.last_irrigation = time.time()
-				logging.info(f'[{self.field_id}] Irrigation complete')
+				logging.info(f'[{self.field_id}] Irrigation complete.')
 
-				# Add history
+				# Add to history
 				add_irrigation(self.field_id)
 
-				# Resume sensors updates
-				if self.sensors_scheduler:
-					self.sensors_scheduler.resume_sensor_updates()
-
 		else:
-			logging.info(f'[{self.field_id}] Humidity OK ({self.current_humidity})')	
+			logging.info(f'[{self.field_id}] Soil humidity OK: {self.current_humidity}%')	
 
 

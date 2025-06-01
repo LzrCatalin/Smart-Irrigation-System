@@ -1,45 +1,44 @@
+import os
 import time
 import requests
+from dotenv import load_dotenv
+
+# load .env file
+load_dotenv()
 
 #######################
 #
 #   API Setup
 #
 #######################
-api_key = "api_key"
-city = "Timisoara"
-url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no"
+api_key = os.getenv('WEATHER_API')
 
 ######################
 #
 #   Retrieve URL informations in JSON format
 #
 #######################
-response = requests.get(url)
-data = response.json()
-print(data) # Print JSON
 
-def retrieve_weather_data():
-    if response.status_code == 200: # Request successfully
-        localtime = data['location']['localtime'].split() # Parse localtime to retrieve date and hour
-        localtime_date = localtime[0]
-        localtime_hour = localtime[1]
-        temp_c = data['current']['temp_c']
-        humidity = data['current']['humidity']
-        condition = data['current']['condition']['text'] # Retrieve only text from condition JSON
+def retrieve_weather_data(city):
+	url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no"
+	try:
+		response = requests.get(url, timeout=5)
+		if response.status_code == 200:
+			data = response.json()
+			return {
+				'temp': data['current']['temp_c'],
+				'humidity': data['current']['humidity'],
+				'condition': data['current']['condition']['text'],
+				'precip_mm': data['current']['precip_mm'],
+				'wind_kph': data['current']['wind_kph']
+			}
+		else:
+			print(f"Weather API error: {response.status_code}")
+			return None
+	except Exception as e:
+		print(f"Error while calling weather API: {e}")
+		return None
 
-        # Print data
-        print(f"City: {city}")
-        print(f"Date: {localtime_date}\nHour: {localtime_hour}")
-        print(f"Temperature: {temp_c}")
-        print(f"Humidity: {humidity}")
-        print(f"Condition: {condition}")
+if __name__ == "__main__":
 
-    else:
-        print("Failed to retrieve data...")
-
-try:
-    retrieve_weather_data()
-
-except KeyboardInterrupt:
-    print("Existing...")
+	print(retrieve_weather_data("Timisoara"))

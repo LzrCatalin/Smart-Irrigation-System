@@ -81,6 +81,16 @@ class FieldIrrigationSystem:
 		if field_id in self.fields:
 			self.fields[field_id].is_critical_humidity()
 
+	def pause_sensor_updates(self) -> None:
+		"""Pause sensor updates while the irrigation system is running"""
+		if self.sensors_scheduler:
+				self.sensors_scheduler.pause_sensor_updates()
+
+	def resume_sensor_updates(self) -> None:
+		"""Resume sensor updates after the irrigation cycle"""
+		if self.sensors_scheduler:
+			self.sensors_scheduler.resume_sensor_updates()
+
 	def run_cycle(self, field_id: str) -> None:
 		"""Run irrigation for a specific field"""
 		if field_id in self.fields:
@@ -90,7 +100,9 @@ class FieldIrrigationSystem:
 		"""Run irrigation for all fields"""
 		if self.fields is None:
 			logging.info('Empty list for irrigation system')
+			return
 
+		# Notify each user for the cycles
 		user_ids = get_user_ids()
 		for id in user_ids:
 			# Send alert
@@ -100,9 +112,15 @@ class FieldIrrigationSystem:
 				type="INFO"
 			)
 
+		# Stop sensor updates
+		self.pause_sensor_updates()
+
 		for field in self.fields:
 			self.run_cycle(field)
 
+		# Resume sensor updates
+		self.resume_sensor_updates()
+		
 		for id in user_ids:
 			# Send alert
 			alert(
