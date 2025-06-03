@@ -6,7 +6,6 @@
               (logout)="toggleLogOut()"
               [selectedField]="selectedField">
 </app-toolbar>
-
 <div class="dashboard-grid">
   <!-- LEFT PANEL -->
   <div class="left-panel">
@@ -22,14 +21,38 @@
       <mat-paginator [length]="newsItems.length" [pageSize]="newsPageSize" [pageIndex]="newsPageIndex" (page)="onNewsPageChange($event)"></mat-paginator>
     </div>
 
-    <!-- Scheduler & Irrigation Toggles -->
-    <div class="toggle-options">
-      <button mat-stroked-button color="primary" (click)="openSchedulerIntervalDialog()">
-        <mat-icon>update</mat-icon> Sensor Update Interval
-      </button>
-      <button mat-stroked-button color="accent" (click)="openIrrigationIntervalDialog()">
-        <mat-icon>water_drop</mat-icon> Irrigation Interval
-      </button>
+    <!-- Status indicators next to buttons -->
+    <div class="system-status-row">
+      <div class="status-item">
+        <button mat-stroked-button color="primary" (click)="openSchedulerIntervalDialog()">
+          <mat-icon>update</mat-icon> Sensor Update Interval
+        </button>
+        <mat-slide-toggle
+          [checked]="isSensorsRunning"
+          [class.running]="isSensorsRunning"
+          [class.paused]="!isSensorsRunning"
+          class="readonly-toggle"
+          disableRipple
+          (click)="$event.preventDefault()">
+          {{ isSensorsRunning ? 'Running' : 'Paused' }}
+        </mat-slide-toggle>
+      </div>
+
+      <div class="status-item">
+        <button mat-stroked-button color="accent" (click)="openIrrigationIntervalDialog()">
+          <mat-icon>water_drop</mat-icon> Irrigation Interval
+        </button>
+        <mat-slide-toggle
+          [checked]="isIrrigationRunning"
+          [class.running]="isIrrigationRunning"
+          [class.paused]="!isIrrigationRunning"
+          class="readonly-toggle"
+          disableRipple
+          (click)="$event.preventDefault()">
+          {{ isIrrigationRunning ? 'Running' : 'Paused' }}
+        </mat-slide-toggle>
+      </div>
+
       <!-- Check Weather for Selected Field -->
       <div *ngIf="selectedField" class="check-weather-wrapper">
         <button mat-flat-button color="primary" (click)="checkWeatherForSelectedField()">

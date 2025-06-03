@@ -48,19 +48,18 @@ export class FieldDisplayComponent {
 
 	ngOnInit(): void {
 		this.user = JSON.parse(sessionStorage.getItem('user') || '{}').user_data as User;
-	
+
 		this.fieldForm = this.fb.group({
 			crop_name: [this.field.crop_name, Validators.required],
 			length: [this.field.length, [Validators.required, Validators.min(1)]],
 			width: [this.field.width, [Validators.required, Validators.min(1)]],
 			slope: [this.field.slope, [Validators.required, Validators.min(0)]]
 		});
-	
+
 		this.fetchAvailableSensors("available");
-	
-		// PORNEȘTE auto-update DOAR dacă NU e în edit mode
+
 		this.startFieldPolling();
-	
+
 		// Fetch location
 		this.apiService.getLocation(this.field.latitude, this.field.longitude).subscribe({
 			next: (response) => {
@@ -74,7 +73,7 @@ export class FieldDisplayComponent {
 				console.error("Failed to fetch location for selected field: ", error);
 			}
 		});
-	
+
 		this.fetchHistory(this.field.id);
 	}
 
@@ -126,7 +125,7 @@ export class FieldDisplayComponent {
 				.subscribe({
 					next: (fields: Field[]) => {
 						const updateField = fields.find(f => f.id === this.field.id);
-				
+
 						if (updateField && !this.editMode) {
 							this.field.length = updateField.length;
 							this.field.width = updateField.width;
@@ -134,11 +133,11 @@ export class FieldDisplayComponent {
 							this.field.crop_name = updateField.crop_name;
 							this.field.latitude = updateField.latitude;
 							this.field.longitude = updateField.longitude;
-				
+
 							// Update sensors only if no local changes exist
-							const localChanges = this.deletedSensors.length > 0 || 
+							const localChanges = this.deletedSensors.length > 0 ||
 												this.field.sensors.length !== updateField.sensors.length;
-				
+
 							if (!localChanges) {
 								this.field.sensors = updateField.sensors;
 							}
@@ -151,7 +150,7 @@ export class FieldDisplayComponent {
 		});
 	}
 
-	  
+
 	toggleEditMode(): void {
 		this.editMode = !this.editMode;
 
@@ -178,18 +177,18 @@ export class FieldDisplayComponent {
 	deleteSensor(sensor: Sensor): void {
 		// Remove sensor from field's active sensors
 		this.field.sensors = this.field.sensors.filter(s => s.id !== sensor.id);
-	
+
 		// Put it into the availableSensors list if missing
 		if (!this.availableSensors.some(s => s.id === sensor.id)) {
 			this.availableSensors.push(sensor);
 		}
-	
+
 		// Add to deleted list for saving
 		if (!this.deletedSensors.some(s => s.id === sensor.id)) {
 			this.deletedSensors.push(sensor);
 		}
 	}
-	
+
 
 	addSensor(sensor: Sensor): void {
 		// Add the sensor to the field's sensors list if it doesn't already exist
@@ -208,12 +207,12 @@ export class FieldDisplayComponent {
 		const dialogRef = this.dialog.open(ConfigDialogComponent, {
 			width: '23vw',
 			height: '26vw',
-			data: { 
+			data: {
 				fieldId: this.field.id,
 				userId: this.user?.id
 			}
 		});
-	
+
 		dialogRef.afterClosed().subscribe(
 			result => {
 				if (result) {
@@ -229,7 +228,7 @@ export class FieldDisplayComponent {
 			this.field.length = this.fieldForm.value.length;
 			this.field.width = this.fieldForm.value.width;
 			this.field.slope = this.fieldForm.value.slope;
-		
+
 			// Call the service to update the field
 			this.fieldsService.update_field(
 				this.field.id,
@@ -268,7 +267,7 @@ export class FieldDisplayComponent {
 				console.log(response);
 				this.irrigationHistory = {
 					...response,
-					history: response.history.map(dateStr => 
+					history: response.history.map(dateStr =>
 						dateStr.replace(/(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d+)/, '$1:$2:$3.$4')
 					)
 				};

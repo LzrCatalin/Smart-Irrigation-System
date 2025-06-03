@@ -1,26 +1,80 @@
 <div class="split-container">
-<div class="image-container">
-	<img src="../../../assets/images/Login-Register-AI-Illustration.jpg" alt="Register Illustration" />
-</div>
-<div class="form-container">
-	<div class="register-container">
-	<h3>Register</h3>
-	<form>
-		<div class="input-box">
-		<label for="email">Email</label>
-		<input type="email" [(ngModel)]="email" name="Email" required placeholder="Enter your email" />
-		</div>
-		<div class="input-box">
-		<label for="password">Password</label>
-		<input type="password" [(ngModel)]="password" name="Password" required placeholder="Enter your password" />
-		</div>
-		<button type="button" class="primary-btn" (click)="onRegister()">Register</button>
+  <div class="image-container">
+    <img src="../../../assets/images/Login-Register-AI-Illustration.jpg" alt="Register Illustration" />
+  </div>
 
-		<div class="switch-text">
-		<span>Already have an account? </span>
-		<a href="/login" class="switch-link">Login here</a>
-		</div>
-	</form>
-	</div>
-</div>
+  <div class="form-container">
+    <div class="register-container">
+      <h3>Register</h3>
+
+      <form #registerForm="ngForm" (ngSubmit)="onRegister()" novalidate>
+
+        <!-- Email -->
+        <div class="input-box">
+          <label for="email">Email</label>
+          <input type="email"
+                 name="email"
+                 id="email"
+                 required
+                 email
+                 [(ngModel)]="email"
+                 placeholder="Enter your email"
+                 #emailInput="ngModel" />
+          <div class="error-msg" *ngIf="emailInput.invalid && emailInput.touched">
+            <small *ngIf="emailInput.errors?.['required']">Email is required.</small>
+            <small *ngIf="emailInput.errors?.['email']">Please enter a valid email address.</small>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="input-box">
+          <label for="password">Password</label>
+          <input type="password"
+                 name="password"
+                 id="password"
+                 required
+                 minlength="6"
+                 [(ngModel)]="password"
+                 placeholder="Enter your password"
+                 #passwordInput="ngModel" />
+          <div class="error-msg" *ngIf="passwordInput.invalid && passwordInput.touched">
+            <small *ngIf="passwordInput.errors?.['required']">Password is required.</small>
+            <small *ngIf="passwordInput.errors?.['minlength']">At least 6 characters.</small>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="input-box">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password"
+                 name="confirmPassword"
+                 id="confirmPassword"
+                 required
+                 [(ngModel)]="confirmPassword"
+                 placeholder="Re-enter your password"
+                 #confirmPasswordInput="ngModel" />
+          <div class="error-msg" *ngIf="confirmPasswordInput.invalid && confirmPasswordInput.touched">
+            <small *ngIf="confirmPasswordInput.errors?.['required']">Confirm your password.</small>
+          </div>
+          <div class="error-msg" *ngIf="password !== confirmPassword && confirmPasswordInput.touched">
+            <small>Passwords do not match.</small>
+          </div>
+        </div>
+
+        <!-- Register Button -->
+        <button type="submit"
+                class="primary-btn"
+                [disabled]="registerForm.invalid || password !== confirmPassword">
+          Register
+        </button>
+
+        <!-- Switch -->
+        <div class="switch-text">
+          <span>Already have an account?</span>
+          <a routerLink="/login" class="switch-link">Login here</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
 </div>

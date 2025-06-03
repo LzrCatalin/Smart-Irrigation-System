@@ -88,7 +88,7 @@ export class AddFieldComponent implements OnInit {
 	placeMarker(location: any): void {
 		if (this.marker) {
 			this.marker.setPosition(location);
-		
+
 		} else {
 			this.marker = new google.maps.Marker({
 			position: location,

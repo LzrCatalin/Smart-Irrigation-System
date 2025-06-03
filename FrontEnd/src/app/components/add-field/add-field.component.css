@@ -161,6 +161,17 @@ mat-chip:hover {
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
+.error-msg {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+input.ng-invalid.ng-touched {
+  border: 1px solid #e53935;
+  box-shadow: 0 0 0 1px #e53935;
+}
+
 /* Responsive */
 @media screen and (max-width: 600px) {
 	.form-actions {

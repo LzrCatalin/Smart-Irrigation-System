@@ -4,54 +4,62 @@
 		<mat-card-title class="form-title">Add New Field</mat-card-title>
 		<mat-card-subtitle class="form-subtitle">Set the location and details of your field</mat-card-subtitle>
 	  </mat-card-header>
-  
+
 	  <mat-card-content>
 		<form (ngSubmit)="onSubmit()" class="form-layout">
-  
+
 		  <!-- Map -->
 		  <div id="map" class="map-container large-map"></div>
-  
+
 		  <!-- Field Inputs -->
 		  <div class="grid-field-box">
 			<div class="input-card">
 			  <mat-icon class="input-icon">straighten</mat-icon>
 			  <div>
 				<label>Length (m)</label>
-				<input type="number" [(ngModel)]="field.length" name="length" required />
-			  </div>
+          <input type="number" name="length" [(ngModel)]="field.length"
+                 required min="1" #length="ngModel" />
+          <div *ngIf="length.invalid && length.touched" class="error-msg">Length is required and must be positive</div>
+        </div>
 			</div>
-  
+
 			<div class="input-card">
 			  <mat-icon class="input-icon">swap_horiz</mat-icon>
 			  <div>
 				<label>Width (m)</label>
-				<input type="number" [(ngModel)]="field.width" name="width" required />
+          <input type="number" name="width" [(ngModel)]="field.width"
+                 required min="1" #width="ngModel" />
+          <div *ngIf="width.invalid && width.touched" class="error-msg">Width is required and must be positive</div>
 			  </div>
 			</div>
-  
+
 			<div class="input-card">
 			  <mat-icon class="input-icon">terrain</mat-icon>
 			  <div>
 				<label>Slope (%)</label>
-				<input type="number" [(ngModel)]="field.slope" name="slope" required />
+          <input type="number" name="slope" [(ngModel)]="field.slope"
+                 required min="0" max="100" #slope="ngModel" />
+          <div *ngIf="slope.invalid && slope.touched" class="error-msg">Slope must be between 0 and 100</div>
 			  </div>
 			</div>
-  
+
 			<div class="input-card">
 			  <mat-icon class="input-icon">grass</mat-icon>
 			  <div>
 				<label>Crop Name</label>
-				<input type="text" [(ngModel)]="field.crop_name" name="cropName" required />
+          <input type="text" name="cropName" [(ngModel)]="field.crop_name"
+                 required minlength="2" #cropName="ngModel" />
+          <div *ngIf="cropName.invalid && cropName.touched" class="error-msg">Crop name is required</div>
 			  </div>
 			</div>
 		  </div>
-  
+
 		  <!-- Sensors -->
 		  <mat-form-field appearance="outline" class="sensor-select">
 			<mat-label>Sensors</mat-label>
-			<mat-select 
-			  multiple 
-			  [(ngModel)]="selectedSensors" 
+			<mat-select
+			  multiple
+			  [(ngModel)]="selectedSensors"
 			  name="sensorSelect"
 			  (selectionChange)="onSensorSelect($event)"
 			  [compareWith]="compareSensors">
@@ -61,28 +69,27 @@
 			  </mat-option>
 			</mat-select>
 		  </mat-form-field>
-  
+
 		  <!-- Selected Sensors -->
 		  <div class="chip-container" *ngIf="selectedSensors.length">
 			<mat-chip-set>
-			  <mat-chip 
-				*ngFor="let sensor of selectedSensors" 
-				removable 
+			  <mat-chip
+				*ngFor="let sensor of selectedSensors"
+				removable
 				(removed)="removeSensor(sensor)">
 				{{ sensor.name }}
 				<mat-icon matChipRemove>cancel</mat-icon>
 			  </mat-chip>
 			</mat-chip-set>
 		  </div>
-  
+
 		  <!-- Actions -->
 		  <div class="form-actions">
 			<button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
 			<button mat-flat-button color="primary" type="submit">Add Field</button>
 		  </div>
-  
+
 		</form>
 	  </mat-card-content>
 	</mat-card>
   </div>
-  

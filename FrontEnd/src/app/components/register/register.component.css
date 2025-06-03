@@ -113,7 +113,7 @@ h3 {
 
 .switch-text {
 	margin-top: 20px;
-	font-size: 16px; 
+	font-size: 16px;
 	text-align: center;
 }
 
@@ -129,4 +129,15 @@ h3 {
 
 .switch-link:hover {
 	text-decoration: underline;
+}
+
+.error-msg {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+input.ng-invalid.ng-touched {
+  border: 1px solid #e53935;
+  box-shadow: 0 0 0 1px #e53935;
 }

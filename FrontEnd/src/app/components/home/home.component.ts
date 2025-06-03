@@ -25,7 +25,7 @@ import { environment } from '../../../environments/environment';
 	selector: 'app-home',
 	templateUrl: './home.component.html',
 	styleUrls: ['./home.component.css']
-})	
+})
 export class HomeComponent implements OnInit{
 	@ViewChild('alertDrawer') alertDrawer!: MatSidenav;
 
@@ -44,10 +44,10 @@ export class HomeComponent implements OnInit{
 	city: string = 'Timisoara';
 
 	togglePump: boolean = false;
-	toggleSensorsScheduler: boolean = false;
-	toggleIrrigationSystem: boolean = false;
+	toggleSensorsScheduler: boolean = true;
+	toggleIrrigationSystem: boolean = true;
 
-	schedulerInterval: number = 15; 
+	schedulerInterval: number = 15;
 	irrigationInterval: number = 20;
 	showSchedulerIntervalDialog: boolean = false;
 	showIrrigationIntervalDialog: boolean = false;
@@ -76,7 +76,7 @@ export class HomeComponent implements OnInit{
 	newsPageSize = 1;
 	newsPageIndex = 0;
 
-	constructor( private router: Router, 
+	constructor( private router: Router,
 				private fieldsService: FieldsService,
 				private dialog: MatDialog,
 				private snackBar: MatSnackBar,
@@ -85,7 +85,7 @@ export class HomeComponent implements OnInit{
 				private alertsService: AlertsService,
 				private systemService: SystemService
 				) {}
-	
+
 	private getSchedulerKey(): string {
 		return this.user?.id ? `schedulerState_${this.user.id}` : 'schedulerState_default';
 	}
@@ -103,7 +103,7 @@ export class HomeComponent implements OnInit{
 		const dialogRef = this.dialog.open(IntervalDialogComponent, {
 			data: { title: 'Set Sensors Update Interval', initialValue: this.schedulerInterval }
 		});
-	
+
 		dialogRef.afterClosed().subscribe(result => {
 			if (result !== undefined) {
 				this.schedulerInterval = result;
@@ -122,22 +122,22 @@ export class HomeComponent implements OnInit{
 
 	updateSchedulerSettings(): any {
 		if (!this.user?.id) return;
-		
+
 		this.systemService.update_scheduler_settings(this.schedulerInterval, this.user.id).subscribe({
 			next: () => console.log('Scheduler settings updated'),
-			
+
 			error: (error : any) => {
 				console.error('Failed to update scheduler settings', error);
 				this.showNotification('Failed to update scheduler settings', 'Retry', 5000);
 			}
 		});
 	}
-	  
+
 	openIrrigationIntervalDialog(): void {
 		const dialogRef = this.dialog.open(IntervalDialogComponent, {
 			data: { title: 'Set Irrigation Interval', initialValue: this.irrigationInterval }
 			});
-		
+
 		dialogRef.afterClosed().subscribe(result => {
 			if (result !== undefined) {
 				this.irrigationInterval = result;
@@ -145,7 +145,7 @@ export class HomeComponent implements OnInit{
 			}
 		});
 	}
-	
+
 	saveIrrigationInterval(): void {
 		this.showIrrigationIntervalDialog = false;
 		// Save to localStorage
@@ -153,13 +153,13 @@ export class HomeComponent implements OnInit{
 		// Update backend
 		this.updateIrrigationSettings();
 	}
-	
+
 	updateIrrigationSettings(): any {
 		if (!this.user?.id) return;
-		
+
 		this.systemService.update_irrigation_settings(this.irrigationInterval, this.user.id).subscribe({
 			next: () => console.log('Irrigation settings updated'),
-			
+
 			error: (error : any) => {
 				console.error('Failed to update irrigation settings', error);
 				this.showNotification('Failed to update irrigation settings', 'Retry', 5000);
@@ -167,33 +167,66 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-	ngOnInit(): void {
-		this.user = JSON.parse(sessionStorage.getItem('user') ?? '{}').user_data as User;
-	
-		if (this.user.id !== undefined) {
-			this.selectedField == null;
-			this.fetchUserFields(this.user.id);
-			this.fetchUserAlerts(this.user.id);
-		}
-	
-		// Apelul lipsă:
-		this.fetchForecast();
-	
-		// Restul codului
-		const savedStateScheduler = localStorage.getItem(this.getSchedulerKey());
-		this.toggleSensorsScheduler = savedStateScheduler ? JSON.parse(savedStateScheduler) : false;
-	
-		const savedStateIrrigation = localStorage.getItem(this.getIrrigationKey());
-		this.toggleIrrigationSystem = savedStateIrrigation ? JSON.parse(savedStateIrrigation) : false;
-	
-		this.fetchFarmingNews();
-	
-		const savedSchedulerInterval = localStorage.getItem(`${this.getSchedulerKey()}_interval`);
-		this.schedulerInterval = savedSchedulerInterval ? parseInt(savedSchedulerInterval) : 15;
-	
-		const savedIrrigationInterval = localStorage.getItem(`${this.getIrrigationKey()}_interval`);
-		this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;	
-	}
+  get isSensorsRunning(): boolean {
+    // Return true if system is running (toggleSensorsScheduler is true)
+    return this.toggleSensorsScheduler;
+  }
+
+  get isIrrigationRunning(): boolean {
+    // Return true if system is running (toggleIrrigationSystem is true)
+    return this.toggleIrrigationSystem;
+  }
+
+  ngOnInit(): void {
+    this.user = JSON.parse(sessionStorage.getItem('user') ?? '{}').user_data as User;
+
+    if (this.user?.id) {
+      this.selectedField = null;
+      this.fetchUserFields(this.user.id);
+      this.fetchUserAlerts(this.user.id);
+
+      this.initializeSystemStates();
+      this.syncInitialStates();
+    }
+
+    this.fetchForecast();
+    this.fetchFarmingNews();
+
+    const savedSchedulerInterval = localStorage.getItem(`${this.getSchedulerKey()}_interval`);
+    this.schedulerInterval = savedSchedulerInterval ? parseInt(savedSchedulerInterval) : 15;
+
+    const savedIrrigationInterval = localStorage.getItem(`${this.getIrrigationKey()}_interval`);
+    this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;
+  }
+
+  initializeSystemStates(): void {
+    const schedulerKey = this.getSchedulerKey();
+    const irrigationKey = this.getIrrigationKey();
+
+    if (localStorage.getItem(schedulerKey) === null) {
+      localStorage.setItem(schedulerKey, JSON.stringify(this.toggleSensorsScheduler));
+    }
+    if (localStorage.getItem(irrigationKey) === null) {
+      localStorage.setItem(irrigationKey, JSON.stringify(this.toggleIrrigationSystem));
+    }
+
+    this.toggleSensorsScheduler = JSON.parse(localStorage.getItem(schedulerKey) || 'true');
+    this.toggleIrrigationSystem = JSON.parse(localStorage.getItem(irrigationKey) || 'true');
+  }
+
+  syncInitialStates(): void {
+    if (!this.user?.id) return;
+
+    this.systemService.toggle_sensors_scheduler(this.toggleSensorsScheduler, this.user.id).subscribe({
+      next: () => console.log('[INIT] Synced sensor state'),
+      error: (error) => console.error('[INIT] Sensor sync failed:', error)
+    });
+
+    this.systemService.toggle_irrigation_system(this.toggleIrrigationSystem, this.user.id).subscribe({
+      next: () => console.log('[INIT] Synced irrigation state'),
+      error: (error) => console.error('[INIT] Irrigation sync failed:', error)
+    });
+  }
 
 	//////////////////////
 	//
@@ -228,7 +261,7 @@ export class HomeComponent implements OnInit{
 
 	deleteField(field_id: string, field_sensors: Sensor[], event: Event): void {
 		event.stopPropagation();
-		
+
 		// Enable dialog confirmation for deletion
 		const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
 			width: '350px',
@@ -240,7 +273,7 @@ export class HomeComponent implements OnInit{
 			result => {
 				if (result) {
 					const sensorNames = field_sensors.map(sensor => sensor.name);
-					
+
 					this.systemService.delete_field_from_system(field_id).subscribe({
 						next: (res: any) => {
 							console.log(res);
@@ -250,7 +283,7 @@ export class HomeComponent implements OnInit{
 							console.log(err);
 						}
 					})
-					
+
 					this.fieldsService.delete_field(field_id, sensorNames).subscribe({
 						next: () => {
 							// Refetch fields after deletion
@@ -282,7 +315,7 @@ export class HomeComponent implements OnInit{
 			height: '45vw',
 			data: { field }
 		});
-		
+
 		// Display notification after update field functionalty
 		dialogRef.afterClosed().subscribe({
 			next: (result) => {
@@ -305,17 +338,17 @@ export class HomeComponent implements OnInit{
 			this.city = "Timisoara";
 			this.fetchForecast();
 			this.showNotification('Field deselected. Showing weather for Timisoara.');
-		
+
 		} else {
 			this.selectedField = field;
-			
+
 		}
 	}
 
 	//////////////////////
 	//
 	//	Fetch farming news
-	//	
+	//
 	//////////////////////
 	fetchFarmingNews(): void {
 		this.apiService.getFarmingNews().subscribe({
@@ -393,39 +426,39 @@ export class HomeComponent implements OnInit{
 
 	fetchForecast(): void {
 		const url = `https://api.openweathermap.org/data/2.5/forecast?q=${this.city}&units=metric&appid=${environment.weatherApiKey}`;
-	
+
 		this.apiService.getExternal(url).subscribe({
 			next: (response: any) => {
 				const groupedByDay: { [key: string]: any[] } = {};
-		
+
 				response.list.forEach((item: any) => {
 					const date = new Date(item.dt_txt);
 					const day = date.toLocaleDateString('en-US', { weekday: 'short' });
 					if (!groupedByDay[day]) groupedByDay[day] = [];
 					groupedByDay[day].push(item);
 					});
-			
+
 					this.forecastData = Object.entries(groupedByDay).slice(0, 7).map(([day, items]: [string, any[]]) => {
 						const temps = items.map((entry: any) => entry.main.temp);
 						const min = Math.min(...temps);
 						const max = Math.max(...temps);
 						const avg = temps.reduce((a, b) => a + b, 0) / temps.length;
-					
+
 						const iconCode = items[0].weather[0].icon;
 						const icon = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 						const description = items[0].weather[0].description;
-					
+
 						const humidity = Math.round(
 						items.reduce((sum, entry) => sum + entry.main.humidity, 0) / items.length
 						);
-					
+
 						const wind = Math.round(
 						items.reduce((sum, entry) => sum + entry.wind.speed, 0) / items.length
 						);
-					
+
 						return {
 							day,
-							min: Math.round(min),	
+							min: Math.round(min),
 							max: Math.round(max),
 							avg: Math.round(avg),
 							icon,
@@ -445,19 +478,19 @@ export class HomeComponent implements OnInit{
 
 	checkWeatherForSelectedField(): void {
 		if (!this.selectedField) return;
-	
+
 		this.apiService.getLocation(this.selectedField.latitude, this.selectedField.longitude).subscribe({
 			next: (response) => {
 				if (response.status === "OK" && response.results.length > 0) {
 					const cityName = response.results[0].address_components.find((c: any) =>
 						c.types.includes("locality") ?? c.types.includes("administrative_area_level_1")
 					)?.long_name;
-			
+
 					if (cityName) {
 						this.city = cityName;
 						this.fetchForecast();
 						this.showNotification(`Weather updated for ${cityName}`);
-					
+
 					} else {
 						this.showNotification("Could not determine city from location.");
 					}
@@ -472,7 +505,7 @@ export class HomeComponent implements OnInit{
 			}
 		});
 	}
-	
+
 	openWeatherDialog(): void {
 		this.dialog.open(WeatherDialogComponent, {
 			width: '400px',
@@ -487,8 +520,8 @@ export class HomeComponent implements OnInit{
 	//////////////////
 	showNotification(message: string, action: string = 'X', duration: number = 3000): void {
 		this.snackBar.open(message, action, {
-			duration: duration, 
-			horizontalPosition: 'right', 
+			duration: duration,
+			horizontalPosition: 'right',
 			verticalPosition: 'top',
 			panelClass: ['custom-snackbar']
 		});
@@ -498,15 +531,15 @@ export class HomeComponent implements OnInit{
 		this.alertsService.get_user_alerts(user_id).subscribe({
 			next: (response: any) => {
 				console.log("Raw response: ", response);
-			
+
 				const alertsObject = response.alerts ?? {};
 				const alertArray = Object.entries(alertsObject).map(([timestampKey, alert]: [string, any]) => ({
 					...alert,
 					timestamp: this.parseTimestamp(timestampKey)
 				}));
-			
+
 				this.userAlerts = alertArray;
-			
+
 				console.log("Processed alerts: ", this.userAlerts);
 				console.log("Length: ", this.userAlerts.length);
 			},
@@ -516,23 +549,23 @@ export class HomeComponent implements OnInit{
 			}
 		});
 	}
-	
+
 	parseTimestamp(timestampKey: string): Date | null {
 		const [datePart, timePart] = timestampKey.split('T');
 		if (!timePart) return null;
-	
+
 		const parts = timePart.split('-');
 		if (parts.length < 3) return null;
-	
+
 		const formattedTime = `${parts[0]}:${parts[1]}:${parts[2]}` + (parts[3] ? `.${parts[3]}` : '');
 		const isoString = `${datePart}T${formattedTime}`;
-	
+
 		const dateObj = new Date(isoString);
 		if (isNaN(dateObj.getTime())) {
 			console.warn('Invalid ISO date:', isoString);
 			return null;
 		}
-	
+
 		return dateObj;
 	}
 
@@ -556,9 +589,9 @@ export class HomeComponent implements OnInit{
 		const dialogRef = this.dialog.open(AddFieldComponent, {
 			width: '42vw',
 			height: '42vw',
-			data: {} 
+			data: {}
 		});
-	
+
 		dialogRef.afterClosed().subscribe(result => {
 			if (result) {
 				console.log('New field added:', result);
@@ -577,16 +610,16 @@ export class HomeComponent implements OnInit{
 			this.showNotification('Please select a field first.', 'OK');
 			return;
 		}
-	
+
 		this.togglePump = !this.togglePump;
-	
+
 		if (this.togglePump) {
 			this.showNotification(`Water Pump -> Turn ON for ${this.selectedField.crop_name}`);
-		
+
 		} else {
 			this.showNotification(`Water Pump -> Turn OFF for ${this.selectedField.crop_name}`);
 		}
-	
+
 		this.actuatorsService.toggle_pump(this.togglePump, this.user.id, this.selectedField.id).subscribe({
 			next: (res: any) => console.log(res),
 			error: (error: any) => {
@@ -602,18 +635,18 @@ export class HomeComponent implements OnInit{
 		this.toggleSensorsScheduler = !this.toggleSensorsScheduler;
 
 		if (this.toggleSensorsScheduler){
-			this.showNotification('Sensors Updates -> Turn OFF');
+			this.showNotification('Sensors Updates -> Running');
 		} else {
-			this.showNotification('Sensors Updates -> Turn ON');
+			this.showNotification('Sensors Updates -> Paused');
 		}
-	
+
 		// Save to localStorage
 		localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
 
 		// Update backend
 		this.systemService.toggle_sensors_scheduler(this.toggleSensorsScheduler, this.user.id).subscribe({
 			next: () => console.log('Toggle Scheduler successful'),
-			
+
 			error: (error) => {
 				console.error('Toggle Scheduler failed', error);
 				this.toggleSensorsScheduler = !this.toggleSensorsScheduler;
@@ -628,9 +661,9 @@ export class HomeComponent implements OnInit{
 		this.toggleIrrigationSystem = !this.toggleIrrigationSystem;
 
 		if (this.toggleIrrigationSystem){
-			this.showNotification('Sensors Updates -> Turn OFF');
+			this.showNotification('Sensors Updates -> Running');
 		} else {
-			this.showNotification('Sensors Updates -> Turn ON');
+			this.showNotification('Sensors Updates -> Paused');
 		}
 
 		// Save to localStorage
