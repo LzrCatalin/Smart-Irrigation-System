@@ -6,7 +6,10 @@ from flask_apscheduler import APScheduler
 from src.classes.FieldIrrigation import FieldIrrigation
 
 from src.services.users_service import get_user_ids
-from src.services.fields_service import get_field_ids, get_field_user, get_field_ids_with_sensors
+from src.services.fields_service import get_field_ids, get_field_user, get_field_ids_with_sensors, get_field_by_id
+
+from src.util.scraper import get_crop_coefficient
+from src.util.soil_humidity import get_baseline_target_from_soil
 from src.util.utils import alert
 
 class FieldIrrigationSystem:
@@ -39,7 +42,14 @@ class FieldIrrigationSystem:
 	def add_field(self, field_id: str, config: dict = None) -> None:
 		"""Add a new field to be managed"""
 		if field_id not in self.fields:
-			self.fields[field_id] = FieldIrrigation(field_id, config or {}, self.sensors_scheduler)
+			if not config:
+				config = {}
+
+			# Auto-set the target humidity based on soil and crop coef.
+			if 'target_humidity' not in config:
+				config['target_humidity'] = self.get_recommended_target_humidity(field_id)
+
+			self.fields[field_id] = FieldIrrigation(field_id, config, self.sensors_scheduler)
 			logging.info(f"Field {field_id} added to system.")
 
 	def remove_field(self, field_id: str) -> None:
@@ -81,6 +91,18 @@ class FieldIrrigationSystem:
 		if field_id in self.fields:
 			self.fields[field_id].is_critical_humidity()
 
+	def get_recommended_target_humidity(self, field_id: str) -> float:
+		"""Calculate recommended target humidity based on soil and crop"""
+		field = get_field_by_id(field_id)
+		soil_type = field.get("soil_type", "")
+		crop_name = field.get("crop_name", "")
+
+		baseline = get_baseline_target_from_soil(soil_type)
+		kc = get_crop_coefficient(crop_name)
+		recommended = baseline * kc
+		
+		return recommended
+	
 	def pause_sensor_updates(self) -> None:
 		"""Pause sensor updates while the irrigation system is running"""
 		if self.sensors_scheduler:

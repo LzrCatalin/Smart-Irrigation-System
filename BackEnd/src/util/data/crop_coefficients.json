@@ -1,0 +1,407 @@
+{
+  "broccoli": {
+    "initial": 35.0,
+    "mid": 45.0,
+    "end": 40.0
+  },
+  "cabbage": {
+    "initial": 40.0,
+    "mid": 60.0,
+    "end": 50.0
+  },
+  "30": {
+    "initial": 50.0,
+    "mid": 130.0,
+    "end": 30.0
+  },
+  "cauliflower": {
+    "initial": 35.0,
+    "mid": 50.0,
+    "end": 40.0
+  },
+  "celery": {
+    "initial": 25.0,
+    "mid": 40.0,
+    "end": 95.0
+  },
+  "25": {
+    "initial": 40.0,
+    "mid": 45.0,
+    "end": 30.0
+  },
+  "crucifers1": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 20.0
+  },
+  "lettuce": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 15.0
+  },
+  "35": {
+    "initial": 105.0,
+    "mid": 210.0,
+    "end": 70.0
+  },
+  "onion (dry)": {
+    "initial": 15.0,
+    "mid": 25.0,
+    "end": 70.0
+  },
+  "20": {
+    "initial": 70.0,
+    "mid": 120.0,
+    "end": 60.0
+  },
+  "onion (green)": {
+    "initial": 25.0,
+    "mid": 30.0,
+    "end": 10.0
+  },
+  "onion (seed)": {
+    "initial": 20.0,
+    "mid": 45.0,
+    "end": 165.0
+  },
+  "radish": {
+    "initial": 5.0,
+    "mid": 10.0,
+    "end": 15.0
+  },
+  "10": {
+    "initial": 30.0,
+    "mid": 25.0,
+    "end": 10.0
+  },
+  "egg plant": {
+    "initial": 30.0,
+    "mid": 40.0,
+    "end": 40.0
+  },
+  "tomato": {
+    "initial": 30.0,
+    "mid": 40.0,
+    "end": 40.0
+  },
+  "cantaloupe": {
+    "initial": 30.0,
+    "mid": 45.0,
+    "end": 35.0
+  },
+  "cucumber": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 40.0
+  },
+  "pumpkin, winter squash": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 30.0
+  },
+  "squash, zucchini": {
+    "initial": 25.0,
+    "mid": 35.0,
+    "end": 25.0
+  },
+  "sweet melons": {
+    "initial": 25.0,
+    "mid": 35.0,
+    "end": 40.0
+  },
+  "15": {
+    "initial": 30.0,
+    "mid": 65.0,
+    "end": 40.0
+  },
+  "water melons": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 30.0
+  },
+  "beets, table": {
+    "initial": 15.0,
+    "mid": 25.0,
+    "end": 20.0
+  },
+  "cassava: year 1": {
+    "initial": 20.0,
+    "mid": 40.0,
+    "end": 90.0
+  },
+  "year 2": {
+    "initial": 150.0,
+    "mid": 40.0,
+    "end": 110.0
+  },
+  "45": {
+    "initial": 90.0,
+    "mid": 45.0,
+    "end": 45.0
+  },
+  "sweet potato": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 60.0
+  },
+  "sugarbeet": {
+    "initial": 30.0,
+    "mid": 45.0,
+    "end": 90.0
+  },
+  "50": {
+    "initial": 70.0,
+    "mid": 220.0,
+    "end": 140.0
+  },
+  "beans (green)": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 30.0
+  },
+  "beans (dry)": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 40.0
+  },
+  "faba bean, broad bean": {
+    "initial": 15.0,
+    "mid": 25.0,
+    "end": 35.0
+  },
+  "green gram, cowpeas": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 30.0
+  },
+  "groundnut": {
+    "initial": 25.0,
+    "mid": 35.0,
+    "end": 45.0
+  },
+  "lentil": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 60.0
+  },
+  "peas": {
+    "initial": 15.0,
+    "mid": 25.0,
+    "end": 35.0
+  },
+  "soybeans": {
+    "initial": 15.0,
+    "mid": 15.0,
+    "end": 40.0
+  },
+  "artichoke": {
+    "initial": 40.0,
+    "mid": 40.0,
+    "end": 250.0
+  },
+  "asparagus": {
+    "initial": 50.0,
+    "mid": 30.0,
+    "end": 100.0
+  },
+  "90": {
+    "initial": 30.0,
+    "mid": 200.0,
+    "end": 45.0
+  },
+  "cotton": {
+    "initial": 30.0,
+    "mid": 50.0,
+    "end": 60.0
+  },
+  "flax": {
+    "initial": 25.0,
+    "mid": 35.0,
+    "end": 50.0
+  },
+  "castor beans": {
+    "initial": 25.0,
+    "mid": 40.0,
+    "end": 65.0
+  },
+  "safflower": {
+    "initial": 20.0,
+    "mid": 35.0,
+    "end": 45.0
+  },
+  "sesame": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 40.0
+  },
+  "sunflower": {
+    "initial": 25.0,
+    "mid": 35.0,
+    "end": 45.0
+  },
+  "barley/oats/wheat": {
+    "initial": 15.0,
+    "mid": 25.0,
+    "end": 50.0
+  },
+  "40": {
+    "initial": 60.0,
+    "mid": 60.0,
+    "end": 40.0
+  },
+  "winter wheat": {
+    "initial": 202.0,
+    "mid": 602.0,
+    "end": 70.0
+  },
+  "160": {
+    "initial": 75.0,
+    "mid": 75.0,
+    "end": 25.0
+  },
+  "grains (small)": {
+    "initial": 20.0,
+    "mid": 30.0,
+    "end": 60.0
+  },
+  "maize (grain)": {
+    "initial": 30.0,
+    "mid": 50.0,
+    "end": 60.0
+  },
+  "maize (sweet)": {
+    "initial": 20.0,
+    "mid": 20.0,
+    "end": 30.0
+  },
+  "millet": {
+    "initial": 15.0,
+    "mid": 25.0,
+    "end": 40.0
+  },
+  "sorghum": {
+    "initial": 20.0,
+    "mid": 35.0,
+    "end": 40.0
+  },
+  "rice": {
+    "initial": 30.0,
+    "mid": 30.0,
+    "end": 60.0
+  },
+  "alfalfa41stcutting cycle": {
+    "initial": 10.0,
+    "mid": 20.0,
+    "end": 20.0
+  },
+  "alfalfa4, other cutting cycles": {
+    "initial": 5.0,
+    "mid": 10.0,
+    "end": 10.0
+  },
+  "5": {
+    "initial": 20.0,
+    "mid": 10.0,
+    "end": 10.0
+  },
+  "bermuda for seed": {
+    "initial": 10.0,
+    "mid": 25.0,
+    "end": 35.0
+  },
+  "bermuda for hay (several cuttings)": {
+    "initial": 10.0,
+    "mid": 15.0,
+    "end": 75.0
+  },
+  "sudan, 1stcutting cycle": {
+    "initial": 25.0,
+    "mid": 25.0,
+    "end": 15.0
+  },
+  "sudan, other cutting cycles": {
+    "initial": 3.0,
+    "mid": 15.0,
+    "end": 12.0
+  },
+  "sugarcane, virgin": {
+    "initial": 35.0,
+    "mid": 60.0,
+    "end": 190.0
+  },
+  "75": {
+    "initial": 105.0,
+    "mid": 330.0,
+    "end": 210.0
+  },
+  "sugarcane, ratoon": {
+    "initial": 25.0,
+    "mid": 70.0,
+    "end": 135.0
+  },
+  "banana, 1styr": {
+    "initial": 120.0,
+    "mid": 90.0,
+    "end": 120.0
+  },
+  "banana, 2ndyr": {
+    "initial": 120.0,
+    "mid": 60.0,
+    "end": 180.0
+  },
+  "pineapple": {
+    "initial": 60.0,
+    "mid": 120.0,
+    "end": 600.0
+  },
+  "grapes": {
+    "initial": 20.0,
+    "mid": 40.0,
+    "end": 120.0
+  },
+  "hops": {
+    "initial": 25.0,
+    "mid": 40.0,
+    "end": 80.0
+  },
+  "citrus": {
+    "initial": 60.0,
+    "mid": 90.0,
+    "end": 120.0
+  },
+  "deciduous orchard": {
+    "initial": 20.0,
+    "mid": 70.0,
+    "end": 90.0
+  },
+  "olives": {
+    "initial": 30.0,
+    "mid": 90.0,
+    "end": 60.0
+  },
+  "pistachios": {
+    "initial": 20.0,
+    "mid": 60.0,
+    "end": 30.0
+  },
+  "walnuts": {
+    "initial": 20.0,
+    "mid": 10.0,
+    "end": 130.0
+  },
+  "wetlands (cattails, bulrush)": {
+    "initial": 10.0,
+    "mid": 30.0,
+    "end": 80.0
+  },
+  "180": {
+    "initial": 60.0,
+    "mid": 90.0,
+    "end": 35.0
+  },
+  "wetlands (short veg.)": {
+    "initial": 180.0,
+    "mid": 60.0,
+    "end": 90.0
+  }
+}

@@ -58,9 +58,7 @@ class FieldIrrigation:
 					self.min_humidity
 				),
 				get_user_by_id(user_id)['email']
-			)
-				
-			
+			)	
 
 	def control_pump(self, state: bool):
 		"""Control the water for the field"""
@@ -79,9 +77,10 @@ class FieldIrrigation:
 
 		current_time = time.time()
 
-		# Get field location and extract city
+		# Get field location and extract city and user
 		location_str = get_location_by_field_id(self.field_id)
 		city_name = location_str.split(',')[0].strip()
+		user_id = get_field_user(self.field_id)
 
 		# Retrieve weather data
 		weather = retrieve_weather_data(city_name)
@@ -117,6 +116,11 @@ class FieldIrrigation:
 					elapsed = time.time() - start_time
 					new_humidity = moisture_percentage(sensor_setup(self.current_port))
 					logging.debug(f'[{self.field_id}] Measuring humidity: {new_humidity}%')
+
+					# Alert the user in case the sensor 
+					if new_humidity < 0 or new_humidity > 100:
+						alert(user_id, f"Faulty Humidity Sensor on field [{location_str[8:]}].", type="ERROR")
+						break
 
 					if new_humidity >= self.target_humidity:
 						logging.info(f'[{self.field_id}] Target soil humidity reached: {new_humidity}%')
