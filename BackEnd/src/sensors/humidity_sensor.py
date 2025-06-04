@@ -25,6 +25,7 @@ NOISE_THRESHOLD = 500
 #
 #################################
 def sensor_setup(port):
+	
 	logging.debug(Fore.WHITE + 
 			  f"===INIT SETUP===\n\t Port: {port}"
 			  +Style.RESET_ALL)
@@ -73,16 +74,19 @@ def sensor_setup(port):
 #
 #################################
 def moisture_percentage(adc_value):
-	
-	# MH Sensor-Series values configuration
-	wet_value = 26330 # 100% soil humidity
-	dry_value = 13330 # 0% soil humidity
-	
-	# TODO: Make more tests to find the best values for both ends
-	percentage = (1 - ((adc_value - dry_value)/(wet_value - dry_value))) * 100
+
+	# Calibrate based on actual sensor behavior
+	dry_value = 26500  # ADC value for 0% humidity (dry)
+	wet_value = 18900  # ADC value for 100% humidity (wet)
+
+	# Clamp adc_value to [wet_value, dry_value]
+	adc_value = max(min(adc_value, dry_value), wet_value)
+
+	# Calculate percentage
+	percentage = ((dry_value - adc_value) / (dry_value - wet_value)) * 100
 
 	logging.info(Fore.LIGHTWHITE_EX 
 			  + f"\tRetrieving moisture percentage: {percentage:.2f}%"
 			  + Style.RESET_ALL)
-	
+
 	return percentage

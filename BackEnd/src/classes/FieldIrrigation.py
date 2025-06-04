@@ -1,6 +1,7 @@
 import time
 import logging
 
+from src.classes.Field import Field
 from src.util.utils import alert
 from src.util.mail_sender import send_email, generate_critical_humidity_alert
 
@@ -10,7 +11,7 @@ from src.actuators.water_pump import pump_start, pump_stop
 from src.services.users_service import get_user_by_id
 from src.services.history_service import add_irrigation
 from src.services.fields_service import get_location_by_field_id
-from src.services.fields_service import get_field_user, get_field_by_id
+from src.services.fields_service import get_field_user, get_field_by_id, update_field_measurements_by_id
 
 from src.sensors.humidity_sensor import sensor_setup, moisture_percentage
 
@@ -28,6 +29,36 @@ class FieldIrrigation:
 		self.target_humidity = config.get('target_humidity', 60)
 		self.min_humidity = config.get('min_humidity', 10)
 		self.max_watering_time = config.get('max_watering_time', 300)
+
+	def patch_field_after_irrigation(self, humidity_value: float) -> None:
+		"""Update humidity sensor's measured value after irrigation"""
+		field_data = get_field_by_id(self.field_id)
+
+		# Verification
+		if not field_data:
+			logging.warning(f"[{self.field_id}] Field data not found for update.")
+			return
+
+		# Search for humidity sensor
+		for sensor in field_data.get('sensors', []):
+			if sensor['type']['type'] == "HUMIDITY":
+				sensor['type']['measured_value'] = humidity_value
+				break
+		else:
+			logging.warning(f"[{self.field_id}] No HUMIDITY sensor found to patch.")
+			return
+
+		# Convert to Field object
+		updated_field = Field.from_dict(field_data)
+
+		# Update in database
+		result = update_field_measurements_by_id(self.field_id, updated_field)
+
+		if "error" in result:
+			logging.error(f"[{self.field_id}] Failed to patch humidity: {result['error']}")
+		else:
+			logging.info(f"[{self.field_id}] Updated sensor humidity to: {humidity_value:.2f}%")
+
 
 	def is_critical_humidity(self) -> None:
 		"""Alert user when the current humidity is less than configured minimal"""
