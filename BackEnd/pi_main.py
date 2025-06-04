@@ -56,8 +56,8 @@ sensors_scheduler = SensorScheduler(app, irrigation_system)
 irrigation_system.set_scheduler(sensors_scheduler)
 
 # Schedule cycles
-sensors_scheduler.schedule_sensor_updates(100)		# 15 Mins Default
-irrigation_system.schedule_irrigation_cycles(600)	# 2H Default
+sensors_scheduler.schedule_sensor_updates(20)		# 15 Mins Default
+irrigation_system.schedule_irrigation_cycles(60)	# 2H Default
 
 app.config['SENSORS_SCHEDULER'] = sensors_scheduler
 app.config['IRRIGATION_SYSTEM'] = irrigation_system

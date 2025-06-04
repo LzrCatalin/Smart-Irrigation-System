@@ -24,7 +24,6 @@ class SensorScheduler:
 
 	def periodic_fields_sensor_update(self):
 		"""Run periodic fields measurements"""
-		
 		logging.debug(Fore.MAGENTA +
 				"\t <!> Starting Periodic Update <!>"
 				+ Style.RESET_ALL)
@@ -49,10 +48,13 @@ class SensorScheduler:
 
 				sensor_type = sensor['type']['type']
 				sensor_port = sensor['type']['port']
-				new_port = sensor_port
 
 				if sensor_type == Type.HUMIDITY.name:
 					adc_value = sensor_setup(sensor_port)
+					
+					# Set value for new_port, that is sent
+					# back to irrigation system 
+					new_port = sensor_port
 
 					if adc_value is not None:
 						new_humidity = moisture_percentage(adc_value)
@@ -159,6 +161,18 @@ class SensorScheduler:
 		
 		else:
 			logging.warning('Sensor update job not found to update interval')
+
+	def get_status(self) -> str:
+		"""Return the current status of the sensor scheduler job."""
+		job = self.scheduler.get_job('sensor_update_cycle')
+		
+		if not job:
+			return "Not Scheduled"
+		
+		if job.next_run_time is None:
+			return "Paused"
+		
+		return "Running"
 
 	def scheduler_shutdown(self):
 		atexit.register(self.stop)

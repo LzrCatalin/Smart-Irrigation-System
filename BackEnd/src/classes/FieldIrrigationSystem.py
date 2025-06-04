@@ -133,16 +133,26 @@ class FieldIrrigationSystem:
 				message="Irrigation cycle started.",
 				type="INFO"
 			)
-
-		# Stop sensor updates
-		self.pause_sensor_updates()
-
-		for field in self.fields:
-			self.run_cycle(field)
-
-		# Resume sensor updates
-		self.resume_sensor_updates()
 		
+		print("Verify sensor scheduler status")
+		# Check status for sensor scheduler
+		if self.sensors_scheduler.get_status() == "Running":
+			print("ON")
+			# Stop sensor updates
+			self.pause_sensor_updates()
+
+			for field in self.fields:
+				self.run_cycle(field)
+
+			# Resume sensor updates
+			self.resume_sensor_updates()
+
+		else:
+			print("OFF")
+			# Sensor scheduler already on pause, do normal job
+			for field in self.fields:
+				self.run_cycle(field)
+
 		for id in user_ids:
 			# Send alert
 			alert(
