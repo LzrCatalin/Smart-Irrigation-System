@@ -169,12 +169,12 @@ export class HomeComponent implements OnInit{
 
   get isSensorsRunning(): boolean {
     // Return true if system is running (toggleSensorsScheduler is true)
-    return this.toggleSensorsScheduler;
+    return !this.toggleSensorsScheduler;
   }
 
   get isIrrigationRunning(): boolean {
     // Return true if system is running (toggleIrrigationSystem is true)
-    return this.toggleIrrigationSystem;
+    return !this.toggleIrrigationSystem;
   }
 
   ngOnInit(): void {
@@ -635,9 +635,9 @@ export class HomeComponent implements OnInit{
 		this.toggleSensorsScheduler = !this.toggleSensorsScheduler;
 
 		if (this.toggleSensorsScheduler){
-			this.showNotification('Sensors Updates -> Running');
-		} else {
 			this.showNotification('Sensors Updates -> Paused');
+		} else {
+			this.showNotification('Sensors Updates -> Running');
 		}
 
 		// Save to localStorage
@@ -661,9 +661,9 @@ export class HomeComponent implements OnInit{
 		this.toggleIrrigationSystem = !this.toggleIrrigationSystem;
 
 		if (this.toggleIrrigationSystem){
-			this.showNotification('Sensors Updates -> Running');
-		} else {
 			this.showNotification('Sensors Updates -> Paused');
+		} else {
+			this.showNotification('Sensors Updates -> Running');
 		}
 
 		// Save to localStorage

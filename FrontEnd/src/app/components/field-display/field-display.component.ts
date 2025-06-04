@@ -120,7 +120,7 @@ export class FieldDisplayComponent {
 	}
 
 	startFieldPolling(): void {
-		this.fieldsSubscription = interval(15000)
+		this.fieldsSubscription = interval(24999) // 10seconds
 			.pipe(switchMap(() => this.fieldsService.get_user_fields(this.user?.id ?? '')))
 				.subscribe({
 					next: (fields: Field[]) => {
@@ -261,23 +261,24 @@ export class FieldDisplayComponent {
 		this.dialogRef.close();
 	}
 
-	fetchHistory(field_id: string): void {
-		this.historyService.fetch_field_history(field_id).subscribe({
-			next: (response: IrrigationHistory) => {
-				console.log(response);
-				this.irrigationHistory = {
-					...response,
-					history: response.history.map(dateStr =>
-						dateStr.replace(/(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d+)/, '$1:$2:$3.$4')
-					)
-				};
-			},
+  fetchHistory(field_id: string): void {
+    this.historyService.fetch_field_history(field_id).subscribe({
+      next: (response: IrrigationHistory) => {
+        const parsedHistory = response.history.map(dateStr =>
+          dateStr.replace(/(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d+)/, '$1:$2:$3.$4')
+        );
 
-			error: (error: IrrigationHistory[]) => {
-				console.log(error);
-			}
-		})
-	}
+        this.irrigationHistory = {
+          ...response,
+          history: parsedHistory.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+        };
+      },
+
+      error: (error: IrrigationHistory[]) => {
+        console.log(error);
+      }
+    });
+  }
 
 
 	toggleHistory(): void {
