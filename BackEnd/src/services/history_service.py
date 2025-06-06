@@ -11,12 +11,13 @@ from src.services.fields_service import get_field_by_id
 #
 #######################
 DB_REF = 'irrigation-system/irrigation_history'
-REF = db.reference(f'{DB_REF}')
+def get_ref():
+	return db.reference(DB_REF)
 
 def get_field_history(field_id: str) -> IrrigationHistory:
 	get_field_by_id(field_id)
 
-	snapshot = REF.child(field_id).get()
+	snapshot = get_ref().child(field_id).get()
 	if snapshot is not None:
 		snapshot['field_id'] = field_id
 		return IrrigationHistory.from_dict(snapshot)
@@ -33,7 +34,7 @@ def add_irrigation(field_id: str) -> dict:
 		get_field_by_id(field_id)
 
 		# Get existing irrigation or initialize
-		snapshot = REF.child(field_id).get()
+		snapshot = get_ref().child(field_id).get()
 
 		if snapshot:
 			snapshot['field_id'] = field_id
@@ -46,7 +47,7 @@ def add_irrigation(field_id: str) -> dict:
 		history.add_entry()
 		
 		# Save
-		REF.child(field_id).set(history.to_dict())
+		get_ref().child(field_id).set(history.to_dict())
 		return {"status": "success", "field history": history.to_dict()}
 	
 	except Exception as e:

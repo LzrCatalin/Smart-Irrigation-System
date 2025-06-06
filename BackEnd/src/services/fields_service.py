@@ -23,7 +23,8 @@ from src.api.geocodinAPI import get_location
 #
 #######################
 DB_REF = 'irrigation-system/field_data'
-REF = db.reference(f'{DB_REF}')
+def get_ref():
+	return db.reference(DB_REF)
 
 #######################
 #
@@ -38,7 +39,7 @@ def get_fields_data() -> dict:
 
 	try:	
 		# Fetch db
-		fields_ref = REF.get()
+		fields_ref = get_ref().get()
 		return fields_ref
 	
 	except KeyError as e:
@@ -68,7 +69,7 @@ def get_fields_with_sensors() -> dict:
 #	Fetch all field ids from db
 #
 def get_field_ids() -> list[str]:
-	fields_data = REF.get()
+	fields_data = get_ref().get()
 
 	return list(fields_data.keys() if fields_data else [])
 
@@ -76,7 +77,7 @@ def get_field_ids() -> list[str]:
 #	Fetch all fields ids with sensors
 #
 def get_field_ids_with_sensors() -> list[str]:
-	fields_data = REF.get()
+	fields_data = get_ref().get()
 
 	if not fields_data:
 		return []
@@ -93,7 +94,7 @@ def get_field_ids_with_sensors() -> list[str]:
 def get_field_by_id(id: str) -> dict:
 
 	# Fetch
-	field_ref = REF.child(id).get()
+	field_ref = get_ref().child(id).get()
 
 	# Check existance
 	if field_ref is None:
@@ -124,7 +125,7 @@ def get_field_by_id(id: str) -> dict:
 def get_fields_by_user_id(user_id: str) -> list[dict]:
 
 	# Fetch data
-	fields_ref = REF.order_by_child('user').equal_to(user_id).get()
+	fields_ref = get_ref().order_by_child('user').equal_to(user_id).get()
 	logging.debug(f"Fetched fields: {fields_ref}")
 
 	# Check fetch response
@@ -183,7 +184,7 @@ def create_field(data: Field, sensors_ids: list[str]) -> dict:
 		user_data = get_user_by_id(data.user)
 		
 		# Push the field into db
-		field_ref = REF.push(data.to_dict())
+		field_ref = get_ref().push(data.to_dict())
 
 		# Check if there are selected sensors
 		if not sensors_ids:
@@ -279,7 +280,7 @@ def update_field_by_id(id: str, data: Field, deleted_data: dict) -> dict:
 		)
 		
 		# Update DB
-		REF.child(id).set(data.to_dict())
+		get_ref().child(id).set(data.to_dict())
 
 		# Retrieve user data for mail sender
 		user_data = get_user_by_id(updated_field_dto.user)
@@ -323,7 +324,7 @@ def update_field_measurements_by_id(id: str, data: Field) -> dict:
 		)
 		
 		# Update DB
-		REF.child(id).set(data.to_dict())
+		get_ref().child(id).set(data.to_dict())
 
 		# Retrieve user data for mail sender
 		user_data = get_user_by_id(updated_field_dto.user)
@@ -377,7 +378,7 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 					user_data['email'])
 		
 		# Delete 
-		REF.child(id).delete()
+		get_ref().child(id).delete()
 		
 		logging.info(Fore.GREEN + 
 					f"Successfully delete data for field ID: {id}" +
@@ -387,6 +388,3 @@ def delete_field_by_id(id: str, sensors_names: list[str]) -> dict:
 
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
-		
-
-

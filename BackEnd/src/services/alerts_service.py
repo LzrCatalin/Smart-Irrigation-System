@@ -11,13 +11,15 @@ from src.services.users_service import get_user_by_id
 #
 #######################
 DB_REF = 'irrigation-system/user_alerts'
-REF = db.reference(f'{DB_REF}')
+
+def get_ref():
+	return db.reference(DB_REF)
 
 def get_user_alerts(user_id: str) -> UserAlerts:
 	"""Helper to fetch existing alerts"""
 	get_user_by_id(user_id)
 
-	snapshot = REF.child(user_id).get()
+	snapshot = get_ref().child(user_id).get()
 	if snapshot is not None:
 		snapshot['user_id'] = user_id
 		return UserAlerts.from_dict(snapshot)
@@ -30,7 +32,7 @@ def get_user_alerts(user_id: str) -> UserAlerts:
 #######################
 def create_alert(alert_def: AlertDefinition) -> None:
 	try:
-		user_ref = REF.child(alert_def.user_id)
+		user_ref = get_ref().child(alert_def.user_id)
 		
 		# Get existing data or initialize
 		user_ref.get() or {"alerts": {}}
