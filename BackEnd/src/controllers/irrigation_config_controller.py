@@ -1,10 +1,10 @@
 from http import HTTPStatus
 from flask import jsonify, request, Blueprint
 
-from src.services.system_service import push_into_system, remove_from_system
-from src.services.system_service import update_field_irrigation_config
-from src.services.system_service import toggle_irrigation_activity, toggle_scheduler_activity
-from src.services.system_service import update_irrigation_interval, update_sensors_interval
+from services.irrigation_config_service import push_into_system, remove_from_system
+from services.irrigation_config_service import update_field_irrigation_config
+from services.irrigation_config_service import toggle_irrigation_activity, toggle_scheduler_activity
+from services.irrigation_config_service import update_irrigation_interval, update_sensors_interval
 
 SYSTEM_URL = '/api/system'
 

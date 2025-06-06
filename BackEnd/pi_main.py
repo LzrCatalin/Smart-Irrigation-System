@@ -8,7 +8,7 @@ from src.classes.SensorScheduler import SensorScheduler
 from src.classes.FieldIrrigationSystem import FieldIrrigationSystem
 from src.controllers.sensors_controller import sensors_bp
 from src.controllers.actuators_controller import actuators_bp
-from src.controllers.system_controller import system_bp
+from src.controllers.irrigation_config_controller import system_bp
 
 ####################
 #
