@@ -12,7 +12,10 @@ from firebase_admin import credentials, db
 #
 #######################
 DB_REF = 'irrigation-system/user_data'
-REF = db.reference(f'{DB_REF}')
+
+def get_ref():
+    return db.reference(DB_REF)
+
 
 #######################
 #
@@ -27,7 +30,7 @@ REF = db.reference(f'{DB_REF}')
 def get_users_data() -> list[dict]:
 	try:
 		# Fetch users data from db
-		users_ref = REF.get()
+		users_ref = get_ref().get()
 		return users_ref
 
 	except KeyError as e:
@@ -37,7 +40,7 @@ def get_users_data() -> list[dict]:
 #	Fetch user ids from db
 #
 def get_user_ids() -> list[str]:
-	users_data = REF.get()
+	users_data = get_ref().get()
 
 	return list(users_data.keys() if users_data else [])
 
@@ -47,7 +50,7 @@ def get_user_ids() -> list[str]:
 def get_user_by_id(id: str) -> dict:
 
 	# Fetch data from db
-	user_ref = REF.child(id).get()
+	user_ref = get_ref().child(id).get()
 
 	# Check existance
 	if user_ref is None:
@@ -71,7 +74,7 @@ def available_email(email: str) -> bool:
 	
 	try:
 		# Fetch data from db
-		users_ref = REF.get()
+		users_ref = get_ref().get()
 
 		# Check existance
 		if users_ref:
@@ -93,7 +96,7 @@ def get_user_by_email(email: str) -> dict:
 	
 	try:
 		# Fetch DB
-		user = REF.order_by_child('email').equal_to(email).get()
+		user = get_ref().order_by_child('email').equal_to(email).get()
 
 		if not user:
 			return {"error": f"No user found for email: {email}"}
@@ -114,7 +117,7 @@ def get_user_by_email_and_password(email: str, password: str) -> dict:
 
 	try:
 		# Fetch DB by email
-		user_ref = REF.order_by_child('email').equal_to(email).get()
+		user_ref = get_ref().order_by_child('email').equal_to(email).get()
 
 		if user_ref is None:
 			return {"error": f"No user found with email: {email}"}
@@ -155,7 +158,7 @@ def create_user(data: User) -> dict:
 			created_user = User(email=email, password=encrypt(password))
 			
 			# Push the user into db
-			user_ref = REF.push(created_user.to_dict())
+			user_ref = get_ref().push(created_user.to_dict())
 
 			# Create DTO object
 			userDTO = UserDTO(id=user_ref.key, email=data.email)
@@ -189,7 +192,7 @@ def update_user_by_id(id: str, data: User) -> dict:
 		new_user = User(data.email, encrypt(data.password))
 
 		# Push new data
-		REF.child(id).set(new_user.to_dict())
+		get_ref().child(id).set(new_user.to_dict())
 
 		logging.info(Fore.GREEN + 
 			   f"Successfully updated user data for ID: {id}" + 
@@ -213,7 +216,7 @@ def delete_user_by_id(id: str) -> dict:
 		user = get_user_by_id(id)
 
 		# Delete 
-		REF.child(id).delete()
+		get_ref().child(id).delete()
 
 		logging.info(Fore.GREEN + 
 					f"Successfully delete data for user ID: {id}" +

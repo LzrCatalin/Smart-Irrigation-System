@@ -41,6 +41,7 @@ httplib2==0.22.0
 httpx==0.13.3
 hyperframe==5.2.0
 idna==2.10
+iniconfig==2.1.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
@@ -48,15 +49,18 @@ msgpack==1.1.0
 numpy==2.2.6
 packaging==25.0
 pandas==2.2.3
+pluggy==1.6.0
 proto-plus==1.26.1
 protobuf==6.31.1
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pycparser==2.22
+Pygments==2.19.1
 PyJWT==2.10.1
 pyogrio==0.11.0
 pyparsing==3.2.3
 pyproj==3.7.1
+pytest==8.4.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.2

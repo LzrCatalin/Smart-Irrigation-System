@@ -16,7 +16,8 @@ db_init()
 #
 #######################
 DB_REF = 'irrigation-system/sensor_data'
-REF = db.reference(f'{DB_REF}')
+def get_ref():
+	return db.reference(DB_REF)
 
 #
 #	Retrieve all sensors ids
@@ -24,7 +25,7 @@ REF = db.reference(f'{DB_REF}')
 def get_sensors_ids() -> list[str]:
 	logging.info("Fetching sensor IDs...")
 	# Fetch data
-	sensors_data = REF.get()
+	sensors_data = get_ref().get()
 
 	if sensors_data is None:
 		logging.warning("No sensors ids found.")
@@ -43,7 +44,7 @@ def get_sensors_data() -> list[dict]:
 	logging.info("Fetching sensors data...")
 
 	# Fetch data
-	sensors_data = REF.get()
+	sensors_data = get_ref().get()
 
 	logging.info("Successfully retrieved sensors data")
 	return sensors_data
@@ -54,7 +55,7 @@ def get_sensors_data() -> list[dict]:
 def get_sensor_data_by_id(sensor_id: str) -> dict:
 	logging.info(f"Fetching data for id: {sensor_id}")
 	
-	sensor_data = REF.child(sensor_id).get()
+	sensor_data = get_ref().child(sensor_id).get()
 
 	# Check if data exists
 	if sensor_data is None:
@@ -81,7 +82,7 @@ def get_sensors_data_by_type(sensors_type: type) -> list[dict]:
 	logging.info(f"Fetching sensors data for type: {sensors_type}")
 
 	# Fetch data
-	sensors_data = REF.get()
+	sensors_data = get_ref().get()
 
 	if sensors_data is None:
 		logging.warning("No sensors found.")
@@ -104,7 +105,7 @@ def get_sensor_by_name(name: str) -> dict:
 	logging.debug(f"Fetching sensor with name: {name}")
 
 	# Fetch data
-	sensor_data = REF.order_by_child('name').equal_to(name).get()
+	sensor_data = get_ref().order_by_child('name').equal_to(name).get()
 
 	# Verify data
 	if sensor_data is None:
@@ -151,7 +152,7 @@ def add_sensor(data: Sensor) -> dict:
 		if not is_port_in_use(data.type.port, data.type.type):
 			
 			# Push data into db
-			sensor_ref = REF.push(data.to_dict())
+			sensor_ref = get_ref().push(data.to_dict())
 			
 			sensorDTO = SensorDTO(sensor_ref.key, data.name, data.type, data.field_id)
 
@@ -181,7 +182,7 @@ def update_sensor_by_id(sensor_id: str, sensor: Sensor) -> dict:
 		# 	if fetched_sensor['type']['port'] != sensor.type.port:
 		# 		return {"error": f"Port: {sensor.type.port} already in use."}
 
-		REF.child(sensor_id).set(sensor.to_dict())
+		get_ref().child(sensor_id).set(sensor.to_dict())
 
 		logging.info(Fore.GREEN + 
 			   f"Successfully updated sensor data for ID: {sensor_id}" + 
@@ -201,7 +202,7 @@ def detele_sensor_by_id(sensor_id: str) -> None:
 		fetched_sensor = get_sensor_data_by_id(sensor_id)
 		
 		# Delete sensor
-		REF.child(sensor_id).delete()
+		get_ref().child(sensor_id).delete()
 
 		logging.info(Fore.GREEN + 
 					f"Successfully delete data for sensor id: {sensor_id}" +
@@ -254,7 +255,7 @@ def set_available_status(sensor_name: str) -> None:
 
 		# Update status and firebase
 		sensor["type"]["status"] = Status.AVAILABLE.name
-		REF.child(sensor_id).set(sensor)
+		get_ref().child(sensor_id).set(sensor)
 
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -270,7 +271,7 @@ def set_not_available_status(id: str) -> None:
 
 		# Update status and firebase
 		sensor["type"]["status"] = Status.NOT_AVAILABLE.name
-		REF.child(id).set(sensor)
+		get_ref().child(id).set(sensor)
 
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -285,7 +286,7 @@ def set_sensor_field_id(id: str, field_id: str) -> None:
 
 		# Update field id
 		sensor["field_id"] = field_id
-		REF.child(id).set(sensor)
+		get_ref().child(id).set(sensor)
 
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
@@ -304,7 +305,7 @@ def unset_sensor_field_id(sensor_name: str) -> None:
 
 		# Update status and firebase
 		sensor["field_id"] = "None"
-		REF.child(sensor_id).set(sensor)
+		get_ref().child(sensor_id).set(sensor)
 
 	except KeyError as e:
 		return {"error": f"Key missing: {str(e)}"}
