@@ -54,9 +54,8 @@ def read_temperature(slave_file):
 		# Close file
 		file.close()
 
-		logging.debug(f'New temperature: {temp_celsius}')
+		logging.info(f"Retrieve temperature: {temp_celsius:.2f}")
 		return temp_celsius
 	
 	# Close file
 	file.close()
-	return 

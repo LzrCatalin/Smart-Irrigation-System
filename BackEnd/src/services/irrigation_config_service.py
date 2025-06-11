@@ -77,7 +77,7 @@ def update_field_irrigation_config(data: dict) -> dict:
 		config = {
 			'min_humidity': data['min_humidity'],
 			'target_humidity': data['target_humidity'],
-			'max_watering_time': data['max_watering_time']
+			'max_watering_time': data['max_watering_time'] * 60
 		}
 
 		# Get job

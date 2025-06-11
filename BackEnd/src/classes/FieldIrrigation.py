@@ -135,7 +135,7 @@ class FieldIrrigation:
 				logging.info(f"[{self.field_id}] High air humidity ({weather['humidity']}%). Reducing watering time.")
 
 		# Check if irrigation is necessary
-		if self.current_humidity < self.min_humidity:
+		if self.current_humidity < self.target_humidity:
 			logging.info(f'[{self.field_id}] Low soil humidity: ({self.current_humidity}%). Starting irrigation.')
 
 			# Start irrigation

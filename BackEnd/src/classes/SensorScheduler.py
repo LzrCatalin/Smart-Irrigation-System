@@ -68,7 +68,7 @@ class SensorScheduler:
 						sensor['type']['measured_value'] = new_temperature
 
 			# Update field entity in the database
-			if new_humidity is not None and new_temperature is not None:
+			if new_humidity is not None or new_temperature is not None:
 				fields_service.update_field_measurements_by_id(field_id, Field.from_dict(field_data))
 
 				# Update irrigation system management

@@ -76,8 +76,8 @@ def sensor_setup(port):
 def moisture_percentage(adc_value):
 
 	# Calibrate based on actual sensor behavior
-	dry_value = 26500  # ADC value for 0% humidity (dry)
-	wet_value = 18900  # ADC value for 100% humidity (wet)
+	dry_value = 26800  # ADC value for 0% humidity (dry)
+	wet_value = 7200  # ADC value for 100% humidity (wet)
 
 	# Clamp adc_value to [wet_value, dry_value]
 	adc_value = max(min(adc_value, dry_value), wet_value)
@@ -86,7 +86,7 @@ def moisture_percentage(adc_value):
 	percentage = ((dry_value - adc_value) / (dry_value - wet_value)) * 100
 
 	logging.info(Fore.LIGHTWHITE_EX 
-			  + f"\tRetrieving moisture percentage: {percentage:.2f}%"
+			  + f"\tRetrieve moisture percentage: {percentage:.2f}%"
 			  + Style.RESET_ALL)
 
 	return percentage
