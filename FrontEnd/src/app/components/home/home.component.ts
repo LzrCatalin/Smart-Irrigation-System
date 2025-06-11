@@ -20,6 +20,7 @@ import { AlertDialogComponent } from './alert-dialog/alert-dialog.component';
 import { MatSidenav } from '@angular/material/sidenav';
 import { SystemService } from '../../services/system.service';
 import { environment } from '../../../environments/environment';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-home',
@@ -36,6 +37,9 @@ export class HomeComponent implements OnInit{
 	paginatedFields = this.fields.slice(0, 3);
 	fieldLocations: { [key: string]: string } = {};
 	userAlerts: any[] = [];
+  hasNewAlerts: boolean = false;
+  alertPollingSub!: Subscription;
+  alertsNumber: number = 0;
 
 	selectedDate = new Date();
 	weatherData: any = null;
@@ -184,6 +188,7 @@ export class HomeComponent implements OnInit{
       this.selectedField = null;
       this.fetchUserFields(this.user.id);
       this.fetchUserAlerts(this.user.id);
+      this.startAlertPolling(this.user.id);
 
       this.initializeSystemStates();
       this.syncInitialStates();
@@ -197,6 +202,12 @@ export class HomeComponent implements OnInit{
 
     const savedIrrigationInterval = localStorage.getItem(`${this.getIrrigationKey()}_interval`);
     this.irrigationInterval = savedIrrigationInterval ? parseInt(savedIrrigationInterval) : 20;
+  }
+
+  startAlertPolling(user_id: string): void {
+    this.alertPollingSub = interval(60000).subscribe(() => {
+      this.fetchUserAlerts(user_id);
+    });
   }
 
   initializeSystemStates(): void {
@@ -226,6 +237,12 @@ export class HomeComponent implements OnInit{
       next: () => console.log('[INIT] Synced irrigation state'),
       error: (error) => console.error('[INIT] Irrigation sync failed:', error)
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.alertPollingSub) {
+      this.alertPollingSub.unsubscribe();
+    }
   }
 
 	//////////////////////
@@ -353,11 +370,18 @@ export class HomeComponent implements OnInit{
 	fetchFarmingNews(): void {
 		this.apiService.getFarmingNews().subscribe({
 			next: (response: any) => {
-				this.newsItems = response.articles.map((article: any) => ({
-					title: article.title,
-					imageUrl: article.urlToImage ?? 'https://via.placeholder.com/150',
-					newsUrl: article.url
-				}));
+        this.newsItems = response.articles
+          .filter((article: any) => {
+            const content = `${article.title} ${article.description ?? ''}`.toLowerCase();
+            return content.includes('agriculture') ||
+              content.includes('farmers') || content.includes('crop') ||
+              content.includes('john deer');
+          })
+          .map((article: any) => ({
+            title: article.title,
+            imageUrl: article.urlToImage ?? 'https://via.placeholder.com/150',
+            newsUrl: article.url
+          }));
 				this.updatePaginatedNews();
 			},
 			error: (error) => {
@@ -527,28 +551,30 @@ export class HomeComponent implements OnInit{
 		});
 	}
 
-	fetchUserAlerts(user_id: string): void {
-		this.alertsService.get_user_alerts(user_id).subscribe({
-			next: (response: any) => {
-				console.log("Raw response: ", response);
+  fetchUserAlerts(user_id: string): void {
+    console.log("Fetch user alerts")
+    this.alertsService.get_user_alerts(user_id).subscribe({
+      next: (response: any) => {
+        const alertsObject = response.alerts ?? {};
+        const alertArray = Object.entries(alertsObject).map(([timestampKey, alert]: [string, any]) => ({
+          ...alert,
+          timestamp: this.parseTimestamp(timestampKey)
+        }));
 
-				const alertsObject = response.alerts ?? {};
-				const alertArray = Object.entries(alertsObject).map(([timestampKey, alert]: [string, any]) => ({
-					...alert,
-					timestamp: this.parseTimestamp(timestampKey)
-				}));
+        const lastAlertsLength = this.alertsNumber;
+        this.userAlerts = alertArray;
+        this.alertsNumber = alertArray.length;
 
-				this.userAlerts = alertArray;
+        if (lastAlertsLength < this.alertsNumber) {
+          this.hasNewAlerts = true;
+        }
+      },
 
-				console.log("Processed alerts: ", this.userAlerts);
-				console.log("Length: ", this.userAlerts.length);
-			},
-
-			error: (error) => {
-				console.error(error);
-			}
-		});
-	}
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
 
 	parseTimestamp(timestampKey: string): Date | null {
 		const [datePart, timePart] = timestampKey.split('T');
@@ -569,22 +595,25 @@ export class HomeComponent implements OnInit{
 		return dateObj;
 	}
 
-	toggleAlertDrawer() {
-		this.dialog.open(AlertDialogComponent, {
-			width: '600px',
-			data: { alerts: this.userAlerts }
-		});
-	}
+  toggleAlertDrawer() {
+    if (this.user?.id && this.userAlerts.length > 0) {
+
+      if (this.hasNewAlerts) {
+        this.hasNewAlerts = false;
+      }
+    }
+
+    this.dialog.open(AlertDialogComponent, {
+      width: '600px',
+      data: { alerts: this.userAlerts }
+    });
+  }
 
 	//////////////////
 	//
 	//	Side Bar options
 	//
 	//////////////////
-	toggleHome(): void {
-		this.router.navigateByUrl('/home')
-	}
-
 	toggleCreateField(): void {
 		const dialogRef = this.dialog.open(AddFieldComponent, {
 			width: '42vw',
@@ -592,17 +621,18 @@ export class HomeComponent implements OnInit{
 			data: {}
 		});
 
-		dialogRef.afterClosed().subscribe(result => {
-			if (result) {
-				console.log('New field added:', result);
-				if (this.user?.id) {
-					this.fetchUserFields(this.user.id);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('New field added:', result);
+        if (this.user?.id) {
+          this.fetchUserFields(this.user.id);
 
-					// Display notification
-					this.showNotification('Field added successfully!');
-				}
-			}
-		});
+          this.fetchUserAlerts(this.user.id);
+
+          this.showNotification('Field added successfully!');
+        }
+      }
+    });
 	}
 
 	toggleWaterPump(): void {
@@ -613,13 +643,6 @@ export class HomeComponent implements OnInit{
 
 		this.togglePump = !this.togglePump;
 
-		if (this.togglePump) {
-			this.showNotification(`Water Pump -> Turn ON for ${this.selectedField.crop_name}`);
-
-		} else {
-			this.showNotification(`Water Pump -> Turn OFF for ${this.selectedField.crop_name}`);
-		}
-
 		this.actuatorsService.toggle_pump(this.togglePump, this.user.id, this.selectedField.id).subscribe({
 			next: (res: any) => console.log(res),
 			error: (error: any) => {
@@ -627,6 +650,16 @@ export class HomeComponent implements OnInit{
 				this.togglePump = !this.togglePump;
 			}
 		});
+
+    if (this.togglePump) {
+      this.showNotification(`Water Pump -> Turn ON for ${this.selectedField.crop_name}`);
+
+    } else {
+      this.showNotification(`Water Pump -> Turn OFF for ${this.selectedField.crop_name}`);
+    }
+
+    // Update for alerts
+    this.fetchUserAlerts(this.user.id);
 	}
 
 	toggleSensors(): void {
@@ -653,6 +686,9 @@ export class HomeComponent implements OnInit{
 				localStorage.setItem(this.getSchedulerKey(), JSON.stringify(this.toggleSensorsScheduler));
 			}
 		});
+
+    // Update for alerts
+    this.fetchUserAlerts(this.user.id);
 	}
 
 	toggleIrrigation(): void {
@@ -679,6 +715,9 @@ export class HomeComponent implements OnInit{
 				localStorage.setItem(this.getIrrigationKey(), JSON.stringify(this.toggleIrrigationSystem));
 			}
 		})
+
+    // Update for alerts
+    this.fetchUserAlerts(this.user.id);
 	}
 
 	toggleLogOut(): void {

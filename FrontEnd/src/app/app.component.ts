@@ -8,6 +8,7 @@ import { environment } from '../environments/environment';
 })
 
 export class AppComponent implements OnInit {
+  title = 'FrontEnd';
   ngOnInit(): void {
     this.loadGoogleMaps();
   }

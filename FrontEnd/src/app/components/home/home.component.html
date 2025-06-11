@@ -110,6 +110,9 @@
 </div>
 
 <!-- FAB Alert Icon -->
-<button mat-fab class="fab-alert" (click)="toggleAlertDrawer()">
-	<mat-icon>notifications</mat-icon>
-</button>
+<div class="fab-alert-wrapper" (click)="toggleAlertDrawer()">
+  <button mat-fab class="fab-alert">
+    <mat-icon>notifications</mat-icon>
+  </button>
+  <div *ngIf="hasNewAlerts" class="notification-badge"></div>
+</div>

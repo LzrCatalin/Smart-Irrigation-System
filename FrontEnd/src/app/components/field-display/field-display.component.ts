@@ -24,7 +24,7 @@ export class FieldDisplayComponent {
 	field: Field;
 	fieldLocation: string = "";
 	editMode: boolean = false;
-  	fieldForm!: FormGroup;
+  fieldForm!: FormGroup;
 	availableSensors: Sensor[] = [];
 	deletedSensors: Sensor[] = [];
 	fieldsSubscription!: Subscription;
@@ -35,7 +35,7 @@ export class FieldDisplayComponent {
 	showAllHistory = false;
 
 	constructor(public dialogRef: MatDialogRef<FieldDisplayComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: {field: Field },
+		@Inject(MAT_DIALOG_DATA) public data: {field: Field},
 		private fb: FormBuilder,
 		private sensorsService: SensorsService,
 		private fieldsService: FieldsService,
@@ -85,7 +85,7 @@ export class FieldDisplayComponent {
 
 	////////////////////////
 	//
-	//
+	//  Field functionalities
 	//
 	////////////////////////
 	fetchAvailableSensors(status: string) {
