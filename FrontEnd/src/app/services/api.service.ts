@@ -18,7 +18,7 @@ export class ApiService {
 		const url = date
 			? `${this.apiWeatherUrl}/weather?q=${city}&dt=${date}&appid=${environment.weatherApiKey}`
 			: `${this.apiWeatherUrl}/forecast?q=${city}&cnt=7&appid=${environment.weatherApiKey}`;
-		
+
 		return this.http.get(url);
 	}
 
