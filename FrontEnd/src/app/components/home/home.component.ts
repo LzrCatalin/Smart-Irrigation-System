@@ -6,6 +6,7 @@ import { User } from '../../models/user.model';
 import { FieldsService } from '../../services/fields.service';
 import { ActuatorsService } from '../../services/actuators.service';
 import { AlertsService } from '../../services/alerts.service';
+import { SystemStateService } from "../../services/system-state.service";
 import { Sensor } from '../../models/sensor.model';
 import { Router } from '@angular/router';
 import { WeatherDialogComponent } from '../weather-dialog/weather-dialog.component';
@@ -45,7 +46,8 @@ export class HomeComponent implements OnInit{
 	weatherData: any = null;
 	showWeatherInput: boolean = false;
 	forecastData: { day: string, icon: string, max: number, min: number, avg: number, description: string, humidity: number, wind: number }[] = [];
-	city: string = 'Timisoara';
+  geoCity: string = 'Timisoara';
+  city: string = 'Timisoara';
 
 	togglePump: boolean = false;
 	toggleSensorsScheduler: boolean = true;
@@ -87,7 +89,8 @@ export class HomeComponent implements OnInit{
 				private apiService: ApiService,
 				private actuatorsService: ActuatorsService,
 				private alertsService: AlertsService,
-				private systemService: SystemService
+				private systemService: SystemService,
+        private systemStateService: SystemStateService
 				) {}
 
 	private getSchedulerKey(): string {
@@ -128,7 +131,10 @@ export class HomeComponent implements OnInit{
 		if (!this.user?.id) return;
 
 		this.systemService.update_scheduler_settings(this.schedulerInterval, this.user.id).subscribe({
-			next: () => console.log('Scheduler settings updated'),
+			next: () => {
+        console.log('Scheduler settings updated');
+        this.systemStateService.setSchedulerInterval(this.schedulerInterval * 1000);
+      },
 
 			error: (error : any) => {
 				console.error('Failed to update scheduler settings', error);
@@ -194,8 +200,14 @@ export class HomeComponent implements OnInit{
       this.syncInitialStates();
     }
 
+    const storedGeoCity = localStorage.getItem('geoCity');
+    if (storedGeoCity) {
+      this.geoCity = storedGeoCity;
+    }
+
     this.fetchForecast();
     this.fetchFarmingNews();
+    this.tryFetchWeatherByGeolocation();
 
     const savedSchedulerInterval = localStorage.getItem(`${this.getSchedulerKey()}_interval`);
     this.schedulerInterval = savedSchedulerInterval ? parseInt(savedSchedulerInterval) : 15;
@@ -243,6 +255,52 @@ export class HomeComponent implements OnInit{
     if (this.alertPollingSub) {
       this.alertPollingSub.unsubscribe();
     }
+  }
+
+  tryFetchWeatherByGeolocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          this.apiService.getLocation(lat, lon).subscribe({
+            next: (response: any) => {
+              const cityName = response.results[0].address_components.find((c: any) =>
+                c.types.includes("locality") || c.types.includes("administrative_area_level_1")
+              )?.long_name;
+
+              if (cityName) {
+                this.geoCity = cityName;
+                localStorage.setItem('geoCity', cityName);
+                this.city = cityName;
+                this.fetchForecast();
+                this.showNotification(`Showing weather for your location: ${cityName}`);
+              } else {
+                this.fallbackToDefaultCity();
+              }
+            },
+            error: () => {
+              this.fallbackToDefaultCity();
+            }
+          });
+        },
+        (error) => {
+          console.warn("User denied location access or error occurred:", error.message);
+          this.fallbackToDefaultCity();
+        }
+      );
+    } else {
+      this.fallbackToDefaultCity();
+    }
+  }
+
+  fallbackToDefaultCity(): void {
+    this.geoCity = 'Timisoara';
+    localStorage.setItem('geoCity', 'Timisoara');
+    this.city = this.geoCity;
+    this.fetchForecast();
+    this.showNotification('Showing weather for default location: Timisoara');
   }
 
 	//////////////////////
@@ -333,7 +391,7 @@ export class HomeComponent implements OnInit{
 			data: { field }
 		});
 
-		// Display notification after update field functionalty
+		// Display notification after update field functionality
 		dialogRef.afterClosed().subscribe({
 			next: (result) => {
 				if (result) {
@@ -348,19 +406,18 @@ export class HomeComponent implements OnInit{
 		})
 	}
 
-	selectField(field: Field): void {
-		if (this.selectedField?.id === field.id) {
-			// Deselect field if it's already selected
-			this.selectedField = null;
-			this.city = "Timisoara";
-			this.fetchForecast();
-			this.showNotification('Field deselected. Showing weather for Timisoara.');
 
-		} else {
-			this.selectedField = field;
+  selectField(field: Field): void {
+    if (this.selectedField?.id === field.id) {
+        this.selectedField = null;
+        this.city = this.geoCity;
+        this.fetchForecast();
+        this.showNotification(`Field deselected. Showing weather for ${this.geoCity}.`);
 
-		}
-	}
+    } else {
+        this.selectedField = field;
+    }
+  }
 
 	//////////////////////
 	//
@@ -448,57 +505,54 @@ export class HomeComponent implements OnInit{
 		})
 	}
 
-	fetchForecast(): void {
-		const url = `https://api.openweathermap.org/data/2.5/forecast?q=${this.city}&units=metric&appid=${environment.weatherApiKey}`;
+  fetchForecast(): void {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${this.city}&units=metric&appid=${environment.weatherApiKey}`;
 
-		this.apiService.getExternal(url).subscribe({
-			next: (response: any) => {
-				const groupedByDay: { [key: string]: any[] } = {};
+    this.apiService.getExternal(url).subscribe({
+      next: (response: any) => {
+        const groupedByDay: { [key: string]: any[] } = {};
+        response.list.forEach((item: any) => {
+          const date = new Date(item.dt_txt);
+          const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+          if (!groupedByDay[day]) groupedByDay[day] = [];
+          groupedByDay[day].push(item);
+        });
 
-				response.list.forEach((item: any) => {
-					const date = new Date(item.dt_txt);
-					const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-					if (!groupedByDay[day]) groupedByDay[day] = [];
-					groupedByDay[day].push(item);
-					});
+        this.forecastData = Object.entries(groupedByDay).slice(0, 7).map(([day, items]: [string, any[]]) => {
+          const temps = items.map((entry: any) => entry.main.temp);
+          const min = Math.min(...temps);
+          const max = Math.max(...temps);
+          const avg = temps.reduce((a, b) => a + b, 0) / temps.length;
 
-					this.forecastData = Object.entries(groupedByDay).slice(0, 7).map(([day, items]: [string, any[]]) => {
-						const temps = items.map((entry: any) => entry.main.temp);
-						const min = Math.min(...temps);
-						const max = Math.max(...temps);
-						const avg = temps.reduce((a, b) => a + b, 0) / temps.length;
+          const iconCode = items[0].weather[0].icon;
+          const icon = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+          const description = items[0].weather[0].description;
 
-						const iconCode = items[0].weather[0].icon;
-						const icon = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-						const description = items[0].weather[0].description;
+          const humidity = Math.round(
+            items.reduce((sum, entry) => sum + entry.main.humidity, 0) / items.length
+          );
 
-						const humidity = Math.round(
-						items.reduce((sum, entry) => sum + entry.main.humidity, 0) / items.length
-						);
+          const wind = Math.round(
+            items.reduce((sum, entry) => sum + entry.wind.speed, 0) / items.length
+          );
 
-						const wind = Math.round(
-						items.reduce((sum, entry) => sum + entry.wind.speed, 0) / items.length
-						);
-
-						return {
-							day,
-							min: Math.round(min),
-							max: Math.round(max),
-							avg: Math.round(avg),
-							icon,
-							description,
-							humidity,
-							wind
-						};
-					}
-				);
-			},
-
-			error: (error) => {
-				console.error('Failed to fetch forecast:', error);
-			}
-		});
-	}
+          return {
+            day,
+            min: Math.round(min),
+            max: Math.round(max),
+            avg: Math.round(avg),
+            icon,
+            description,
+            humidity,
+            wind
+          };
+        });
+      },
+      error: (error) => {
+        console.error('Failed to fetch forecast:', error);
+      }
+    });
+  }
 
 	checkWeatherForSelectedField(): void {
 		if (!this.selectedField) return;

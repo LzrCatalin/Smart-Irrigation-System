@@ -13,6 +13,7 @@ import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { IrrigationHistory } from '../../models/irrigation-history.mode';
 import { HistoryService } from '../../services/history.service';
+import { SystemStateService } from "../../services/system-state.service";
 
 @Component({
 	selector: 'app-field-display',
@@ -41,7 +42,8 @@ export class FieldDisplayComponent {
 		private fieldsService: FieldsService,
 		private historyService: HistoryService,
 		private apiService: ApiService,
-		private dialog: MatDialog
+		private dialog: MatDialog,
+    private systemStateService: SystemStateService,
 	) {
 		this.field = data.field;
 	}
@@ -119,37 +121,41 @@ export class FieldDisplayComponent {
 		}
 	}
 
-	startFieldPolling(): void {
-		this.fieldsSubscription = interval(24999) // 10seconds
-			.pipe(switchMap(() => this.fieldsService.get_user_fields(this.user?.id ?? '')))
-				.subscribe({
-					next: (fields: Field[]) => {
-						const updateField = fields.find(f => f.id === this.field.id);
+  startFieldPolling(): void {
+    // Fetch fields based on changes user made for updates interval
+    this.systemStateService.schedulerInterval$
+      .pipe(
+        switchMap((intervalValue) =>
+          interval(intervalValue).pipe(switchMap(() =>
+            this.fieldsService.get_user_fields(this.user?.id ?? '')
+          ))
+        )
+      )
+      .subscribe({
+        next: (fields: Field[]) => {
+          const updateField = fields.find(f => f.id === this.field.id);
 
-						if (updateField && !this.editMode) {
-							this.field.length = updateField.length;
-							this.field.width = updateField.width;
-							this.field.slope = updateField.slope;
-							this.field.crop_name = updateField.crop_name;
-							this.field.latitude = updateField.latitude;
-							this.field.longitude = updateField.longitude;
+          if (updateField && !this.editMode) {
+            this.field.length = updateField.length;
+            this.field.width = updateField.width;
+            this.field.slope = updateField.slope;
+            this.field.crop_name = updateField.crop_name;
+            this.field.latitude = updateField.latitude;
+            this.field.longitude = updateField.longitude;
 
-							// Update sensors only if no local changes exist
-							const localChanges = this.deletedSensors.length > 0 ||
-												this.field.sensors.length !== updateField.sensors.length;
+            const localChanges = this.deletedSensors.length > 0 ||
+              this.field.sensors.length !== updateField.sensors.length;
 
-							if (!localChanges) {
-								this.field.sensors = updateField.sensors;
-							}
-						}
-					},
-
-					error: (error) => {
-						console.error("Error fetching fields: ", error);
-					}
-		});
-	}
-
+            if (!localChanges) {
+              this.field.sensors = updateField.sensors;
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching fields:', error);
+        }
+      });
+  }
 
 	toggleEditMode(): void {
 		this.editMode = !this.editMode;
