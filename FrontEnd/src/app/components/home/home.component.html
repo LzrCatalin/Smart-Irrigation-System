@@ -91,22 +91,27 @@
     <mat-paginator [length]="fields.length" [pageSize]="fieldsPageSize" [pageIndex]="fieldsPageIndex" (page)="onFieldsPageChange($event)" class="fields-paginator"></mat-paginator>
 
 
-  <!-- Weather Forecast Section -->
-	<div class="weather-forecast-container" *ngIf="forecastData.length > 0">
-		<div class="weather-scroll">
-		  <div class="weather-day" *ngFor="let day of forecastData">
-			<div class="day-name">{{ day.day }}</div>
-			<img [src]="day.icon" alt="weather icon" class="weather-icon" />
-			<div class="temp-range">{{ day.max }}° / {{ day.min }}°</div>
-			<div class="details">
-			  Avg: {{ day.avg }}°<br>
-			  💧 {{ day.humidity }}%<br>
-			  💨 {{ day.wind }} km/h
-			</div>
-		  </div>
-		</div>
-	  </div>
-  </div>
+    <!-- Weather Forecast Section -->
+    <div class="weather-forecast-container" *ngIf="forecastData.length > 0">
+      <!-- City Label -->
+      <div class="weather-city-label">
+        <mat-icon>location_on</mat-icon>
+        <span>Weather forecast for <strong>{{ city }}</strong></span>
+      </div>
+
+      <div class="weather-scroll">
+        <div class="weather-day" *ngFor="let day of forecastData">
+          <div class="day-name">{{ day.day }}</div>
+          <img [src]="day.icon" alt="weather icon" class="weather-icon" />
+          <div class="temp-range">{{ day.max }}° / {{ day.min }}°</div>
+          <div class="details">
+            Avg: {{ day.avg }}°<br>
+            💧 {{ day.humidity }}%<br>
+            💨 {{ day.wind }} km/h
+          </div>
+        </div>
+      </div>
+    </div>
 </div>
 
 <!-- FAB Alert Icon -->
